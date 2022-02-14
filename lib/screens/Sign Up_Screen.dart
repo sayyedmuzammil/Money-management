@@ -21,13 +21,14 @@ class SignUp_Screen extends StatefulWidget {
 }
 
 class _SignUp_Screen extends State<SignUp_Screen> {
-  var _selectedIndex = 1;
+  var _selectedIndex = 0; 
   final _username = TextEditingController();
 
   final _password = TextEditingController();
 
-  final _globalKey = GlobalKey<FormState>();
-  final formKey = GlobalKey<FormState>();
+  final _globalKey1 = GlobalKey<FormState>();
+  // final formKey1 = GlobalKey<FormState>();
+  VoidCallback? isAddclicked;
   @override
   Widget build(BuildContext context) {
     //  final double height= MediaQuery.of(context).size.height;
@@ -64,7 +65,7 @@ class _SignUp_Screen extends State<SignUp_Screen> {
                                         Styles.primary_black.withOpacity(.2)
                                       ],
 
-                                      width: 69,
+                                      width: 69, 
 
                                       borderRadius: 25,
 
@@ -117,13 +118,13 @@ class _SignUp_Screen extends State<SignUp_Screen> {
                           ],
                         ),
                         SizedBox(
-                          height: 50,
+                          height: 50, 
                         ),
                         _selectedIndex == 1
                             ? Container(
                                 //this container is signup form
                                 child: Form(
-                                  key: _globalKey,
+                                  key: _globalKey1,
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
@@ -201,7 +202,7 @@ class _SignUp_Screen extends State<SignUp_Screen> {
                             : Container(
                                 //this container from sign in form
                                 child: Form(
-                                  key: _globalKey,
+                                  key: _globalKey1,
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
