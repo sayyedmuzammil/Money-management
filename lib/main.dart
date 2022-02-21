@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:money_management/screens/Splash_Screen.dart';
+// import 'package:money_management/screens/Splash_Screen.dart';
 import 'package:money_management/screens/homeScreen.dart';
 
-void main() {
+import 'db_functions/db_functions.dart';
+
+Future<void> main() async {
+    WidgetsFlutterBinding.ensureInitialized();
+   await openDB();
   runApp(MyApp());
 }
 class Styles{

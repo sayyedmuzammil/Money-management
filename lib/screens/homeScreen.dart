@@ -1,15 +1,24 @@
 // import 'dart:html';
 //popup container 800+
-import 'package:favorite_button/favorite_button.dart';
+//this widget is add student 1200+
+// import 'package:date_range_form_field/date_range_form_field.dart';
+// import 'package:favorite_button/favorite_button.dart';
+import 'dart:async';
+import 'dart:math';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:money_management/Custom_icons.dart';
-import 'package:money_management/income_list_widget.dart';
-import 'package:money_management/screens/Sign%20Up_Screen.dart';
-// import 'Splash_Screen.dart';
-// import 'package:money_management/my_flutter_app_icons.dart';
 
+import 'package:money_management/db_functions/db_functions.dart';
+
+import 'package:money_management/screens/Sign%20Up_Screen.dart';
+
+import 'package:money_management/db_functions/group_model.dart';
+
+import '../ListView_option_Category.dart';
 import '../home_widget_all.dart';
 import '../main.dart';
+import '../Add_or_Update_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   List<String> _year = [
@@ -18,49 +27,211 @@ class HomeScreen extends StatefulWidget {
     '2020',
   ];
 
-  String _isSelectedyear = '2022';
+
 
   @override
   _HomeScreen createState() => _HomeScreen();
 }
 
 class _HomeScreen extends State<HomeScreen> {
-  bool _isUpdateClicked = false; 
+  Map<String, double> dataMap = {};
+var DataMap;
+  getPieChartValue(_category) async {
+    dataMap={};
+    print(DataMap);
+     print("in Pie chart $_category");
+    final entireData = await PieChartValue(_category);
+    for (var item in entireData) {
+   String SingleItem= item['category'] as String;
+   int SingleAmount= item['tot_amount'] as int;
+   double Total = SingleAmount.toDouble();
+   print("iteemmmmsss $SingleItem");
+   print("iteemmmmsss $Total");
+   dataMap[SingleItem]=Total;
+
+  //  Map<String, double>
+      
+    }
+
+// monthsofYear.add(); 
+// monthsofYear [i]=;
+// monthsofYear ;
+   
+      
+      // monthsofYear[i]['1']=2;
+      // print(monthsofYears);
+      // print(entireData[i]['data']);
+      // monthsofYears.add(DateFormat('MMMM')
+      //     .format(DateTime(0, int.parse(entireData[i]['data']))));
+      //     print("Month of years $monthsofYears");
+    
+    
+    setState(() {
+      DataMap =dataMap;
+      
+      // monthsofYears;
+      // // print("Month Outside $monthsofYears");
+      // monthsofYears.isNotEmpty?
+      // dropdownvalue = monthsofYears[0].toString():Text(""); 
+    });
+  }
+
+  
+    String _isSelectedyear = '2022';
+  var values;
+  var allItem;
+  int _incomeTot = 0;
+  int _expenseTot = 0;
+  int _lendTot = 0;
+  int _borrowTot = 0;
+  int _savingsTot = 0;
+  String? dropdownvalue;
+ List<String> monthsofYears = [];
+// List<Map<String, String>> monthsofYear=[];
+//   getCurrentYear() async {
+//     final entireData = await CurrentYear(_isSelectedyear);
+//     for (var i = 0; i < entireData.length; i++) {
+//       print("entitedata $entireData");
+// // monthsofYear.add(); 
+// // monthsofYear [i]=;
+// // monthsofYear ;
+   
+      
+//       // monthsofYear[i]['1']=2;
+//       // print(monthsofYears);
+//       print(entireData[i]['data']);
+//       monthsofYears.add(DateFormat('MMMM')
+//           .format(DateTime(0, int.parse(entireData[i]['data']))));
+//           print("Month of years $monthsofYears");
+//     }
+//     setState(() {
+//       monthsofYears;
+//       // print("Month Outside $monthsofYears");
+//       monthsofYears!=''?
+//       dropdownvalue = monthsofYears[0].toString():Text(""); 
+//     });
+//   }
+
+
+  getMonths() async {
+    final entireData = await ListForMonth();
+    for (var i = 0; i < entireData.length; i++) {
+      print("entitedata $entireData");
+// monthsofYear.add(); 
+// monthsofYear [i]=;
+// monthsofYear ;
+   
+      
+      // monthsofYear[i]['1']=2;
+      // print(monthsofYears);
+      print(entireData[i]['data']);
+      monthsofYears.add(DateFormat('MMMM')
+          .format(DateTime(0, int.parse(entireData[i]['data']))));
+          print("Month of years $monthsofYears");
+    }
+    setState(() {
+      monthsofYears;
+      // print("Month Outside $monthsofYears");
+      monthsofYears.isNotEmpty?
+      dropdownvalue = monthsofYears[0].toString():Text(""); 
+    });
+  }
+
+  getAllitem() async {
+//  await getAllItems();
+    int _incomeTotal = 0;
+    int _expenseTotal = 0;
+    int _lendTotal = 0;
+    int _borrowTotal = 0;
+    int _savingsTotal = 0;
+    final entireData = await GroupByCategory();
+    //  entireData
+    // print("entire data ${entireData[1]}");
+
+// print("hei                             this ${entireData[0]['category']}");
+    for (var i = 0; i < entireData.length; i++) {
+      String item = entireData[i]['category'];
+      if (item == '1') {
+        _incomeTotal = entireData[i]['tot_amount']!;
+      }
+      if (item == '2') {
+        _expenseTotal = entireData[i]['tot_amount']!;
+      }
+      if (item == '3') {
+        _lendTotal = entireData[i]['tot_amount']!;
+      }
+      if (item == '4') {
+        _borrowTotal = entireData[i]['tot_amount']!;
+      }
+    }
+
+    setState(() {
+      // getAllItems();
+      _incomeTot = _incomeTotal;
+      _expenseTot = _expenseTotal;
+      _lendTot = _lendTotal;
+      _borrowTot = _borrowTotal;
+      _savingsTot =
+          (_incomeTotal + _borrowTotal) - (_expenseTotal + _lendTotal);
+    });
+    print("Income tota $_savingsTot");
+  }
+
+  bool _isUpdateClicked = false;
   bool _isAddorUpdate = false;
   int _card = 0;
   bool _overall = false;
   bool _addButton = false; //clicking add button
-  bool _percentInd=false;
+  bool _percentInd = false;
   int? currentIndex;
   // Initial Selected Value
-  String dropdownvalue = 'March';
+
   int _cardList = 0;
   // bool _addButton=false;
 
   // List of items in our dropdown menu
-  var items = [
-    'March',
-    'February',
-    'January',
-  ];
+  // var monthsofYears = [
+  //   'March',
+  //   'February',
+  //   'January',
+  // ];
 
   setBottomBarIndex(index) {
     setState(() {
       currentIndex = index;
+      super.setState(() {});
     });
   }
 
-  final _category = TextEditingController();
+  // final _income_controleer= TextEditingController();
 
-  final _date = TextEditingController();
-  final _amount = TextEditingController();
-
-  final _remark = TextEditingController();
-  final _globalKey = GlobalKey<FormState>();
   // final formKey = GlobalKey<FormState>();
+
+  String? _dateCount;
+  String? _range;
+  var MonthData;
+
+  @override
+  void initState() {
+    getMonths();
+    getAllitem();
+    _dateCount = '';
+    _range = '';
+    super.initState();
+   
+    //  var months= ListForMonth().then((value) =>   print("months $value"),  );
+//  print("Months outside $months");
+  }
+
   @override
   Widget build(BuildContext context) {
+    //  var values;
+    // GroupByCategory();
+// dropdownvalue='no data';
     print("is update clicked $_isUpdateClicked");
+    // print(allItem);
+
+    // print("after fetching ${values.toString()}");
 
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
@@ -68,28 +239,28 @@ class _HomeScreen extends State<HomeScreen> {
       backgroundColor: Styles.primary_color,
       body: SafeArea(
         child: Stack(
+          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Column(
-              //this coloumn stack 1
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
                   children: [
-                    Column(
+                    Stack(
                       children: [
-                        Positioned(
-                          top: 0,
-                          right: size.width * 0.1,
+                        Container(
+                          //main total savings container
+                          alignment: Alignment.center,
                           child: GestureDetector(
                             onTap: () {
                               setState(() {
-                                _overall = true;
-                                _card = 0;
-                                _cardList = 0;
-                                bool _isUpdateClicked = false;
-                                bool _isAddorUpdate = false;
+                                print("this is main gesture");
+                                // _overall = true;
+                                // _card = 0;
+                                // _cardList = 0;
+                                // bool _isUpdateClicked = false;
+                                // bool _isAddorUpdate = false;
                               });
-                              print("this is main gesture");
                             },
                             child: Container(
                               width: size.width * 0.8,
@@ -140,7 +311,7 @@ class _HomeScreen extends State<HomeScreen> {
                                     ],
                                   ),
                                   Text(
-                                    '₹1,54,500',
+                                    "₹$_savingsTot",
                                     style: TextStyle(
                                         fontFamily: 'nunito',
                                         fontSize: 30,
@@ -152,669 +323,709 @@ class _HomeScreen extends State<HomeScreen> {
                             ),
                           ),
                         ),
+                        Container(
+                          //top icons home and more
+                          margin: EdgeInsets.symmetric(
+                            vertical: 20,
+                            horizontal: 50,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                // width: 60,
+                                // height: 60,
+                                // color: Colors.red,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Styles.primary_black,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(25)),
+                                  ),
+                                  alignment: Alignment.topLeft,
+                                  width: 35,
+                                  height: 35,
+                                  child: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        // _addButton=false;
+                                        //  _overall=false;
+                                        // _isAddorUpdate=false;
+                                        // _isUpdateClicked=false;
+                                        // _card=0;
+                                        // print(_card);
+                                        // currentIndex=null;
+                                        // _cardList=0;
+                                        // _overall=false;
+                                        // // _overall==false;
+                                        Navigator.of(context)
+                                            .pushAndRemoveUntil(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        HomeScreen()),
+                                                (Route<dynamic> route) =>
+                                                    false);
+                                      });
+                                      // allItem==null?
+                                      // print("item has null"):
+                                      print("this is home icon");
+                                    },
+                                    icon: Icon(
+                                      Icons.home_outlined,
+                                      size: 20,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                  child: Container(
+                                decoration: BoxDecoration(
+                                  color: Styles.primary_black,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(25)),
+                                ),
+                                alignment: Alignment.topLeft,
+                                width: 35,
+                                height: 35,
+                                child: Center(
+                                  child: PopupMenuButton(
+                                    color: Styles.primary_black,
+                                    icon: Icon(
+                                      Icons.more_vert_outlined,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                    itemBuilder: (context) => [
+                                      PopupMenuItem<int>(
+                                        value: 0,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Favourites",
+                                              style: Styles.boldwhite,
+                                            ),
+                                            Icon(
+                                              Icons.favorite_outlined,
+                                              size: 20,
+                                              color: Colors.redAccent,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      PopupMenuItem<int>(
+                                        value: 0,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Selected Year",
+                                              style: Styles.normal17red,
+                                            ),
+                                            Icon(
+                                              Icons.event_available_outlined,
+                                              size: 20,
+                                              color: Colors.redAccent,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      for (var i in widget._year)
+                                        PopupMenuItem<int>(
+                                          onTap: () {
+                                            setState(() {
+                                              _isSelectedyear =
+                                                  i.toString();
+                                              print(_isSelectedyear);
+                                            });
+                                          },
+                                          value: 1,
+                                          child: i.toString() ==
+                                                  _isSelectedyear
+                                              ? Text(
+                                                  i.toString(),
+                                                  style: Styles.normal17red,
+                                                )
+                                              : Text(
+                                                  i.toString(),
+                                                  style: Styles.boldwhite,
+                                                ),
+                                        ),
+                                      PopupMenuItem<int>(
+                                        onTap: () {
+                                          print("on share app");
+                                        },
+                                        value: 3,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Share App",
+                                              style: Styles.boldwhite,
+                                            ),
+                                            Icon(
+                                              Icons.share_outlined,
+                                              size: 20,
+                                              color: Colors.white,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      PopupMenuItem<int>(
+                                        onTap: () {
+                                          print("Settings button");
+                                        },
+                                        value: 4,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Settings",
+                                              style: Styles.boldwhite,
+                                            ),
+                                            Icon(
+                                              Icons.settings_outlined,
+                                              size: 20,
+                                              color: Colors.white,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      PopupMenuItem<int>(
+                                        onTap: () {
+                                          print("logout button");
+                                          Log_out();
+                                          //                                FocusScopeNode currentFocus = FocusScope.of(context);
+                                          Navigator.of(context).pushReplacement(
+                                              MaterialPageRoute(builder: (ctx) {
+                                            return SignUp_Screen();
+                                          }));
+                                          // Navigator.popUntil(context, ModalRoute.withName('/Splash_Screen'));
+                                          // Navigator.pop(context);
+                                        },
+                                        value: 5,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Log Out",
+                                              style: Styles.boldwhite,
+                                            ),
+                                            Icon(
+                                              Icons.logout_outlined,
+                                              size: 20,
+                                              color: Colors.white,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                    onSelected: (item) => {print(item)},
+                                  ),
+                                ),
+                              )),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                     SizedBox(
                       height: 20,
                     ),
-                    Container(
-                      width: size.width,
-                      height: 200,
-                      color: Colors.white,
+                    Stack(
+                      children: [
+                        Container(
+                          width: size.width,
+                          height: 200,
+                          color: Colors.white,
+                        ),
+                        Column(
+                          // main horizontal scroll view
+                          children: [
+                            Container(
+                              // color: Colors.red,
+                              // height: 50,
+                              margin: EdgeInsets.only(left: 30),
+                              child: _overall == false
+                                  ? Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        // SizedBox(width: size,)
+                                        Column(
+                                          children: [
+                                            dropdownvalue==null?SizedBox(height: 30,):
+                                            DropdownButtonHideUnderline(
+                                              child: DropdownButton(
+                                                // elevation: 0,
+                                                // Initial Value
+                                                
+                                                value: dropdownvalue,
+
+                                                // Down Arrow Icon
+                                                icon: const Icon(
+                                                    Icons.arrow_drop_down),
+
+                                                // Array list of items
+                                                items: monthsofYears
+                                                    .map((String items) {
+                                                  return DropdownMenuItem(
+                                                    value:
+                                                        items, //march  selected
+                                                    child: Text(
+                                                      items,
+                                                      style: Styles.normal20,
+                                                    ),
+                                                  );
+                                                }).toList(),
+                                                // After selecting the desired option,it will
+                                                // change button value to selected value
+                                                onChanged: (String? newValue) {
+                                                  setState(() {
+                                                    dropdownvalue = newValue!;
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    )
+                                  : Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Overall",
+                                          style: Styles.normal20.copyWith(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                            ),
+                            Container(
+                              //scroll view main
+
+                              height: 140,
+                              child: ListView(
+                                scrollDirection: Axis.horizontal,
+                                children: [
+                                  SizedBox(
+                                    width: 30,
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        // currentIndex = null;
+                                        // _cardList = 5;
+                                        // _percentInd = true;
+                                        // PieChartValue(_cardList);
+                                      });
+                                    },
+                                    child: Stack(children: [
+                                      Container(
+                                        height: 140,
+                                        width: 140,
+                                        decoration: BoxDecoration(
+                                          color: Styles.custom_savings_blue,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(30)),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Styles.primary_black
+                                                  .withOpacity(
+                                                      0.3), //color of shadow
+                                              spreadRadius: 0.5, //spread radius
+                                              blurRadius: 5,
+                                              // blur radius
+                                              offset: Offset(0,
+                                                  3), // changes position of shadow
+                                              //first paramerter of offset is left-right
+                                              //second parameter is top to down
+                                            ),
+                                            //you can set more BoxShadow() here
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: EdgeInsets.symmetric(
+                                          vertical: 10,
+                                        ),
+                                        width: 140,
+                                        height: 140,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            Icon(
+                                              Custom_icons.savings,
+                                              size: 36,
+                                              color: Styles.primary_black,
+                                            ),
+                                            Text(
+                                              "Savings",
+                                              style: Styles.normal17,
+                                            ),
+                                            _overall == false
+                                                ? Text(
+                                                    "₹$_savingsTot",
+                                                    style: Styles.bold25,
+                                                  )
+                                                : Text(
+                                                    "₹",
+                                                    style: Styles.bold25,
+                                                  ),
+                                          ],
+                                        ),
+                                      ),
+                                    ]),
+                                  ),
+                                  SizedBox(
+                                    width: 30,
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                           _percentInd = false;
+                                          getPieChartValue(1);
+                                        _cardList = 1;
+                                        _percentInd = true;
+                                        currentIndex = null;
+                                        //  PieChartValue(_cardList);
+                                      });
+                                    },
+                                    child: Stack(
+                                      children: [
+                                        Container(
+                                          height: 140,
+                                          width: 140,
+                                          decoration: BoxDecoration(
+                                            color: Styles.custom_income_green,
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(30)),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Styles.primary_black
+                                                    .withOpacity(
+                                                        0.3), //color of shadow
+                                                spreadRadius:
+                                                    0.5, //spread radius
+                                                blurRadius: 5,
+                                                // blur radius
+                                                offset: Offset(0,
+                                                    3), // changes position of shadow
+                                                //first paramerter of offset is left-right
+                                                //second parameter is top to down
+                                              ),
+                                              //you can set more BoxShadow() here
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          margin: EdgeInsets.symmetric(
+                                            vertical: 10,
+                                          ),
+                                          width: 140,
+                                          height: 140,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Icon(
+                                                Custom_icons.income,
+                                                size: 36,
+                                                color: Styles.primary_black,
+                                              ),
+                                              Text(
+                                                "Income",
+                                                style: Styles.normal17,
+                                              ),
+                                              _overall == false
+                                                  ? Text(
+                                                      "₹$_incomeTot",
+                                                      style: Styles.bold25,
+                                                    )
+                                                  : Text(
+                                                      "₹1,74,500",
+                                                      style: Styles.bold25,
+                                                    ),
+                                            ],
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 30,
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        _percentInd = false;
+                                          getPieChartValue(2);
+                                        _cardList = 2;
+                                        _percentInd = true;
+                                        currentIndex = null;
+                                       
+                                      });
+                                    },
+                                    child: Stack(
+                                      children: [
+                                        Container(
+                                          height: 140,
+                                          width: 140,
+                                          decoration: BoxDecoration(
+                                            color: Styles.custom_expense_red,
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(30)),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Styles.primary_black
+                                                    .withOpacity(
+                                                        0.3), //color of shadow
+                                                spreadRadius:
+                                                    0.5, //spread radius
+                                                blurRadius: 5,
+                                                // blur radius
+                                                offset: Offset(0,
+                                                    3), // changes position of shadow
+                                                //first paramerter of offset is left-right
+                                                //second parameter is top to down
+                                              ),
+                                              //you can set more BoxShadow() here
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          margin: EdgeInsets.symmetric(
+                                            vertical: 10,
+                                          ),
+                                          width: 140, height: 140,
+                                          // color: Colors.blue,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Icon(
+                                                Custom_icons.expense,
+                                                size: 36,
+                                                color: Styles.primary_black,
+                                              ),
+                                              Text(
+                                                "Expense",
+                                                style: Styles.normal17,
+                                              ),
+                                              _overall == false
+                                                  ? Text(
+                                                      "₹$_expenseTot",
+                                                      style: Styles.bold25,
+                                                    )
+                                                  : Text(
+                                                      "₹80,000",
+                                                      style: Styles.bold25,
+                                                    ),
+                                            ],
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 30,
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                         _percentInd = false;
+                                          getPieChartValue(3);
+                                        _cardList = 3;
+                                        _percentInd = true;
+                                        currentIndex = null;
+                                       
+                                      });
+                                    },
+                                    child: Stack(
+                                      children: [
+                                        Container(
+                                          height: 140,
+                                          width: 140,
+                                          decoration: BoxDecoration(
+                                            color: Styles.custom_lend_yellow,
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(30)),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Styles.primary_black
+                                                    .withOpacity(
+                                                        0.3), //color of shadow
+                                                spreadRadius:
+                                                    0.5, //spread radius
+                                                blurRadius: 5,
+                                                // blur radius
+                                                offset: Offset(0,
+                                                    3), // changes position of shadow
+                                                //first paramerter of offset is left-right
+                                                //second parameter is top to down
+                                              ),
+                                              //you can set more BoxShadow() here
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          margin: EdgeInsets.symmetric(
+                                            vertical: 10,
+                                          ),
+                                          width: 140,
+                                          height: 140,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Icon(
+                                                Custom_icons.lend,
+                                                size: 30,
+                                                color: Styles.primary_black,
+                                              ),
+                                              Text(
+                                                "Lend",
+                                                style: Styles.normal17,
+                                              ),
+                                              _overall == false
+                                                  ? Text(
+                                                      "₹$_lendTot",
+                                                      style: Styles.bold25,
+                                                    )
+                                                  : Text(
+                                                      "₹10,000",
+                                                      style: Styles.bold25,
+                                                    ),
+                                            ],
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 30,
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                         getPieChartValue(4);
+                                        _cardList = 4;
+                                        _percentInd = true;
+                                        currentIndex = null;
+                                        
+                                      });
+                                    },
+                                    child: Stack(
+                                      children: [
+                                        Container(
+                                          height: 140,
+                                          width: 140,
+                                          decoration: BoxDecoration(
+                                            color: Styles.custom_borrow_pink,
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(30)),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Styles.primary_black
+                                                    .withOpacity(
+                                                        0.3), //color of shadow
+                                                spreadRadius:
+                                                    0.5, //spread radius
+                                                blurRadius: 5,
+                                                // blur radius
+                                                offset: Offset(0,
+                                                    3), // changes position of shadow
+                                                //first paramerter of offset is left-right
+                                                //second parameter is top to down
+                                              ),
+                                              //you can set more BoxShadow() here
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          margin: EdgeInsets.symmetric(
+                                            vertical: 10,
+                                          ),
+                                          width: 140,
+                                          height: 140,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Icon(
+                                                Custom_icons.borrow,
+                                                size: 32,
+                                                color: Styles.primary_black,
+                                              ),
+                                              Text(
+                                                "Borrow",
+                                                style: Styles.normal17,
+                                              ),
+                                              _overall == false
+                                                  ? Text(
+                                                      "₹$_borrowTot",
+                                                      style: Styles.bold25,
+                                                    )
+                                                  : Text(
+                                                      "₹70,000",
+                                                      style: Styles.bold25,
+                                                    ),
+                                            ],
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 30,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 20,) 
+                          ],
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-            Column(
-              //this coloumn stack 2
-              children: [
-                Container(
-                  //top icons
-                  margin: EdgeInsets.symmetric(
-                    vertical: 20,
-                    horizontal: 50,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        // width: 60,
-                        // height: 60,
-                        // color: Colors.red,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Styles.primary_black,
-                            borderRadius: BorderRadius.all(Radius.circular(25)),
-                          ),
-                          alignment: Alignment.topLeft,
-                          width: 35,
-                          height: 35,
-                          child: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                // _addButton=false;
-                                //  _overall=false;
-                                // _isAddorUpdate=false;
-                                // _isUpdateClicked=false;
-                                // _card=0;
-                                // print(_card);
-                                // currentIndex=null;
-                                // _cardList=0;
-                                // _overall=false;
-                                // // _overall==false;
-                                Navigator.of(context).pushAndRemoveUntil(
-                                    MaterialPageRoute(
-                                        builder: (context) => HomeScreen()),
-                                    (Route<dynamic> route) => false);
-                              });
-                              print("this is home icon");
-                            },
-                            icon: Icon(
-                              Icons.home_outlined,
-                              size: 20,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Container(
-                          child: Container(
-                        decoration: BoxDecoration(
-                          color: Styles.primary_black,
-                          borderRadius: BorderRadius.all(Radius.circular(25)),
-                        ),
-                        alignment: Alignment.topLeft,
-                        width: 35,
-                        height: 35,
-                        child: Center(
-                          child: PopupMenuButton(
-                            color: Styles.primary_black,
-                            icon: Icon(
-                              Icons.more_vert_outlined,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                            itemBuilder: (context) => [
-                              PopupMenuItem<int>(
-                                value: 0,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Favourites",
-                                      style: Styles.boldwhite,
-                                    ),
-                                    Icon(
-                                      Icons.favorite_outlined,
-                                      size: 20,
-                                      color: Colors.redAccent,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              PopupMenuItem<int>(
-                                value: 0,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Selected Year",
-                                      style: Styles.normal17red,
-                                    ),
-                                    Icon(
-                                      Icons.event_available_outlined,
-                                      size: 20,
-                                      color: Colors.redAccent,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              for (var i in widget._year)
-                                PopupMenuItem<int>(
-                                  onTap: () {
-                                    setState(() {
-                                      widget._isSelectedyear = i.toString();
-                                      print(widget._isSelectedyear);
-                                    });
-                                  },
-                                  value: 1,
-                                  child: i.toString() == widget._isSelectedyear
-                                      ? Text(
-                                          i.toString(),
-                                          style: Styles.normal17red,
-                                        )
-                                      : Text(
-                                          i.toString(),
-                                          style: Styles.boldwhite,
-                                        ),
-                                ),
-                              PopupMenuItem<int>(
-                                onTap: () {
-                                  print("on share app");
-                                },
-                                value: 3,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Share App",
-                                      style: Styles.boldwhite,
-                                    ),
-                                    Icon(
-                                      Icons.share_outlined,
-                                      size: 20,
-                                      color: Colors.white,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              PopupMenuItem<int>(
-                                onTap: () {
-                                  print("Settings button");
-                                },
-                                value: 4,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Settings",
-                                      style: Styles.boldwhite,
-                                    ),
-                                    Icon(
-                                      Icons.settings_outlined,
-                                      size: 20,
-                                      color: Colors.white,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              PopupMenuItem<int>(
-                                onTap: () {
-                                  print("logout button");
-                                  Log_out();
-                                  //                                FocusScopeNode currentFocus = FocusScope.of(context);
-                                  Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(builder: (ctx) {
-                                    return SignUp_Screen();
-                                  }));
-                                  // Navigator.popUntil(context, ModalRoute.withName('/Splash_Screen'));
-                                  // Navigator.pop(context);
-                                },
-                                value: 5,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Log Out",
-                                      style: Styles.boldwhite,
-                                    ),
-                                    Icon(
-                                      Icons.logout_outlined,
-                                      size: 20,
-                                      color: Colors.white,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                            onSelected: (item) => {print(item)},
-                          ),
-                        ),
-                      )),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 30,
-                ),
-                Container(
-                  // color: Colors.red,
-                  height: 50,
-                  margin: EdgeInsets.only(left: 30, top: 10),
-                  child: _overall == false
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            // SizedBox(width: size,)
-                            Column(
-                              children: [
-                                DropdownButton(
-                                  // Initial Value
-                                  value: dropdownvalue,
-
-                                  // Down Arrow Icon
-                                  icon: const Icon(Icons.arrow_drop_down),
-
-                                  // Array list of items
-                                  items: items.map((String items) {
-                                    return DropdownMenuItem(
-                                      value: items, //march  selected
-                                      child: Text(
-                                        items,
-                                        style: Styles.normal20,
-                                      ),
-                                    );
-                                  }).toList(),
-                                  // After selecting the desired option,it will
-                                  // change button value to selected value
-                                  onChanged: (String? newValue) {
-                                    setState(() {
-                                      dropdownvalue = newValue!;
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
-                          ],
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Overall",
-                              style: Styles.normal20
-                                  .copyWith(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                ),
-                // SizedBox(height: 10,),
-
-                Container(
-                  height: 140,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      SizedBox(
-                        width: 30,
-                      ),
-                      InkWell(
-                          onTap: (){
-                            setState(() {
-                              _cardList=5;
-                            _percentInd=true;
-                            });
-                            
-                          },
-                        child: Stack(children: [
-                          Container(
-                            height: 140,
-                            width: 140,
-                            decoration: BoxDecoration(
-                              color: Styles.custom_savings_blue,
-                              borderRadius: BorderRadius.all(Radius.circular(30)),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Styles.primary_black
-                                      .withOpacity(0.3), //color of shadow
-                                  spreadRadius: 0.5, //spread radius
-                                  blurRadius: 5,
-                                  // blur radius
-                                  offset:
-                                      Offset(0, 3), // changes position of shadow
-                                  //first paramerter of offset is left-right
-                                  //second parameter is top to down
-                                ),
-                                //you can set more BoxShadow() here
-                              ],
-                            ),
-                          ),
-                          Container(
-                            margin: EdgeInsets.symmetric(
-                              vertical: 10,
-                            ),
-                            width: 140,
-                            height: 140,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Icon(
-                                  Custom_icons.savings,
-                                  size: 36,
-                                  color: Styles.primary_black,
-                                ),
-                                Text(
-                                  "Savings",
-                                  style: Styles.normal17,
-                                ),
-                                _overall == false
-                                    ? Text(
-                                        "₹55,500",
-                                        style: Styles.bold25,
-                                      )
-                                    : Text(
-                                        "₹1,54,500",
-                                        style: Styles.bold25,
-                                      ),
-                              ],
-                            ),
-                          ),
-                        ]),
-                      ),
-                      SizedBox(
-                        width: 30,
-                      ),
-                      InkWell(
-                          onTap: (){
-                            setState(() {
-                              _cardList=1; 
-                            _percentInd=true;
-                            });
-                            
-                          },
-                        child: Stack(
-                          children: [
-                            Container(
-                              height: 140,
-                              width: 140,
-                              decoration: BoxDecoration(
-                                color: Styles.custom_income_green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(30)),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Styles.primary_black
-                                        .withOpacity(0.3), //color of shadow
-                                    spreadRadius: 0.5, //spread radius
-                                    blurRadius: 5,
-                                    // blur radius
-                                    offset: Offset(
-                                        0, 3), // changes position of shadow
-                                    //first paramerter of offset is left-right
-                                    //second parameter is top to down
-                                  ),
-                                  //you can set more BoxShadow() here
-                                ],
-                              ),
-                            ),
-                            Container(
-                              margin: EdgeInsets.symmetric(
-                                vertical: 10,
-                              ),
-                              width: 140,
-                              height: 140,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Icon(
-                                    Custom_icons.income,
-                                    size: 36,
-                                    color: Styles.primary_black,
-                                  ),
-                                  Text(
-                                    "Income",
-                                    style: Styles.normal17,
-                                  ),
-                                  _overall == false
-                                      ? Text(
-                                          "₹30,000",
-                                          style: Styles.bold25,
-                                        )
-                                      : Text(
-                                          "₹1,74,500",
-                                          style: Styles.bold25,
-                                        ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        width: 30,
-                      ),
-                      InkWell(
-                         onTap: (){
-                            setState(() {
-                              _cardList=2;
-                            _percentInd=true;
-                            });
-                            
-                          },
-                        child: Stack(
-                          children: [
-                            Container(
-                              height: 140,
-                              width: 140,
-                              decoration: BoxDecoration(
-                                color: Styles.custom_expense_red,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(30)),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Styles.primary_black
-                                        .withOpacity(0.3), //color of shadow
-                                    spreadRadius: 0.5, //spread radius
-                                    blurRadius: 5,
-                                    // blur radius
-                                    offset: Offset(
-                                        0, 3), // changes position of shadow
-                                    //first paramerter of offset is left-right
-                                    //second parameter is top to down
-                                  ),
-                                  //you can set more BoxShadow() here
-                                ],
-                              ),
-                            ),
-                            Container(
-                              margin: EdgeInsets.symmetric(
-                                vertical: 10,
-                              ),
-                              width: 140, height: 140,
-                              // color: Colors.blue,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Icon(
-                                    Custom_icons.expense,
-                                    size: 36,
-                                    color: Styles.primary_black,
-                                  ),
-                                  Text(
-                                    "Expense",
-                                    style: Styles.normal17,
-                                  ),
-                                  _overall == false
-                                      ? Text(
-                                          "₹14,500",
-                                          style: Styles.bold25,
-                                        )
-                                      : Text(
-                                          "₹80,000",
-                                          style: Styles.bold25,
-                                        ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        width: 30,
-                      ),
-                      InkWell( 
-                         onTap: (){
-                            setState(() {
-                              _cardList=3;
-                            _percentInd=true;
-                            });
-                            
-                          },
-                        child: Stack(
-                          children: [
-                            Container(
-                              height: 140,
-                              width: 140,
-                              decoration: BoxDecoration(
-                                color: Styles.custom_lend_yellow,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(30)),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Styles.primary_black
-                                        .withOpacity(0.3), //color of shadow
-                                    spreadRadius: 0.5, //spread radius
-                                    blurRadius: 5,
-                                    // blur radius
-                                    offset: Offset(
-                                        0, 3), // changes position of shadow
-                                    //first paramerter of offset is left-right
-                                    //second parameter is top to down
-                                  ),
-                                  //you can set more BoxShadow() here
-                                ],
-                              ),
-                            ),
-                            Container(
-                              margin: EdgeInsets.symmetric(
-                                vertical: 10,
-                              ),
-                              width: 140,
-                              height: 140,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Icon(
-                                    Custom_icons.lend,
-                                    size: 30,
-                                    color: Styles.primary_black,
-                                  ),
-                                  Text(
-                                    "Lend",
-                                    style: Styles.normal17,
-                                  ),
-                                  _overall == false
-                                      ? Text(
-                                          "₹10,000",
-                                          style: Styles.bold25,
-                                        )
-                                      : Text(
-                                          "₹10,000",
-                                          style: Styles.bold25,
-                                        ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        width: 30,
-                      ),
-                      InkWell(
-                         onTap: (){
-                            setState(() {
-                              _cardList=4;
-                            _percentInd=true;
-                            }); 
-                            
-                          },
-                        child: Stack(
-                          children: [
-                            Container(
-                              height: 140,
-                              width: 140,
-                              decoration: BoxDecoration(
-                                color: Styles.custom_borrow_pink,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(30)),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Styles.primary_black
-                                        .withOpacity(0.3), //color of shadow
-                                    spreadRadius: 0.5, //spread radius
-                                    blurRadius: 5,
-                                    // blur radius
-                                    offset: Offset(
-                                        0, 3), // changes position of shadow
-                                    //first paramerter of offset is left-right
-                                    //second parameter is top to down
-                                  ),
-                                  //you can set more BoxShadow() here
-                                ],
-                              ),
-                            ),
-                            Container(
-                              margin: EdgeInsets.symmetric(
-                                vertical: 10,
-                              ),
-                              width: 140,
-                              height: 140,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Icon(
-                                    Custom_icons.borrow,
-                                    size: 32,
-                                    color: Styles.primary_black,
-                                  ),
-                                  Text(
-                                    "Borrow",
-                                    style: Styles.normal17,
-                                  ),
-                                  _overall == false
-                                      ? Text(
-                                          "₹50,000",
-                                          style: Styles.bold25,
-                                        )
-                                      : Text(
-                                          "₹70,000",
-                                          style: Styles.bold25,
-                                        ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        width: 30,
-                      ),
-                    ],
-                  ),
-                ),
-
-                SizedBox(
-                  height: 20,
-                ),
-
                 _cardList >= 1
                     ? list_widget(
+                      dataMap: DataMap,
                         size: size,
                         toggleisUpdateClicked: toggleisUpdateClicked,
                         card: _cardList,
                         percentIndicator: _percentInd,
                       )
-                    :
-
-                   _isUpdateClicked?category_cards(size: size, card: _card, globalKey: _globalKey, category: _category, date: _date, amount: _amount, remark: _remark, add : _isAddorUpdate) :
-                    // home_content_all_widget(size: size, toggleisUpdateClicked: toggleisUpdateClicked, overall: _overall,)
-                    _card >= 1
+                    : _isUpdateClicked
                         ? category_cards(
-                            size: size,
-                            card: _card,
-                            globalKey: _globalKey,
-                            category: _category,
-                            date: _date,
-                            amount: _amount,
-                            remark: _remark,
-                            add: _isAddorUpdate)
-                        : home_content_all_widget(
-                            size: size,
-                            toggleisUpdateClicked: toggleisUpdateClicked,
-                            overall: _overall,
-                          ),  
+                            size: size, card: _card, add: _isAddorUpdate)
+                        :
+                        // home_content_all_widget(size: size, toggleisUpdateClicked: toggleisUpdateClicked, overall: _overall,)
+                        _card >= 1
+                            ? category_cards(
+                                size: size, card: _card, add: _isAddorUpdate)
+                            : home_content_all_widget(
+                                size: size,
+                                toggleisUpdateClicked: toggleisUpdateClicked,
+                                // overall: _overall,
+                              ),
               ],
             ),
             _addButton == true //popup container
-                ? //IF CLICKED ADD BUTTON POPUP A CONTAINER
+                ? //IF CLICKED
                 Positioned(
+                    // ADD BUTTON POPUP A CONTAINER
+
                     bottom: 90,
                     left: 47,
                     child: Stack(
@@ -854,12 +1065,11 @@ class _HomeScreen extends State<HomeScreen> {
                                   InkWell(
                                     onTap: () {
                                       setState(() {
-                                        
                                         _isAddorUpdate = true;
                                         _card = 1;
                                         _addButton = false;
                                         _cardList = 0;
-                                          _isUpdateClicked=false;
+                                        _isUpdateClicked = false;
                                       });
                                     },
                                     child: Container(
@@ -899,7 +1109,7 @@ class _HomeScreen extends State<HomeScreen> {
                                         _isAddorUpdate = true;
                                         _card = 2;
                                         _addButton = false;
-                                           _isUpdateClicked=false;
+                                        _isUpdateClicked = false;
                                       });
                                     },
                                     child: Container(
@@ -944,7 +1154,7 @@ class _HomeScreen extends State<HomeScreen> {
                                         _isAddorUpdate = true;
                                         _card = 3;
                                         _addButton = false;
-                                           _isUpdateClicked=false;
+                                        _isUpdateClicked = false;
                                       });
                                     },
                                     child: Container(
@@ -984,7 +1194,7 @@ class _HomeScreen extends State<HomeScreen> {
                                           _isAddorUpdate = true;
                                           _card = 4;
                                           _addButton = false;
-                                             _isUpdateClicked=false;
+                                          _isUpdateClicked = false;
                                         });
                                       },
                                       child: Container(
@@ -1026,7 +1236,6 @@ class _HomeScreen extends State<HomeScreen> {
                 : Text(""),
             Positioned(
               //bottom navigation bar
-
               bottom: 0,
               left: 0,
               child: Container(
@@ -1041,23 +1250,26 @@ class _HomeScreen extends State<HomeScreen> {
                     ),
                     Center(
                       heightFactor: 0.2,
-                      child: FloatingActionButton(
-                          backgroundColor: Styles.primary_black,
-                          child: Icon(
-                            Icons.add,
-                            size: 40,
-                          ),
-                          elevation: 0.1,
-                          onPressed: () {
-                            setState(() {
-                              _addButton == false
-                                  ? _addButton = true
-                                  : _addButton = false;
-                               
-                              // _cardList=0;
-                              // _card=0;
-                            });
-                          }),
+                      child: Transform.rotate(
+                        angle: 90 * pi / 180,
+                        child: FloatingActionButton(
+                            backgroundColor: Styles.primary_black,
+                            child: Icon(
+                              Icons.add,
+                              size: 40,
+                            ),
+                            elevation: 0.1,
+                            onPressed: () {
+                              setState(() {
+                                _addButton == false
+                                    ? _addButton = true
+                                    : _addButton = false;
+
+                                // _cardList=0;
+                                _card = 0;
+                              });
+                            }),
+                      ),
                     ),
                     Container(
                       width: size.width,
@@ -1074,11 +1286,15 @@ class _HomeScreen extends State<HomeScreen> {
                             ),
                             onPressed: () {
                               setState(() {
-                                _isUpdateClicked=false; 
-                                _percentInd=false;
+                                _isUpdateClicked = false;
+                                _percentInd = false;
                                 _cardList = 1;
+                                // _addButton
+                                // _card=0;
                                 _addButton = false;
+                                _isAddorUpdate = false;
                                 setBottomBarIndex(0);
+
                                 // print("_isadd $_isAddorUpdate");
                               });
                             },
@@ -1093,9 +1309,11 @@ class _HomeScreen extends State<HomeScreen> {
                               ),
                               onPressed: () {
                                 setState(() {
-                                  _isUpdateClicked=false; 
-                                   _percentInd=false;
+                                  _isUpdateClicked = false;
+                                  _percentInd = false;
                                   _addButton = false;
+                                  _isAddorUpdate = false;
+                                  // _card=0;
                                   _cardList = 2;
                                   setBottomBarIndex(1);
                                 });
@@ -1112,10 +1330,11 @@ class _HomeScreen extends State<HomeScreen> {
                               ),
                               onPressed: () {
                                 setState(() {
-                                  _isUpdateClicked=false; 
-                                   _percentInd=false;
+                                  _isUpdateClicked = false;
+                                  _percentInd = false;
                                   _addButton = false;
                                   _cardList = 3;
+                                  _isAddorUpdate = false;
 
                                   setBottomBarIndex(2);
                                 });
@@ -1129,10 +1348,11 @@ class _HomeScreen extends State<HomeScreen> {
                               ),
                               onPressed: () {
                                 setState(() {
-                                  _isUpdateClicked=false; 
-                                   _percentInd=false;
+                                  _isUpdateClicked = false;
+                                  _percentInd = false;
                                   _addButton = false;
                                   _cardList = 4;
+                                  _isAddorUpdate = false; 
 
                                   setBottomBarIndex(3);
                                 });
@@ -1161,355 +1381,30 @@ class _HomeScreen extends State<HomeScreen> {
 
   void toggleisUpdateClicked() {
     setState(() {
-   _cardList=0; 
-      _addButton=false;
+      _cardList = 0;
+      _addButton = false;
       print("before $_isUpdateClicked");
       _isUpdateClicked ? _isUpdateClicked = false : _isUpdateClicked = true;
       print("it worked $_isUpdateClicked");
-         
     });
   }
 }
 
-class category_cards extends StatelessWidget {
-  const category_cards({
-    Key? key,
-    required this.size,
-    required int card,
-    required bool add,
-    required GlobalKey<FormState> globalKey,
-    required TextEditingController category,
-    required TextEditingController date,
-    required TextEditingController amount,
-    required TextEditingController remark,
-  })  : _card = card,
-        _isAddorUpdate = add,
-        _globalKey = globalKey,
-        _category = category,
-        _date = date,
-        _amount = amount,
-        _remark = remark,
-        super(key: key);
-
-  final Size size;
-  final int _card;
-  final bool _isAddorUpdate;
-  final GlobalKey<FormState> _globalKey;
-  final TextEditingController _category;
-  final TextEditingController _date;
-  final TextEditingController _amount;
-  final TextEditingController _remark;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          //second container in list view
-          // color: Colors.white,
-          width: size.width,
-          height: (size.height * .5) + 20,
-          margin: EdgeInsets.all(10),
-          // height: _content.length*30,
-          // color: Colors.white,
-
-          //  for (var i = 0; i < _content.length; i++) {
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: Column(
-              // scrollDirection: Axis.vertical,
-
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Styles.primary_black
-                            .withOpacity(0.3), //color of shadow
-                        spreadRadius: 0.5, //spread radius
-                        blurRadius: 5,
-                        // blur radius
-                        offset: Offset(0, 3), // changes position of shadow
-                        //first paramerter of offset is left-right
-                        //second parameter is top to down
-                      ),
-                      //you can set more BoxShadow() here
-                    ],
-                  ),
-                  margin: EdgeInsets.all(10),
-                  width: size.width,
-                  child: Container(
-                    margin: EdgeInsets.symmetric(horizontal: 30),
-                    child: Column(
-                      // mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: 10,
-                        ),
-                        _card==1?
-                        Text(
-                          "Income",
-                          style: Styles.normal17.copyWith(
-                              color:
-                                  Styles.custom_income_green),
-                        ):_card==2?  Text(
-                          "Expense",
-                          style: Styles.normal17.copyWith(
-                              color:
-                                  Styles.custom_expense_red),
-                        ):_card==3?
-                        Text(
-                          "Lend",
-                          style: Styles.normal17.copyWith(
-                              color:
-                                  Styles.custom_lend_yellow),
-                        ):_card==4?
-                        Text(
-                          "Borrow",
-                          style: Styles.normal17.copyWith(
-                              color:
-                                  Styles.custom_borrow_pink),
-                        ):Text(""),
-
-                        Column(
-                          children: [
-                            Form(
-                              key: _globalKey,
-                              child: Container(
-                                margin: EdgeInsets.symmetric(horizontal: 30),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Card(
-                                      elevation: 0,
-                                      // width: 400, height: 50,
-                                      child: TextFormField(
-                                        enableSuggestions: true,
-                                        controller: _category,
-                                        decoration: InputDecoration(
-                                            contentPadding: EdgeInsets.only(
-                                              top: 15,
-                                              bottom: 5,
-                                              left: 30,
-                                            ),
-                                            // errorStyle: TextStyle(fontSize: 9, height: 0.3),
-                                            // border: OutlineInputBorder(),
-                                            hintText: 'Enter the Category',
-                                            hintStyle: Styles.normal17.copyWith(
-                                                fontSize: 15,
-                                                color: Styles.primary_black
-                                                    .withOpacity(
-                                                        .8)) /*  hintStyle: Styles.Normal15 */
-                                            ),
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Category is required';
-                                          } else if (value.startsWith(" ")) {
-                                            return "category should not contain whitespace";
-                                          }
-                                        },
-                                      ),
-                                    ),
-                                    Card(
-                                      elevation: 0,
-                                      // width: 400, height: 50,
-                                      child: TextFormField(
-                                        enableSuggestions: true,
-                                        controller: _date,
-                                        obscureText: true,
-                                        // validator: (value) {
-
-                                        // },
-                                        decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.only(
-                                            top: 15,
-                                            bottom: 5,
-                                            left: 30,
-                                          ),
-                                          // border: OutlineInputBorder(),
-                                          hintText: 'Today',
-
-                                          // hintStyle: ,
-                                        ),
-                                      ),
-                                    ),
-                                    Card(
-                                      elevation: 0,
-                                      // width: 400, height: 50,
-                                      child: TextFormField(
-                                        controller: _amount,
-                                        obscureText: true,
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'please enter the amount';
-                                          } else if (value.startsWith(" ")) {
-                                            return "amount should not contain whitespace";
-                                          }
-                                        },
-                                        decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.only(
-                                              top: 15, bottom: 5, left: 30),
-                                          // border: OutlineInputBorder(),
-                                          hintText: 'Enter the amount',
-                                        ),
-                                      ),
-                                    ),
-                                    Card(
-                                      elevation: 0,
-                                      // width: 400, height: 50,
-                                      child: TextFormField(
-                                        controller: _remark,
-                                        obscureText: true,
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'remark is required';
-                                          }
-                                        },
-                                        decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.only(
-                                            top: 15,
-                                            bottom: 5,
-                                            left: 30,
-                                          ),
-                                          // border: OutlineInputBorder(),
-                                          hintText: 'Remark',
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            _isAddorUpdate == true
-                                ? ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      fixedSize: const Size(90, 40),
-                                      textStyle: TextStyle(
-                                        fontSize: 25,
-                                        color: Styles.primary_black,
-                                      ),
-                                      primary: Styles.primary_black,
-                                      shape: const StadiumBorder(),
-                                    ),
-                                    onPressed: () {
-                                      print("card value $_card");
-                                      Navigator.of(context).pushAndRemoveUntil(
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  HomeScreen()),
-                                          (Route<dynamic> route) => false);
-                                    },
-                                    child: Text(
-                                      'ADD',
-                                      style: Styles.boldwhite,
-                                    ),
-                                  )
-                                : _isAddorUpdate == false
-                                    ? ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          fixedSize: const Size(120, 40),
-                                          textStyle: TextStyle(
-                                            fontSize: 25,
-                                            color: Styles.primary_black,
-                                          ),
-                                          primary: Styles.primary_black,
-                                          shape: const StadiumBorder(),
-                                        ),
-                                        onPressed: () {
-                                          //  _isAddorUpdate=false;
-                                          print("card value $_card");
-                                          Navigator.of(context)
-                                              .pushAndRemoveUntil(
-                                                  MaterialPageRoute(
-                                                      builder:
-                                                          (context) =>
-                                                              HomeScreen()),
-                                                  (Route<dynamic> route) =>
-                                                      false);
-                                        },
-                                        child: Text(
-                                          'UPDATE',
-                                          style: Styles.boldwhite,
-                                        ),
-                                      )
-                                    : Text(""),
-                          ],
-                        ),
-                        // SizedBox(width: 10,),
-                        // for (var i in _content)
-                        //   GestureDetector(
-                        //       child: Text(
-                        //         i.toString(),
-                        //         style: Styles.normal17,
-                        //       ),
-                        //       ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 60,
-                ),
-              ],
-            ),
-          ),
-
-          // }
-        ),
-        Container(
-            margin: EdgeInsets.all(60),
-            child: Container(
-              margin: EdgeInsets.symmetric(
-                horizontal: 22,
-                vertical: 8,
-              ),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.category_outlined,
-                    size: 24,
-                    color: Styles.primary_black.withOpacity(.8),
-                  ),
-                  SizedBox(
-                    height: 32,
-                  ),
-                  Icon(
-                    Icons.calendar_today_outlined,
-                    size: 24,
-                    color: Styles.primary_black.withOpacity(.8),
-                  ),
-                  SizedBox(
-                    height: 34,
-                  ),
-                  Icon(
-                    Icons.payments_outlined,
-                    size: 24,
-                    color: Styles.primary_black.withOpacity(.8),
-                  ),
-                  SizedBox(
-                    height: 34,
-                  ),
-                  Icon(
-                    Icons.note,
-                    size: 24,
-                    color: Styles.primary_black.withOpacity(.8),
-                  ),
-                  //  SizedBox(height: 32,),
-                ],
-              ),
-            )),
-      ],
-    );
-  }
+Future<dynamic> fetchingData() async {
+  final values = await GroupByCategory();
+  print("this is test value $values");
+  await Future.delayed(const Duration(seconds: 2), () {});
+  return await values;
+  // print(grouped);
+  var grouped;
+  // print("${grouped.amount}");
+  print("after fetching ${values}");
+  await values.forEach((map) {
+    grouped = groupModel.fromMap(map);
+    print("this is category ${grouped.category}");
+    print("this is amount ${grouped.totalAmount}");
+  });
+  // return grouped;
 }
 
 class BNBCustomPainter extends CustomPainter {
