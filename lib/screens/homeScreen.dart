@@ -1,25 +1,17 @@
-// import 'dart:html';
-//popup container 800+
-//this widget is add student 1200+
-// import 'package:date_range_form_field/date_range_form_field.dart';
-// import 'package:favorite_button/favorite_button.dart';
-import 'dart:async';
+// import 'dart:async';
 import 'dart:math';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:money_management/Custom_icons.dart';
-
 import 'package:money_management/db_functions/db_functions.dart';
-
-import 'package:money_management/screens/Sign%20Up_Screen.dart';
-
+// import 'package:money_management/screens/Sign%20Up_Screen.dart';
 import 'package:money_management/db_functions/group_model.dart';
-
+// import '../ListView_option_Category copy.dart';
 import '../ListView_option_Category.dart';
 import '../home_widget_all.dart';
 import '../main.dart';
 import '../Add_or_Update_widget.dart';
-
+import 'Sign Up_Screen.dart';
 class HomeScreen extends StatefulWidget {
   List<String> _year = [
     '2022',
@@ -27,128 +19,104 @@ class HomeScreen extends StatefulWidget {
     '2020',
   ];
 
-
-
   @override
   _HomeScreen createState() => _HomeScreen();
 }
 
 class _HomeScreen extends State<HomeScreen> {
   Map<String, double> dataMap = {};
-var DataMap;
+  var DataMap;
   getPieChartValue(_category) async {
-    dataMap={};
+    dataMap = {};
     print(DataMap);
-     print("in Pie chart $_category");
-    final entireData = await PieChartValue(_category);
+    print("in Pie chart $dropdownvalue  and $_category");
+print("55555 $_overall");
+    final entireData = dropdownvalue != null
+        ? await PieChartValue(category: _category, SelectedMonth: dropdownvalue)
+        : await PieChartValue(category: _category, overall: _overall);
     for (var item in entireData) {
-   String SingleItem= item['category'] as String;
-   int SingleAmount= item['tot_amount'] as int;
-   double Total = SingleAmount.toDouble();
-   print("iteemmmmsss $SingleItem");
-   print("iteemmmmsss $Total");
-   dataMap[SingleItem]=Total;
-
-  //  Map<String, double>
-      
+      String SingleItem = item['category'] as String;
+      int SingleAmount = item['tot_amount'] as int;
+      double Total = SingleAmount.toDouble();
+      print("iteemmmmsss $SingleItem");
+      print("iteemmmmsss $Total");
+      dataMap[SingleItem] = Total;
     }
-
-// monthsofYear.add(); 
-// monthsofYear [i]=;
-// monthsofYear ;
-   
-      
-      // monthsofYear[i]['1']=2;
-      // print(monthsofYears);
-      // print(entireData[i]['data']);
-      // monthsofYears.add(DateFormat('MMMM')
-      //     .format(DateTime(0, int.parse(entireData[i]['data']))));
-      //     print("Month of years $monthsofYears");
-    
-    
     setState(() {
-      DataMap =dataMap;
-      
-      // monthsofYears;
-      // // print("Month Outside $monthsofYears");
-      // monthsofYears.isNotEmpty?
-      // dropdownvalue = monthsofYears[0].toString():Text(""); 
+      DataMap = dataMap;
     });
   }
 
-  
-    String _isSelectedyear = '2022';
+  String _isSelectedyear = '2022';
   var values;
   var allItem;
+
+  String? dropdownvalue;
+  Map<int, String> monthsofYearsMap = {};
+  List<String> monthsofYears = [];
+
+  getMonths() async {
+    final entireData = await ListForMonth();
+    for (var item in entireData) {
+      String TextMonth = item['data'];
+      print(TextMonth);
+      int numberMonth = int.parse(item['data']);
+      monthsofYears.add(TextMonth);
+      monthsofYearsMap[numberMonth] = '$TextMonth';
+    }
+    setState(() {
+      monthsofYearsMap;
+      monthsofYearsMap.isNotEmpty
+          ? dropdownvalue = monthsofYears[0].toString()
+          : Text("");
+      getAllitem();
+    });
+  }
+
   int _incomeTot = 0;
   int _expenseTot = 0;
   int _lendTot = 0;
   int _borrowTot = 0;
   int _savingsTot = 0;
-  String? dropdownvalue;
- List<String> monthsofYears = [];
-// List<Map<String, String>> monthsofYear=[];
-//   getCurrentYear() async {
-//     final entireData = await CurrentYear(_isSelectedyear);
-//     for (var i = 0; i < entireData.length; i++) {
-//       print("entitedata $entireData");
-// // monthsofYear.add(); 
-// // monthsofYear [i]=;
-// // monthsofYear ;
-   
-      
-//       // monthsofYear[i]['1']=2;
-//       // print(monthsofYears);
-//       print(entireData[i]['data']);
-//       monthsofYears.add(DateFormat('MMMM')
-//           .format(DateTime(0, int.parse(entireData[i]['data']))));
-//           print("Month of years $monthsofYears");
-//     }
-//     setState(() {
-//       monthsofYears;
-//       // print("Month Outside $monthsofYears");
-//       monthsofYears!=''?
-//       dropdownvalue = monthsofYears[0].toString():Text(""); 
-//     });
-//   }
-
-
-  getMonths() async {
-    final entireData = await ListForMonth();
-    for (var i = 0; i < entireData.length; i++) {
-      print("entitedata $entireData");
-// monthsofYear.add(); 
-// monthsofYear [i]=;
-// monthsofYear ;
-   
-      
-      // monthsofYear[i]['1']=2;
-      // print(monthsofYears);
-      print(entireData[i]['data']);
-      monthsofYears.add(DateFormat('MMMM')
-          .format(DateTime(0, int.parse(entireData[i]['data']))));
-          print("Month of years $monthsofYears");
-    }
-    setState(() {
-      monthsofYears;
-      // print("Month Outside $monthsofYears");
-      monthsofYears.isNotEmpty?
-      dropdownvalue = monthsofYears[0].toString():Text(""); 
-    });
-  }
-
+  int _incomeOverall = 0;
+  int _expenseOverall = 0;
+  int _lendOverall = 0;
+  int _borrowOverall = 0;
+  int _savingsOverall = 0;
   getAllitem() async {
-//  await getAllItems();
+    int keyMonth;
+    String valueMonth;
+    dropdownvalue == monthsofYearsMap;
     int _incomeTotal = 0;
     int _expenseTotal = 0;
     int _lendTotal = 0;
     int _borrowTotal = 0;
     int _savingsTotal = 0;
-    final entireData = await GroupByCategory();
-    //  entireData
-    // print("entire data ${entireData[1]}");
 
-// print("hei                             this ${entireData[0]['category']}");
+    int _incomeTotalOv = 0;
+    int _expenseTotalOv = 0;
+    int _lendTotalOv = 0;
+    int _borrowTotalOv = 0;
+    int _savingsTotalOv = 0;
+    final entireData = await GroupByCategory(SelectedMonth: dropdownvalue);
+    final entireDataForSavings = await GroupByCategory();
+
+    for (var i = 0; i < entireDataForSavings.length; i++) {
+      String item = entireDataForSavings[i]['category'];
+      if (item == '1') {
+        _incomeTotalOv = entireDataForSavings[i]['tot_amount']!;
+      }
+      if (item == '2') {
+        _expenseTotalOv = entireDataForSavings[i]['tot_amount']!;
+      }
+      if (item == '3') {
+        _lendTotalOv = entireDataForSavings[i]['tot_amount']!;
+      }
+      if (item == '4') {
+        _borrowTotalOv = entireDataForSavings[i]['tot_amount']!;
+      }
+    }
+
     for (var i = 0; i < entireData.length; i++) {
       String item = entireData[i]['category'];
       if (item == '1') {
@@ -171,15 +139,28 @@ var DataMap;
       _expenseTot = _expenseTotal;
       _lendTot = _lendTotal;
       _borrowTot = _borrowTotal;
-      _savingsTot =
-          (_incomeTotal + _borrowTotal) - (_expenseTotal + _lendTotal);
+
+      _savingsTot = (_incomeTot + _borrowTot) - (_expenseTot + _lendTot);
+
+      _incomeOverall = _incomeTotalOv;
+      _expenseOverall = _expenseTotalOv;
+      _lendOverall = _lendTotalOv;
+      _borrowOverall = _borrowTotalOv;
+
+      _savingsOverall =
+          (_incomeOverall + _borrowOverall) - (_expenseOverall + _lendOverall);
+
+      print("in get month $_incomeTot and $_savingsTot");
+      print("in get month $_incomeTotalOv and $_savingsOverall");
     });
     print("Income tota $_savingsTot");
   }
+ Map<String, Object?> __selectedcontent={};
 
   bool _isUpdateClicked = false;
   bool _isAddorUpdate = false;
   int _card = 0;
+
   bool _overall = false;
   bool _addButton = false; //clicking add button
   bool _percentInd = false;
@@ -187,52 +168,30 @@ var DataMap;
   // Initial Selected Value
 
   int _cardList = 0;
-  // bool _addButton=false;
-
-  // List of items in our dropdown menu
-  // var monthsofYears = [
-  //   'March',
-  //   'February',
-  //   'January',
-  // ];
-
+  
   setBottomBarIndex(index) {
     setState(() {
       currentIndex = index;
       super.setState(() {});
     });
   }
-
-  // final _income_controleer= TextEditingController();
-
-  // final formKey = GlobalKey<FormState>();
-
   String? _dateCount;
   String? _range;
   var MonthData;
 
   @override
   void initState() {
+    setState(() {});
+    _card = 0;
     getMonths();
-    getAllitem();
     _dateCount = '';
     _range = '';
+    // print("in init $dropdownvalue");
     super.initState();
-   
-    //  var months= ListForMonth().then((value) =>   print("months $value"),  );
-//  print("Months outside $months");
   }
 
   @override
   Widget build(BuildContext context) {
-    //  var values;
-    // GroupByCategory();
-// dropdownvalue='no data';
-    print("is update clicked $_isUpdateClicked");
-    // print(allItem);
-
-    // print("after fetching ${values.toString()}");
-
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -254,12 +213,14 @@ var DataMap;
                           child: GestureDetector(
                             onTap: () {
                               setState(() {
-                                print("this is main gesture");
-                                // _overall = true;
-                                // _card = 0;
-                                // _cardList = 0;
-                                // bool _isUpdateClicked = false;
-                                // bool _isAddorUpdate = false;
+                                // print("this is main gesture");
+
+                                _overall = true;
+                                _card = 0;
+                                _cardList = 0;
+                                bool _isUpdateClicked = false;
+                                bool _isAddorUpdate = false;
+                                dropdownvalue = null;
                               });
                             },
                             child: Container(
@@ -311,7 +272,7 @@ var DataMap;
                                     ],
                                   ),
                                   Text(
-                                    "₹$_savingsTot",
+                                    "₹$_savingsOverall",
                                     style: TextStyle(
                                         fontFamily: 'nunito',
                                         fontSize: 30,
@@ -333,9 +294,6 @@ var DataMap;
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Container(
-                                // width: 60,
-                                // height: 60,
-                                // color: Colors.red,
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color: Styles.primary_black,
@@ -366,8 +324,6 @@ var DataMap;
                                                 (Route<dynamic> route) =>
                                                     false);
                                       });
-                                      // allItem==null?
-                                      // print("item has null"):
                                       print("this is home icon");
                                     },
                                     icon: Icon(
@@ -437,14 +393,12 @@ var DataMap;
                                         PopupMenuItem<int>(
                                           onTap: () {
                                             setState(() {
-                                              _isSelectedyear =
-                                                  i.toString();
+                                              _isSelectedyear = i.toString();
                                               print(_isSelectedyear);
                                             });
                                           },
                                           value: 1,
-                                          child: i.toString() ==
-                                                  _isSelectedyear
+                                          child: i.toString() == _isSelectedyear
                                               ? Text(
                                                   i.toString(),
                                                   style: Styles.normal17red,
@@ -549,63 +503,73 @@ var DataMap;
                           // main horizontal scroll view
                           children: [
                             Container(
-                              // color: Colors.red,
-                              // height: 50,
                               margin: EdgeInsets.only(left: 30),
                               child: _overall == false
                                   ? Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.start,
                                       children: [
-                                        // SizedBox(width: size,)
                                         Column(
                                           children: [
-                                            dropdownvalue==null?SizedBox(height: 30,):
-                                            DropdownButtonHideUnderline(
-                                              child: DropdownButton(
-                                                // elevation: 0,
-                                                // Initial Value
-                                                
-                                                value: dropdownvalue,
-
-                                                // Down Arrow Icon
-                                                icon: const Icon(
-                                                    Icons.arrow_drop_down),
-
-                                                // Array list of items
-                                                items: monthsofYears
-                                                    .map((String items) {
-                                                  return DropdownMenuItem(
-                                                    value:
-                                                        items, //march  selected
-                                                    child: Text(
-                                                      items,
-                                                      style: Styles.normal20,
+                                            dropdownvalue == null
+                                                ? SizedBox(
+                                                    height: 30,
+                                                  )
+                                                : DropdownButtonHideUnderline(
+                                                    child: DropdownButton(
+                                                      value: dropdownvalue,
+                                                      icon: const Icon(Icons
+                                                          .arrow_drop_down),
+                                                      items: monthsofYears
+                                                          .map((String items) {
+                                                        return DropdownMenuItem(
+                                                          value:
+                                                              items, //march  selected
+                                                          child: Text(
+                                                            items = (DateFormat(
+                                                                    'MMMM')
+                                                                .format(DateTime(
+                                                                    0,
+                                                                    int.parse(
+                                                                        items)))),
+                                                            style:
+                                                                Styles.normal20,
+                                                          ),
+                                                        );
+                                                      }).toList(),
+                                                      onChanged:
+                                                          (String? newValue) {
+                                                        setState(() {
+                                                          dropdownvalue =
+                                                              newValue!;
+                                                          getAllitem();
+                                                        });
+                                                      },
                                                     ),
-                                                  );
-                                                }).toList(),
-                                                // After selecting the desired option,it will
-                                                // change button value to selected value
-                                                onChanged: (String? newValue) {
-                                                  setState(() {
-                                                    dropdownvalue = newValue!;
-                                                  });
-                                                },
-                                              ),
-                                            ),
+                                                  ),
                                           ],
                                         ),
                                       ],
                                     )
-                                  : Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
+                                  : Column(
                                       children: [
-                                        Text(
-                                          "Overall",
-                                          style: Styles.normal20.copyWith(
-                                              fontWeight: FontWeight.bold),
+                                        SizedBox(
+                                          height: 10,
                                         ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Overall",
+                                              style: Styles.normal20.copyWith(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        )
                                       ],
                                     ),
                             ),
@@ -616,15 +580,14 @@ var DataMap;
                               child: ListView(
                                 scrollDirection: Axis.horizontal,
                                 children: [
+                                  _overall==false?
                                   SizedBox(
                                     width: 30,
-                                  ),
+                                  ):Container(),
+                                  _overall==false?
                                   InkWell(
                                     onTap: () {
                                       setState(() {
-                                        // currentIndex = null;
-                                        // _cardList = 5;
-                                        // _percentInd = true;
                                         // PieChartValue(_cardList);
                                       });
                                     },
@@ -643,11 +606,8 @@ var DataMap;
                                                       0.3), //color of shadow
                                               spreadRadius: 0.5, //spread radius
                                               blurRadius: 5,
-                                              // blur radius
                                               offset: Offset(0,
                                                   3), // changes position of shadow
-                                              //first paramerter of offset is left-right
-                                              //second parameter is top to down
                                             ),
                                             //you can set more BoxShadow() here
                                           ],
@@ -678,22 +638,22 @@ var DataMap;
                                                     style: Styles.bold25,
                                                   )
                                                 : Text(
-                                                    "₹",
+                                                    "₹$_savingsOverall",
                                                     style: Styles.bold25,
                                                   ),
                                           ],
                                         ),
                                       ),
                                     ]),
-                                  ),
+                                  ):Container(),
                                   SizedBox(
                                     width: 30,
                                   ),
                                   InkWell(
                                     onTap: () {
                                       setState(() {
-                                           _percentInd = false;
-                                          getPieChartValue(1);
+                                        _percentInd = false;
+                                        getPieChartValue(1);
                                         _cardList = 1;
                                         _percentInd = true;
                                         currentIndex = null;
@@ -752,7 +712,7 @@ var DataMap;
                                                       style: Styles.bold25,
                                                     )
                                                   : Text(
-                                                      "₹1,74,500",
+                                                      "₹$_incomeOverall",
                                                       style: Styles.bold25,
                                                     ),
                                             ],
@@ -768,11 +728,10 @@ var DataMap;
                                     onTap: () {
                                       setState(() {
                                         _percentInd = false;
-                                          getPieChartValue(2);
+                                        getPieChartValue(2);
                                         _cardList = 2;
                                         _percentInd = true;
                                         currentIndex = null;
-                                       
                                       });
                                     },
                                     child: Stack(
@@ -827,7 +786,7 @@ var DataMap;
                                                       style: Styles.bold25,
                                                     )
                                                   : Text(
-                                                      "₹80,000",
+                                                      "₹$_expenseOverall",
                                                       style: Styles.bold25,
                                                     ),
                                             ],
@@ -842,12 +801,11 @@ var DataMap;
                                   InkWell(
                                     onTap: () {
                                       setState(() {
-                                         _percentInd = false;
-                                          getPieChartValue(3);
+                                        _percentInd = false;
+                                        getPieChartValue(3);
                                         _cardList = 3;
                                         _percentInd = true;
                                         currentIndex = null;
-                                       
                                       });
                                     },
                                     child: Stack(
@@ -902,7 +860,7 @@ var DataMap;
                                                       style: Styles.bold25,
                                                     )
                                                   : Text(
-                                                      "₹10,000",
+                                                      "₹$_lendOverall",
                                                       style: Styles.bold25,
                                                     ),
                                             ],
@@ -917,11 +875,17 @@ var DataMap;
                                   InkWell(
                                     onTap: () {
                                       setState(() {
-                                         getPieChartValue(4);
+                                        // getPieChartValue(4);
+                                        // _cardList = 4;
+                                        // _percentInd = true;
+                                        // currentIndex = null;
+                                        
+
+                                          _percentInd = false;
+                                        getPieChartValue(4);
                                         _cardList = 4;
                                         _percentInd = true;
                                         currentIndex = null;
-                                        
                                       });
                                     },
                                     child: Stack(
@@ -976,7 +940,7 @@ var DataMap;
                                                       style: Styles.bold25,
                                                     )
                                                   : Text(
-                                                      "₹70,000",
+                                                      "₹$_borrowOverall",
                                                       style: Styles.bold25,
                                                     ),
                                             ],
@@ -991,13 +955,16 @@ var DataMap;
                                 ],
                               ),
                             ),
-                            SizedBox(height: 20,) 
+                            SizedBox(
+                              height: 20,
+                            )
                           ],
                         ),
                       ],
                     ),
                   ],
                 ),
+                
                 _cardList >= 1
                     ? list_widget(
                       dataMap: DataMap,
@@ -1006,18 +973,19 @@ var DataMap;
                         card: _cardList,
                         percentIndicator: _percentInd,
                       )
+                  
                     : _isUpdateClicked
                         ? category_cards(
+                          selectedcontent: __selectedcontent,
+                          hello: 0,
                             size: size, card: _card, add: _isAddorUpdate)
                         :
-                        // home_content_all_widget(size: size, toggleisUpdateClicked: toggleisUpdateClicked, overall: _overall,)
                         _card >= 1
                             ? category_cards(
+                              selectedcontent: __selectedcontent,
+                              hello: 1,
                                 size: size, card: _card, add: _isAddorUpdate)
-                            : home_content_all_widget(
-                                size: size,
-                                toggleisUpdateClicked: toggleisUpdateClicked,
-                                // overall: _overall,
+                            : home_content_all_widget(size,toggleisUpdateClicked,
                               ),
               ],
             ),
@@ -1287,10 +1255,11 @@ var DataMap;
                             onPressed: () {
                               setState(() {
                                 _isUpdateClicked = false;
-                                _percentInd = false;
+                               
                                 _cardList = 1;
                                 // _addButton
                                 // _card=0;
+                                _percentInd=false;
                                 _addButton = false;
                                 _isAddorUpdate = false;
                                 setBottomBarIndex(0);
@@ -1352,9 +1321,13 @@ var DataMap;
                                   _percentInd = false;
                                   _addButton = false;
                                   _cardList = 4;
-                                  _isAddorUpdate = false; 
+                                  _isAddorUpdate = false;
 
                                   setBottomBarIndex(3);
+
+                                 
+                               
+                             
                                 });
                               }),
                         ],
@@ -1378,14 +1351,13 @@ var DataMap;
       return SignUp_Screen();
     }));
   }
-
-  void toggleisUpdateClicked() {
+// void Function(Map<String, Object?> _selectedcontent)   toggleisUpdateClicked;
+  void toggleisUpdateClicked(Map<String, Object?> _selectedcontent) {
     setState(() {
+      __selectedcontent=_selectedcontent;
       _cardList = 0;
       _addButton = false;
-      print("before $_isUpdateClicked");
       _isUpdateClicked ? _isUpdateClicked = false : _isUpdateClicked = true;
-      print("it worked $_isUpdateClicked");
     });
   }
 }
@@ -1395,7 +1367,6 @@ Future<dynamic> fetchingData() async {
   print("this is test value $values");
   await Future.delayed(const Duration(seconds: 2), () {});
   return await values;
-  // print(grouped);
   var grouped;
   // print("${grouped.amount}");
   print("after fetching ${values}");

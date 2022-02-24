@@ -10,11 +10,13 @@ import 'main.dart';
 import 'screens/homeScreen.dart';
 
 class category_cards extends StatefulWidget {
- const category_cards({
+ category_cards({
     Key? key,
     required this.size,
     required int card,
     required bool add,
+    required Map<String, Object?> this.selectedcontent,
+    required this.hello,
     
   })  : _card = card,
         _isAddorUpdate = add,
@@ -23,7 +25,9 @@ class category_cards extends StatefulWidget {
 
   final Size size;
   final int _card;
+  final hello;
   final bool _isAddorUpdate;
+  final  Map<String, Object?> selectedcontent;
 
 
   @override
@@ -46,10 +50,19 @@ String? _selectedItem;
      String now = DateFormat("yyyy-MM-dd").format(DateTime.now());
 @override
   void initState() {
+   
+
     // TODO: implement initState
     setState(() {
 ListForTextForm(widget._card);
-
+ widget.selectedcontent.isNotEmpty?
+    {
+      _categoryController.text=widget.selectedcontent['item'].toString(),
+      _dateController.text=widget.selectedcontent['date'].toString(),
+      _amountController.text=widget.selectedcontent['amount'].toString(),
+      _remarkController.text=widget.selectedcontent['remark'].toString(),
+    }:print('its add');
+    
 // print("its list data $LISTS");
       
       _dateController.text=now;
@@ -64,6 +77,9 @@ ListForTextForm(widget._card);
   // VoidCallback _isclicked;
   @override //this widget is add student
   Widget build(BuildContext context) {
+    print("7777 ${widget.selectedcontent}   and ${widget.hello}");
+   
+   
    _categoryController.text.length>1?
     _isClicked=false:_isClicked=true;
    late DateTime _selectedDate;
@@ -116,25 +132,53 @@ ListForTextForm(widget._card);
                         SizedBox(
                           height: 10,
                         ),
-                        widget._card == 1
+                        
+                        /*  widget.selectedcontent['category'] == '1'
                             ? Text(
                                 "Income",
                                 style: Styles.normal17.copyWith(
                                     color: Styles.custom_income_green),
                               )
-                            : widget._card == 2
+                            : widget.selectedcontent['category'] == '2'
                                 ? Text(
                                     "Expense",
                                     style: Styles.normal17.copyWith(
                                         color: Styles.custom_expense_red),
                                   )
-                                : widget._card == 3
+                                : widget.selectedcontent['category'] == '3'
                                     ? Text(
                                         "Lend",
                                         style: Styles.normal17.copyWith(
                                             color: Styles.custom_lend_yellow),
                                       )
-                                    : widget._card == 4
+                                    : widget.selectedcontent['category'] == '4'
+                                        ? Text(
+                                            "Borrow",
+                                            style: Styles.normal17.copyWith(
+                                                color:
+                                                    Styles.custom_borrow_pink),
+                                          )
+                                        : Text(""): */
+
+                        widget._card == 1 || widget.selectedcontent['category'] == '1'
+                            ? Text(
+                                "Income",
+                                style: Styles.normal17.copyWith(
+                                    color: Styles.custom_income_green),
+                              )
+                            : widget._card == 2 || widget.selectedcontent['category'] == '2' 
+                                ? Text(
+                                    "Expense",
+                                    style: Styles.normal17.copyWith(
+                                        color: Styles.custom_expense_red),
+                                  )
+                                : widget._card == 3 || widget.selectedcontent['category'] == '3'
+                                    ? Text(
+                                        "Lend",
+                                        style: Styles.normal17.copyWith(
+                                            color: Styles.custom_lend_yellow),
+                                      )
+                                    : widget._card == 4 || widget.selectedcontent['category'] == '4'
                                         ? Text(
                                             "Borrow",
                                             style: Styles.normal17.copyWith(
@@ -378,7 +422,7 @@ ListForTextForm(widget._card);
                                         ),
                                         onPressed: () {
                                           print("card value ${widget._card}");
-                                          onAddItemButton(widget._card);
+                                          onAddItemButton(category: widget._card);
 
                                           Navigator.of(context).pushAndRemoveUntil(
                                               MaterialPageRoute(
@@ -403,8 +447,12 @@ ListForTextForm(widget._card);
                                               shape: const StadiumBorder(),
                                             ),
                                             onPressed: () {
+ print("card value ${widget.selectedcontent['id']}");
+                                              onAddItemButton(id: widget.selectedcontent['id']);
+
                                               //  _isAddorUpdate=false;
                                               print("card value ${widget._card}");
+                                              // widget.selectedcontent['id']=0;
                                               Navigator.of(context)
                                                   .pushAndRemoveUntil(
                                                       MaterialPageRoute(
@@ -485,8 +533,10 @@ ListForTextForm(widget._card);
     );
   }
 
-  Future<void> onAddItemButton(_category) async {
-    print(_category);
+  Future<void> onAddItemButton({category, id}) async {
+    print("category is $category");
+    print("id is $id");
+
 
     final _item = _categoryController.text.trim().toLowerCase();
     final _date = _dateController.text.trim().toString();
@@ -503,9 +553,20 @@ ListForTextForm(widget._card);
     if (_item.isEmpty || _amount.toString().isEmpty || _date.isEmpty) {
       return;
     }
-    print('$_item  and $_amount or $_date ');
-    final _singleItem = MoneyModel(
-      category: _category.toString(),
+    print('$_item  and $_amount or $_date  $id');
+     
+    
+  
+    final _singleItem = id!=null?MoneyModel(
+      id: int.parse('$id'),
+      category: category.toString(),
+      item: _item,
+      date: _date,
+      amount: _amount,
+      remark: _remark,
+      favourite: "No",
+    ):MoneyModel(
+      category: category.toString(),
       item: _item,
       date: _date,
       amount: _amount,
@@ -514,6 +575,7 @@ ListForTextForm(widget._card);
     );
     //  print("now its bottom");
     addMoney(_singleItem);
+    
   }
 }
 
