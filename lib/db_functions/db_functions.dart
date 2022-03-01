@@ -12,7 +12,7 @@ late Database _db1;
 // late Database _db2;
 
 Future<void> openDB() async {
-  _db1 = await openDatabase('money6.db', version: 1,
+  _db1 = await openDatabase('money.db', version: 1,
       onCreate: (Database db, int version) async {
     await db.execute(
         'CREATE TABLE MoneyManage (id INTEGER PRIMARY KEY, category TEXT, item TEXT, date DATE, amount INTEGER, remark TEXT, favourite TEXT)');
@@ -47,13 +47,27 @@ Future<void> SearchMoney(SearchedItem) async {
     MoneyListNotifier.notifyListeners();
   });
 }
+/* Future<List<Map<String, Object?>>> getYearDB( {starDate,endDate, categoryList}) async {
+final year= (await _db1.rawQuery("SELECT DISTINCT(strftime('%Y', date)) AS 'Year' FROM MoneyManage ORDER BY strftime('%Y', date) desc"));
+//  print("${year[0]['Year']}");
+ return year;
+} */
 
-Future<List<Map<String, Object?>>> getAllItems( {starDate,endDate, categoryList}) async {
+/* Future<List<Map<String, Object?>>> getTotSavings() async {
+final Savings= (await _db1.rawQuery("SELECT DISTINCT(strftime('%Y', date)) AS 'Year' FROM MoneyManage ORDER BY strftime('%Y', date) desc"));
+//  print("${year[0]['Year']}");
+ return Savings;
+} */
+Future<List<Map<String, Object?>>> getAllItems( {starDate,endDate, categoryList, favoriteVisible}) async {
+  print("66666 $favoriteVisible");
+  // var y=await _db1.rawQuery("SELECT date AS 'Year' FROM MoneyMangage WHERE date");
+ print("888 $starDate, $endDate");
   MoneyListNotifier.value.clear();
   print("555 $categoryList");
-  final _values =categoryList==null? starDate== null && endDate==null?
+  final _values =favoriteVisible!=true? categoryList==null? starDate== null && endDate==null?
       await _db1.rawQuery('SELECT * FROM MoneyManage ORDER BY date desc'):await _db1.rawQuery("SELECT * FROM MoneyManage WHERE date BETWEEN '$starDate' AND '$endDate' ORDER BY date desc")
-  :starDate== null && endDate==null?await _db1.rawQuery("SELECT * FROM MoneyManage WHERE category='$categoryList' ORDER BY date desc"):await _db1.rawQuery("SELECT * FROM MoneyManage WHERE (date BETWEEN '$starDate' AND '$endDate') AND category='$categoryList' ORDER BY date desc");
+  :starDate== null && endDate==null?await _db1.rawQuery("SELECT * FROM MoneyManage WHERE category='$categoryList' ORDER BY date desc"):await _db1.rawQuery("SELECT * FROM MoneyManage WHERE (date BETWEEN '$starDate' AND '$endDate') AND category='$categoryList' ORDER BY date desc")
+  :await _db1.rawQuery("SELECT * FROM MoneyManage WHERE favourite='true' AND date BETWEEN '$starDate' AND '$endDate' ");
   // print("this is all values in db $_values");
   if (_values.isNotEmpty) {
     _values.forEach((map) {
@@ -64,37 +78,46 @@ Future<List<Map<String, Object?>>> getAllItems( {starDate,endDate, categoryList}
   } else {
     var alert = "no values in db";
   }
-  print("values in db $_values");
+  // print("values in db $_values");
   return _values;
 }
 
-Future<dynamic> GroupByCategory({SelectedMonth}) async {
- 
+Future<dynamic> GroupByCategory({overall, startDate, endDate, Tsavings}) async {
+  // final monthCurrent=currentMonth;
+   print("399 $startDate- $endDate  or $overall  and yey $Tsavings" );
   final values = 
-   SelectedMonth!=null?
+  //  SelectedMonth!=null?
+  /* await _db1.rawQuery(
+      "SELECT  category, SUM(amount) tot_amount FROM MoneyManage WHERE (strftime('%m', date)='$SelectedMonth') GROUP BY category"): */
+  startDate!=null?
   await _db1.rawQuery(
-      "SELECT  category, SUM(amount) tot_amount FROM MoneyManage WHERE (strftime('%m', date)='$SelectedMonth') GROUP BY category"):
-  await _db1.rawQuery(
+      "SELECT  category, SUM(amount) tot_amount FROM MoneyManage WHERE date BETWEEN '$startDate' AND '$endDate' GROUP BY category")
+      :/* overall==true || Tsavings==true? */
+      await _db1.rawQuery(
       "SELECT  category, SUM(amount) tot_amount FROM MoneyManage GROUP BY category");
-print("5555 $values");
+     /*  :await _db1.rawQuery(
+      "SELECT  category, SUM(amount) tot_amount FROM MoneyManage WHERE ((strftime('%m', date)='$monthCurrent') OR (strftime('%m', date)='0$monthCurrent')) GROUP BY category"); */
+// print("5555 $values");
   // var grouped;
   values.forEach((map) {
    var grouped = groupModel.fromMap(map);
   });
-  print("Inthe Database Grouped month $values");
+  print("499 $values");
 
   return values;
 }
 
-Future<List<Map<String, Object?>>> PieChartValue({category ,SelectedMonth,overall}) async {
+Future<List<Map<String, Object?>>> PieChartValue({category ,startDate, endDate,overall}) async {
+  print("5555");
   final values = 
   overall!=true?
   await _db1.rawQuery(
-      "SELECT  DISTINCT(item) AS category, SUM(amount) tot_amount FROM MoneyManage WHERE category='$category' AND (strftime('%m', date)='$SelectedMonth') GROUP BY item ")
+      "SELECT  DISTINCT(item) AS category, SUM(amount) tot_amount FROM MoneyManage WHERE category='$category' AND (date BETWEEN '$startDate' AND '$endDate') GROUP BY item ")
   :await _db1.rawQuery(
       "SELECT  DISTINCT(item) AS category, SUM(amount) tot_amount FROM MoneyManage WHERE category='$category' GROUP BY item ");
   print("Inthe Database in main card group and wher $values");
-  return values;
+ print("5555 $values");
+ return values;
 }
 
 Future<dynamic> ListForTextForm(_category) async {
@@ -114,14 +137,16 @@ print(DateTime.now().year);
     });
   } else {
     var alert = "no values in db";
-    print("error alert $alert");
+    // print("error alert $alert");
   }
   return values;
 }
 
-
-Future<dynamic> ListForMonth() async {
+/* 
+Future<dynamic> ListForMonth({startDate, endDate}) async {
+  print("299 $startDate - $endDate" );
   SimpleListNotifier.value.clear();
+  // String _startDate=startDate
 String currentMonth = DateTime.now().month.toString();
 String currentYear = DateTime.now().year.toString();
   final values = await _db1.rawQuery(
@@ -136,9 +161,11 @@ String currentYear = DateTime.now().year.toString();
   } else {
     var alert = "no values in db";
     print("error alert $alert");
+
   }
+  print("2999 $values");
   return values;
-}
+} */
 
 Future<void> deleteMoney(int id) async {
   // print(id);

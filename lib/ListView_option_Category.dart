@@ -14,6 +14,10 @@ class list_widget extends StatefulWidget {
     required this.card,
  required this.percentIndicator,
    required this.toggleisUpdateClicked,
+   required this.isSelectedYear,
+    required this.startDate,
+    required this.endDate,
+    required this.favoriteVisible,
   }
   );
   
@@ -22,6 +26,10 @@ final dataMap;
   final int card;
   final bool percentIndicator;
   void Function(Map<String, Object?> _selectedcontent) toggleisUpdateClicked;
+  final isSelectedYear;
+  final startDate;
+    final endDate;
+    final favoriteVisible;
 
   @override
   State<list_widget> createState() =>
@@ -46,16 +54,22 @@ class _list_widget extends State<list_widget> {
 
   @override
   Widget build(BuildContext context) {
+    print("111 ${widget.startDate} ${widget.endDate}");
     Map<String, Object?> _selectedcontent;
-
+              _selectedStartDate=widget.startDate;
+_selectedEndDate=widget.endDate;
     var j;
     String previousDate = '';
     print("date range $dateRange");
     return FutureBuilder<List<Map<String, Object?>>>(
-        future: dateRange != null
-            ? getAllItems(
-                starDate: _selectedStartDate, endDate: _selectedEndDate, categoryList: widget.card)
-            : getAllItems(categoryList: widget.card),
+        // future: dateRange != null
+        //     ? getAllItems(
+        //         starDate: _selectedStartDate, endDate: _selectedEndDate, categoryList: widget.card, /* selectedYear: widget.isSelectedYear */)
+        //     : getAllItems(categoryList: widget.card, /* selectedYear: widget.isSelectedYear */),
+       future: 
+        widget.favoriteVisible==false?
+       getAllItems(
+                starDate: _selectedStartDate, endDate: _selectedEndDate,categoryList: widget.card /* selectedYear: widget.isSelectedYear */):getAllItems(favoriteVisible: widget.favoriteVisible, starDate: _selectedStartDate, endDate: _selectedEndDate,),
         builder: (context, listItem) {
           int pointer = -1;
           int counter = -1;
@@ -64,7 +78,7 @@ class _list_widget extends State<list_widget> {
           if (listItem == null) return CircularProgressIndicator();
 
           if (listItem.data == null || listItem.data!.isEmpty) {
-            return Text("Nothing foud");
+            return Text("Nothing found");
           }
           List<Map<String, Object?>> AllRows = listItem.data!;
           previousDate = AllRows[0]['date'].toString();
@@ -111,7 +125,7 @@ class _list_widget extends State<list_widget> {
                               widget.percentIndicator!=true?
                               Column(
                                 children: [
-                                 Row(
+                                /*  Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   InkWell(
@@ -139,13 +153,22 @@ class _list_widget extends State<list_widget> {
                               ),
                               Divider(
                                 height: 2,
-                              ),
+                              ), */
                                      SizedBox(
                                 height: 5,
                               ),
                                 ],
                               ):Container(),
-                             
+                      widget.favoriteVisible==true?
+                              Container(
+                                alignment: Alignment.center, 
+                                child: Text(
+                                      "Favourites",
+                                        style: Styles.normal17.copyWith(
+                                            fontSize: 16,
+                                            color: Colors.deepOrange,
+                                            fontWeight: FontWeight.bold),
+                                      ),):    
                     widget.card == 1
                           ? Text(
                               "Income",
@@ -183,7 +206,7 @@ class _list_widget extends State<list_widget> {
                                               ),
                                             )
                                           : Text(""),
-                            widget.percentIndicator==true?
+                            widget.percentIndicator==true && widget.dataMap!={}?
                               Container(
                               height: 260,  
                               margin: EdgeInsets.only(top: 10),

@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:money_management/screens/homeScreen.dart';
 
 import 'db_functions/db_functions.dart';
+// import 'package:money_management/screens/homeScreen.dart';
 
 Future<void> main() async {
     WidgetsFlutterBinding.ensureInitialized();
+  //  await openDB1();
+  // await openDB1();
    await openDB();
+
   runApp(MyApp());
 }
 class Styles{

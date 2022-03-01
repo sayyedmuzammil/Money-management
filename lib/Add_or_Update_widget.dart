@@ -71,13 +71,10 @@ ListForTextForm(widget._card);
     super.initState();
   }
 
-    // print(now);
-    
-    // wi_dateController.text = now;
-  // VoidCallback _isclicked;
+  
   @override //this widget is add student
   Widget build(BuildContext context) {
-    print("7777 ${widget.selectedcontent}   and ${widget.hello}");
+    // print("7777 ${widget.selectedcontent}   and ${widget.hello}");
    
    
    _categoryController.text.length>1?
@@ -88,15 +85,11 @@ ListForTextForm(widget._card);
     return Stack(
       children: [
         Container(
-          //second container in list view
-          // color: Colors.white,
+          
           width: widget.size.width,
           height: (widget.size.height * .5) + 20,
           margin: EdgeInsets.symmetric(horizontal: 10), 
-          // height: _content.length*30,
-          // color: Colors.white,
-
-          //  for (var i = 0; i < _content.length; i++) {
+         
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Column(
@@ -132,34 +125,6 @@ ListForTextForm(widget._card);
                         SizedBox(
                           height: 10,
                         ),
-                        
-                        /*  widget.selectedcontent['category'] == '1'
-                            ? Text(
-                                "Income",
-                                style: Styles.normal17.copyWith(
-                                    color: Styles.custom_income_green),
-                              )
-                            : widget.selectedcontent['category'] == '2'
-                                ? Text(
-                                    "Expense",
-                                    style: Styles.normal17.copyWith(
-                                        color: Styles.custom_expense_red),
-                                  )
-                                : widget.selectedcontent['category'] == '3'
-                                    ? Text(
-                                        "Lend",
-                                        style: Styles.normal17.copyWith(
-                                            color: Styles.custom_lend_yellow),
-                                      )
-                                    : widget.selectedcontent['category'] == '4'
-                                        ? Text(
-                                            "Borrow",
-                                            style: Styles.normal17.copyWith(
-                                                color:
-                                                    Styles.custom_borrow_pink),
-                                          )
-                                        : Text(""): */
-
                         widget._card == 1 || widget.selectedcontent['category'] == '1'
                             ? Text(
                                 "Income",
@@ -536,7 +501,6 @@ ListForTextForm(widget._card);
   Future<void> onAddItemButton({category, id}) async {
     print("category is $category");
     print("id is $id");
-
 
     final _item = _categoryController.text.trim().toLowerCase();
     final _date = _dateController.text.trim().toString();

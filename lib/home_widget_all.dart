@@ -10,9 +10,17 @@ class home_content_all_widget extends StatefulWidget {
   home_content_all_widget(
     this.size,
     this.toggleisUpdateClicked,
+    this.isSelectedYear,
+    this.favoriteVisible,
+    this.startDate,
+    this.endDate,
   );
   final Size size;
   void Function(Map<String, Object?> _selectedcontent) toggleisUpdateClicked;
+    final isSelectedYear;
+    final favoriteVisible;
+    final startDate;
+    final endDate;
 
   @override
   State<home_content_all_widget> createState() =>
@@ -28,25 +36,35 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
 
   @override
   void initState() {
+
     setState(() {
+
       dateSets = [];
     });
     // TODO: implement initState
     super.initState();
   }
 
+
   @override
   Widget build(BuildContext context) {
+              _selectedStartDate=widget.startDate;
+_selectedEndDate=widget.endDate;
     Map<String, Object?> _selectedcontent;
+print("6666 $_selectedStartDate $_selectedEndDate");
 
     var j;
     String previousDate = '';
     print("date range $dateRange");
+    print("444444 ${widget.isSelectedYear}");
     return FutureBuilder<List<Map<String, Object?>>>(
-        future: dateRange != null
-            ? getAllItems(
-                starDate: _selectedStartDate, endDate: _selectedEndDate)
-            : getAllItems(),
+        future: 
+        
+        widget.favoriteVisible==false?
+        /* dateRange != null
+            ? */ getAllItems(
+                starDate: _selectedStartDate, endDate: _selectedEndDate, /* selectedYear: widget.isSelectedYear */)
+            /* : getAllItems(/* selectedYear: widget.isSelectedYear  */) */:getAllItems(favoriteVisible: widget.favoriteVisible, starDate: _selectedStartDate, endDate: _selectedEndDate,),
         builder: (context, listItem) {
           int pointer = -1;
           int counter = -1;
@@ -55,10 +73,11 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
           if (listItem == null) return CircularProgressIndicator();
 
           if (listItem.data == null || listItem.data!.isEmpty) {
-            return Text("Nothing foud");
+            return Text("Nothing found");
           }
           List<Map<String, Object?>> AllRows = listItem.data!;
           previousDate = AllRows[0]['date'].toString();
+          // print("777 $AllRows");
           dateSets.add(previousDate);
           for (var i = 1; i < AllRows.length; i++) {
             if (previousDate == AllRows[i]['date']) {
@@ -99,12 +118,13 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
                         child: Column(
                             // crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
+                            /*   Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
+                                  widget.favoriteVisible==false?
                                   InkWell(
                                       onTap: () {
-                                        pickDateRange(context);
+                                        // pickDateRange(context);
                                       },
                                       child: Text(
                                         DisplayDate,
@@ -112,7 +132,7 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
                                             fontSize: 16,
                                             color: Colors.deepOrange,
                                             fontWeight: FontWeight.bold),
-                                      )),
+                                      )):Container(),
                                       dateRange!=null?
                                       InkWell(
                                         onTap: (){setState(() {
@@ -122,12 +142,17 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
                                         child: Icon(Icons.close,color: Colors.red, size: 22,)) : Container(),
                                 ],
                               ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Divider(
-                                height: 2,
-                              ),
+                             */
+                        
+                              
+                              Container(child: Text(
+                                widget.favoriteVisible==true?
+                                      "Favourites":"All Transactions",
+                                        style: Styles.normal17.copyWith(
+                                            fontSize: 16,
+                                            color: Colors.deepOrange,
+                                            fontWeight: FontWeight.bold),
+                                      ),),
                               for (var i in AllRows)
                                 Container(
                                     child: Column(
@@ -522,7 +547,7 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
     );
   }
 
-  Future pickDateRange(BuildContext context) async {
+ /*  Future pickDateRange(BuildContext context) async {
     // final dateFormat = DateFormat("yyyy-MM-dd");
     final initialDateRange = DateTimeRange(
       start: DateTime.now().subtract(Duration(hours: 24 * 3)),
@@ -556,4 +581,5 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
       });
     }
   }
+ */
 }

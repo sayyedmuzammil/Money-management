@@ -6,34 +6,53 @@ import 'package:money_management/Custom_icons.dart';
 import 'package:money_management/db_functions/db_functions.dart';
 // import 'package:money_management/screens/Sign%20Up_Screen.dart';
 import 'package:money_management/db_functions/group_model.dart';
+import 'package:sqflite/sqflite.dart';
 // import '../ListView_option_Category copy.dart';
 import '../ListView_option_Category.dart';
 import '../home_widget_all.dart';
 import '../main.dart';
 import '../Add_or_Update_widget.dart';
 import 'Sign Up_Screen.dart';
+// import 'package:money_management/db_functions/db_functions.dart';
+
+
+
+
 class HomeScreen extends StatefulWidget {
-  List<String> _year = [
-    '2022',
-    '2021',
-    '2020',
-  ];
+  
+
+  
+
 
   @override
   _HomeScreen createState() => _HomeScreen();
 }
 
 class _HomeScreen extends State<HomeScreen> {
+List<String> _About = [ 'Developer : Muzammil', 'version : 1.0'];
+  //  var year=getYearDB();
+ var dateRange;
+  var _selectedStartDate;
+  var _selectedEndDate;
   Map<String, double> dataMap = {};
   var DataMap;
+  // bool _isclosed=false;
+  
   getPieChartValue(_category) async {
+    
     dataMap = {};
-    print(DataMap);
-    print("in Pie chart $dropdownvalue  and $_category");
+    print("888 $DataMap");
+    print("in Pie chart $dropdownvalue  and $_category $_selectedStartDate");
 print("55555 $_overall");
-    final entireData = dropdownvalue != null
-        ? await PieChartValue(category: _category, SelectedMonth: dropdownvalue)
-        : await PieChartValue(category: _category, overall: _overall);
+    final entireData = /* dropdownvalue != null
+        ? */ await PieChartValue(category: _category, startDate: _selectedStartDate,endDate: _selectedEndDate, overall: _overall /* selectedYear: _isSelectedyear */);
+        // : await PieChartValue(category: _category, overall: _overall,/*  selectedYear: _isSelectedyear */);
+    print("55 $entireData");
+  entireData.isNotEmpty?
+  setPie(entireData):print("55 Nullll");
+  
+  }
+void setPie(entireData){
     for (var item in entireData) {
       String SingleItem = item['category'] as String;
       int SingleAmount = item['tot_amount'] as int;
@@ -45,33 +64,47 @@ print("55555 $_overall");
     setState(() {
       DataMap = dataMap;
     });
-  }
-
-  String _isSelectedyear = '2022';
+}
+ bool _favoriteVisible=false;
+  String? _isSelectedyear;
   var values;
   var allItem;
 
   String? dropdownvalue;
   Map<int, String> monthsofYearsMap = {};
-  List<String> monthsofYears = [];
 
-  getMonths() async {
-    final entireData = await ListForMonth();
-    for (var item in entireData) {
-      String TextMonth = item['data'];
-      print(TextMonth);
-      int numberMonth = int.parse(item['data']);
-      monthsofYears.add(TextMonth);
-      monthsofYearsMap[numberMonth] = '$TextMonth';
-    }
+  // List<String> monthsofYears = [];
+
+  /* getMonths() async {
+    print("99 $_selectedStartDate - $_selectedEndDate" );
+    // final entireData = await ListForMonth(startDate: _selectedStartDate, endDate: _selectedEndDate);
+    // for (var item in entireData) {
+    //   String TextMonth = item['data'];
+    //   print(TextMonth);
+    //   // int numberMonth = int.parse(item['data']);
+    //   // monthsofYears.add(TextMonth);
+    //   // monthsofYearsMap[numberMonth] = '$TextMonth';
+      
+    // }
+    final year=await getYearDB();
+      //  print("4444 ${year[0]['Year']}");
+for (var item in year) {
+_year.add(item['Year'].toString()); 
+  
+}
+// print()
     setState(() {
-      monthsofYearsMap;
-      monthsofYearsMap.isNotEmpty
-          ? dropdownvalue = monthsofYears[0].toString()
-          : Text("");
-      getAllitem();
+      // year[0]['Year'].toString()!=null?
+      _isSelectedyear=(/* year[0]['Year']).toString() */'2022');
+      // monthsofYearsMap;
+      // monthsofYearsMap.isNotEmpty
+      //     ? dropdownvalue = monthsofYears[0].toString()
+      //     : Text("");
+
+         
+      getAllitemWidget();
     });
-  }
+  } */
 
   int _incomeTot = 0;
   int _expenseTot = 0;
@@ -83,25 +116,126 @@ print("55555 $_overall");
   int _lendOverall = 0;
   int _borrowOverall = 0;
   int _savingsOverall = 0;
-  getAllitem() async {
-    int keyMonth;
-    String valueMonth;
-    dropdownvalue == monthsofYearsMap;
+
+// DateTime findLastDateOfTheWeek(DateTime dateTime) {
+//   return dateTime.add(Duration(days: DateTime.daysPerWeek-4));
+// }
+// var currentMonth;
+// var currentMonthText;
+ var currentMonth =  DateTime.now().month;
+var currentMonthText;
+String DisplayDate='';
+
+  late Database _db2;
+ late var monthLastDate;
+  late  var monthFirstDate;
+  var StartText;
+   var endText;
+  getTotalSavings() async{
+    
+   _db2 = await openDatabase('money.db', version: 1,
+      onCreate: (Database db, int version) async {
+    await db.execute(
+        'CREATE TABLE MoneyManage (id INTEGER PRIMARY KEY, category TEXT, item TEXT, date DATE, amount INTEGER, remark TEXT, favourite TEXT)');
+  });
+
+  
+      monthFirstDate=
+      _overall==false?
+       await _db2.rawQuery("SELECT date FROM MoneyManage WHERE (strftime('%m', date)='0$currentMonth') ORDER BY date ASC LIMIT 1 "):
+       await _db2.rawQuery("SELECT date FROM MoneyManage ORDER BY date ASC LIMIT 1 ");
+      monthLastDate= await _db2.rawQuery("SELECT date FROM MoneyManage ORDER BY date DESC LIMIT 1");
+final List ls=monthFirstDate;
+final List la=monthLastDate;
+// print("777 $ls");
+if(ls.isNotEmpty){
+_selectedStartDate=await monthFirstDate[0]['date'].toString();
+_selectedEndDate=await monthLastDate[0]['date'].toString();
+  StartText=  DateFormat('MMM dd').format(DateTime.parse(_selectedStartDate));
+ endText=  DateFormat('MMM dd').format(DateTime.parse(_selectedEndDate));
+  DisplayDate="$StartText - $endText"; 
+}
+else{
+  DisplayDate="Add Some Data";
+}
+ 
+print("799 $_selectedStartDate $_selectedEndDate $StartText");
+   currentMonthText=  (DateFormat('MMM').format(DateTime(0,int.parse('$currentMonth'.toString()))));
+
+    //  var firstDay= findLastDateOfTheWeek(DateTime.now());
+    final entireData=await GroupByCategory(Tsavings: true);
+    print("699 $currentMonth");
+    for (var i = 0; i < entireData.length; i++) {
+      String item = entireData[i]['category'];
+      if (item == '1') {
+        _incomeTot = entireData[i]['tot_amount']!;
+      }
+      if (item == '2') {
+        _expenseTot = entireData[i]['tot_amount']!;
+      }
+      if (item == '3') {
+        _lendTot= entireData[i]['tot_amount']!;
+      }
+      if (item == '4') {
+        _borrowTot = entireData[i]['tot_amount']!;
+      }
+    }
+
+ 
+    // print("6999 $firstDay");
+ 
+   setState(() {
+     
+    //  DisplayDate='''$currentMonthText 01 - $currentMonthText ${DateTime.now().day}''';
+     _savingsOverall=(_incomeTot+_borrowTot)-(_expenseTot+_lendTot);
+   });
+  //  _isclosed==true?
+   getPieChartValue(_cardList);
+    getAllitemWidget();
+    //  _incomeTot=0; _expenseTot=0; _lendTot=0; _borrowTot=0;
+    print("7999 $_savingsOverall");
+
+    
+  }
     int _incomeTotal = 0;
     int _expenseTotal = 0;
     int _lendTotal = 0;
     int _borrowTotal = 0;
-    int _savingsTotal = 0;
+  getAllitemWidget() async {
 
-    int _incomeTotalOv = 0;
-    int _expenseTotalOv = 0;
-    int _lendTotalOv = 0;
-    int _borrowTotalOv = 0;
-    int _savingsTotalOv = 0;
-    final entireData = await GroupByCategory(SelectedMonth: dropdownvalue);
-    final entireDataForSavings = await GroupByCategory();
+    _incomeTotal=0;
+    _expenseTotal=0;
+    _lendTotal=0;
+    _borrowTotal=0;
+    print("199 $_selectedStartDate - $_selectedEndDate" );
+    int keyMonth;
+    String valueMonth;
+    dropdownvalue == monthsofYearsMap;
+  
+    // int _savingsTotal = 0;
 
-    for (var i = 0; i < entireDataForSavings.length; i++) {
+    // int _incomeTotalOv = 0;
+    // int _expenseTotalOv = 0;
+    // int _lendTotalOv = 0;
+    // int _borrowTotalOv = 0;
+    // int _savingsTotalOv = 0;
+    // final lastDayOfMonth = DateTime.now().month+1,0};
+print("999 $currentMonth");
+  print("999 $_selectedStartDate- $_selectedEndDate  or $_overall  and $currentMonth" );
+    final entireData = 
+  /*   currentMonth!=0?
+    await GroupByCategory(currentMonth: currentMonth)
+    :  */
+    _selectedStartDate!=null?
+    await GroupByCategory(startDate: _selectedStartDate, endDate: _selectedEndDate, /*SelectedMonth:dropdownvalue   selectedYear: _isSelectedyear */)
+: await GroupByCategory(overall: _overall/* selectedYear: _isSelectedyear */);
+
+// final TotalSavings=GroupByCategory();
+    
+   /*  final entireDataForSavings =  */
+
+
+    /* for (var i = 0; i < entireDataForSavings.length; i++) {
       String item = entireDataForSavings[i]['category'];
       if (item == '1') {
         _incomeTotalOv = entireDataForSavings[i]['tot_amount']!;
@@ -115,8 +249,8 @@ print("55555 $_overall");
       if (item == '4') {
         _borrowTotalOv = entireDataForSavings[i]['tot_amount']!;
       }
-    }
-
+    } */
+print("99 entire $entireData"); 
     for (var i = 0; i < entireData.length; i++) {
       String item = entireData[i]['category'];
       if (item == '1') {
@@ -142,17 +276,20 @@ print("55555 $_overall");
 
       _savingsTot = (_incomeTot + _borrowTot) - (_expenseTot + _lendTot);
 
-      _incomeOverall = _incomeTotalOv;
-      _expenseOverall = _expenseTotalOv;
-      _lendOverall = _lendTotalOv;
-      _borrowOverall = _borrowTotalOv;
+      // _incomeOverall = _incomeTotalOv;
+      // _expenseOverall = _expenseTotalOv;
+      // _lendOverall = _lendTotalOv;
+      // _borrowOverall = _borrowTotalOv;
 
-      _savingsOverall =
-          (_incomeOverall + _borrowOverall) - (_expenseOverall + _lendOverall);
+      // _savingsOverall =
+      //     (_incomeOverall + _borrowOverall) - (_expenseOverall + _lendOverall);
+  // var year=getYearDB();
+
 
       print("in get month $_incomeTot and $_savingsTot");
-      print("in get month $_incomeTotalOv and $_savingsOverall");
+      // print("in get month $_incomeTotalOv and $_savingsOverall");
     });
+    
     print("Income tota $_savingsTot");
   }
  Map<String, Object?> __selectedcontent={};
@@ -178,20 +315,37 @@ print("55555 $_overall");
   String? _dateCount;
   String? _range;
   var MonthData;
+  
 
   @override
   void initState() {
-    setState(() {});
+      dropdownvalue=_About[0].toString();
+    // print("4444 $year");
+ getTotalSavings();
+    setState(() {
+    
+    });
+      
     _card = 0;
-    getMonths();
+      
+    // getAllitemWidget();
+      
     _dateCount = '';
     _range = '';
+   
     // print("in init $dropdownvalue");
     super.initState();
   }
 
+   
+
+  
+
   @override
   Widget build(BuildContext context) {
+
+ print("666 $_favoriteVisible $_selectedStartDate");
+
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -214,13 +368,14 @@ print("55555 $_overall");
                             onTap: () {
                               setState(() {
                                 // print("this is main gesture");
-
+                                  currentMonth=0;
                                 _overall = true;
                                 _card = 0;
                                 _cardList = 0;
                                 bool _isUpdateClicked = false;
                                 bool _isAddorUpdate = false;
-                                dropdownvalue = null;
+                                _selectedStartDate=null;
+                                getTotalSavings();
                               });
                             },
                             child: Container(
@@ -272,7 +427,7 @@ print("55555 $_overall");
                                     ],
                                   ),
                                   Text(
-                                    "₹$_savingsOverall",
+                                    "₹$_savingsOverall",  
                                     style: TextStyle(
                                         fontFamily: 'nunito',
                                         fontSize: 30,
@@ -355,13 +510,19 @@ print("55555 $_overall");
                                     itemBuilder: (context) => [
                                       PopupMenuItem<int>(
                                         value: 0,
+                                        onTap: (){
+                                          setState(() {
+                                            _favoriteVisible==true?_favoriteVisible=false:_favoriteVisible=true;
+                                          });
+                                        },
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
                                               "Favourites",
-                                              style: Styles.boldwhite,
+                                              style:_favoriteVisible==false?
+                                               Styles.boldwhite:Styles.normal17red,
                                             ),
                                             Icon(
                                               Icons.favorite_outlined,
@@ -371,7 +532,7 @@ print("55555 $_overall");
                                           ],
                                         ),
                                       ),
-                                      PopupMenuItem<int>(
+                                     /*  PopupMenuItem<int>(
                                         value: 0,
                                         child: Row(
                                           mainAxisAlignment:
@@ -388,26 +549,27 @@ print("55555 $_overall");
                                             ),
                                           ],
                                         ),
-                                      ),
-                                      for (var i in widget._year)
+                                      ), */
+                                      for (var i in _About)
                                         PopupMenuItem<int>(
                                           onTap: () {
                                             setState(() {
-                                              _isSelectedyear = i.toString();
-                                              print(_isSelectedyear);
+                                              // _isSelectedyear = i.toString();
+                                              // print(_isSelectedyear);
                                             });
                                           },
                                           value: 1,
                                           child: i.toString() == _isSelectedyear
                                               ? Text(
                                                   i.toString(),
-                                                  style: Styles.normal17red,
+                                                  style: Styles.boldwhite,
                                                 )
                                               : Text(
                                                   i.toString(),
                                                   style: Styles.boldwhite,
                                                 ),
                                         ),
+                                        
                                       PopupMenuItem<int>(
                                         onTap: () {
                                           print("on share app");
@@ -510,8 +672,9 @@ print("55555 $_overall");
                                           MainAxisAlignment.start,
                                       children: [
                                         Column(
+                                          
                                           children: [
-                                            dropdownvalue == null
+                                           /*  dropdownvalue == null
                                                 ? SizedBox(
                                                     height: 30,
                                                   )
@@ -547,6 +710,54 @@ print("55555 $_overall");
                                                       },
                                                     ),
                                                   ),
+                                           */
+                                           SizedBox(height: 15,),  
+                                  Row(
+                                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,  
+                                    children: [
+                                      InkWell(
+                                          onTap: () {
+                                            currentMonth=0;
+                                            
+                                            pickDateRange(context);
+                                          },
+                                          child: Row(
+                                            children: [
+                                              Icon(Icons.calendar_today_sharp , size: 20, color: Styles.primary_black,), 
+                                              SizedBox(width: 10,),
+                                              Text(
+                                                DisplayDate,
+                                                style: Styles.normal17.copyWith(
+                                                    // fontSize: 17,
+                                                    color: Colors.deepOrange,
+                                                    fontWeight: FontWeight.bold),
+                                              ),
+                                            ],
+                                          )),
+                                          SizedBox(width: 10,),
+                                           dateRange!=null?
+                                      InkWell(
+                                        onTap: (){
+                                    
+                                          setState(()
+                                        
+                                         {
+                                          currentMonth = DateTime.now().month;
+                                          // DisplayDate = 'Choose Date Range';
+                                          DisplayDate='''$StartText - $endText''';
+                                          dateRange=null;
+                                        
+                                        });
+                                                 getTotalSavings();
+                                           print("555 $_cardList");
+                                          //  _isclosed=true;
+                                          //  getPieChartValue(_cardList);
+                                        },
+                                        child: Icon(Icons.close,color: Colors.red, size: 22,)) : Container(),  
+                                    ],
+                                  ),
+                               
+                                      SizedBox(height: 15,),
                                           ],
                                         ),
                                       ],
@@ -632,15 +843,15 @@ print("55555 $_overall");
                                               "Savings",
                                               style: Styles.normal17,
                                             ),
-                                            _overall == false
-                                                ? Text(
+                                            // _overall == false
+                                                Text(
                                                     "₹$_savingsTot",
                                                     style: Styles.bold25,
                                                   )
-                                                : Text(
+                                                /* : Text(
                                                     "₹$_savingsOverall",
                                                     style: Styles.bold25,
-                                                  ),
+                                                  ), */
                                           ],
                                         ),
                                       ),
@@ -651,9 +862,11 @@ print("55555 $_overall");
                                   ),
                                   InkWell(
                                     onTap: () {
+                                       getAllitemWidget();
+                                        getPieChartValue(1);
                                       setState(() {
                                         _percentInd = false;
-                                        getPieChartValue(1);
+                                       
                                         _cardList = 1;
                                         _percentInd = true;
                                         currentIndex = null;
@@ -706,15 +919,15 @@ print("55555 $_overall");
                                                 "Income",
                                                 style: Styles.normal17,
                                               ),
-                                              _overall == false
-                                                  ? Text(
-                                                      "₹$_incomeTot",
+                                             /*  _overall == false
+                                                  ? */ Text(
+                                                      "₹$_incomeTotal",
                                                       style: Styles.bold25,
                                                     )
-                                                  : Text(
+                                                /*   : Text(
                                                       "₹$_incomeOverall",
                                                       style: Styles.bold25,
-                                                    ),
+                                                    ), */
                                             ],
                                           ),
                                         )
@@ -780,15 +993,15 @@ print("55555 $_overall");
                                                 "Expense",
                                                 style: Styles.normal17,
                                               ),
-                                              _overall == false
-                                                  ? Text(
-                                                      "₹$_expenseTot",
+                                             /*  _overall == false
+                                                  ? */ Text(
+                                                      "₹$_expenseTotal",
                                                       style: Styles.bold25,
                                                     )
-                                                  : Text(
+                                               /*    : Text(
                                                       "₹$_expenseOverall",
                                                       style: Styles.bold25,
-                                                    ),
+                                                    ), */
                                             ],
                                           ),
                                         )
@@ -854,15 +1067,15 @@ print("55555 $_overall");
                                                 "Lend",
                                                 style: Styles.normal17,
                                               ),
-                                              _overall == false
-                                                  ? Text(
-                                                      "₹$_lendTot",
+                                           /*    _overall == false
+                                                  ? */ Text(
+                                                      "₹$_lendTotal",
                                                       style: Styles.bold25,
                                                     )
-                                                  : Text(
+                                                 /*  : Text(
                                                       "₹$_lendOverall",
                                                       style: Styles.bold25,
-                                                    ),
+                                                    ), */
                                             ],
                                           ),
                                         )
@@ -934,15 +1147,15 @@ print("55555 $_overall");
                                                 "Borrow",
                                                 style: Styles.normal17,
                                               ),
-                                              _overall == false
-                                                  ? Text(
-                                                      "₹$_borrowTot",
+                                              /* _overall == false
+                                                  ? */ Text(
+                                                      "₹$_borrowTotal",
                                                       style: Styles.bold25,
                                                     )
-                                                  : Text(
+                                               /*    : Text(
                                                       "₹$_borrowOverall",
                                                       style: Styles.bold25,
-                                                    ),
+                                                    ), */
                                             ],
                                           ),
                                         )
@@ -972,6 +1185,10 @@ print("55555 $_overall");
                         toggleisUpdateClicked: toggleisUpdateClicked,
                         card: _cardList,
                         percentIndicator: _percentInd,
+                        isSelectedYear: _isSelectedyear,
+                        startDate: _selectedStartDate,
+                        endDate: _selectedEndDate,
+                        favoriteVisible: _favoriteVisible,
                       )
                   
                     : _isUpdateClicked
@@ -985,7 +1202,7 @@ print("55555 $_overall");
                               selectedcontent: __selectedcontent,
                               hello: 1,
                                 size: size, card: _card, add: _isAddorUpdate)
-                            : home_content_all_widget(size,toggleisUpdateClicked,
+                            : home_content_all_widget(size,toggleisUpdateClicked,_isSelectedyear, _favoriteVisible,_selectedStartDate, _selectedEndDate
                               ),
               ],
             ),
@@ -1360,8 +1577,46 @@ print("55555 $_overall");
       _isUpdateClicked ? _isUpdateClicked = false : _isUpdateClicked = true;
     });
   }
-}
 
+   Future pickDateRange(BuildContext context) async {
+    // final dateFormat = DateFormat("yyyy-MM-dd");
+    final initialDateRange = DateTimeRange(
+      start: DateTime.now().subtract(Duration(hours: 24 * 3)),
+      end: DateTime.now(),
+    );
+    final newDateRange = await showDateRangePicker(
+      initialEntryMode: DatePickerEntryMode.calendar,
+      context: context,
+      currentDate: DateTime.now(),
+      firstDate: DateTime(DateTime.now().year - 5),
+      lastDate: DateTime.now(),
+      initialDateRange: dateRange ?? initialDateRange,
+    );
+
+    if (newDateRange == null) return;
+    dateRange = newDateRange;
+
+    _selectedStartDate = DateFormat('yyyy-MM-dd').format(dateRange!.start);
+    _selectedEndDate = DateFormat('yyyy-MM-dd').format(dateRange!.end);
+    var _selectedFirst = DateFormat('MMM dd').format(dateRange!.start);
+    var _selectedEnd = DateFormat('MMM dd').format(dateRange!.end);
+    //print(newDateRange.start);
+    //print(dateRange);
+    print(_selectedStartDate);
+    print(_selectedEndDate);
+    print(dateRange);
+
+    if (dateRange != null) {
+     getAllitemWidget();
+     _cardList==1?
+    getPieChartValue(1):_cardList==2? getPieChartValue(2):_cardList==3? getPieChartValue(3):getPieChartValue(4);
+      setState(() {
+        DisplayDate = "$_selectedFirst - $_selectedEnd";
+      });
+    }
+  }
+}
+/* 
 Future<dynamic> fetchingData() async {
   final values = await GroupByCategory();
   print("this is test value $values");
@@ -1377,7 +1632,7 @@ Future<dynamic> fetchingData() async {
   });
   // return grouped;
 }
-
+ */
 class BNBCustomPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -1404,4 +1659,6 @@ class BNBCustomPainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) {
     return false;
   }
+   
+
 }
