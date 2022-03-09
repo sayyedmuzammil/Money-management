@@ -1,11 +1,10 @@
 import 'package:favorite_button/favorite_button.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:money_management/screens/homeScreen.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'db_functions/db_functions.dart';
 import 'package:intl/intl.dart';
 import 'main.dart';
-import 'screens/homeScreen.dart';
 
 class list_widget extends StatefulWidget {
   list_widget({
@@ -14,7 +13,7 @@ class list_widget extends StatefulWidget {
     required this.card,
  required this.percentIndicator,
    required this.toggleisUpdateClicked,
-   required this.isSelectedYear,
+   required this.isOverall,
     required this.startDate,
     required this.endDate,
     required this.favoriteVisible,
@@ -26,7 +25,7 @@ final dataMap;
   final int card;
   final bool percentIndicator;
   void Function(Map<String, Object?> _selectedcontent) toggleisUpdateClicked;
-  final isSelectedYear;
+  final isOverall;
   final startDate;
     final endDate;
     final favoriteVisible;
@@ -48,37 +47,42 @@ class _list_widget extends State<list_widget> {
     setState(() {
       dateSets = [];
     });
-    // TODO: implement initState
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    print("111 ${widget.startDate} ${widget.endDate}");
     Map<String, Object?> _selectedcontent;
               _selectedStartDate=widget.startDate;
 _selectedEndDate=widget.endDate;
-    var j;
     String previousDate = '';
-    print("date range $dateRange");
     return FutureBuilder<List<Map<String, Object?>>>(
-        // future: dateRange != null
-        //     ? getAllItems(
-        //         starDate: _selectedStartDate, endDate: _selectedEndDate, categoryList: widget.card, /* selectedYear: widget.isSelectedYear */)
-        //     : getAllItems(categoryList: widget.card, /* selectedYear: widget.isSelectedYear */),
        future: 
         widget.favoriteVisible==false?
-       getAllItems(
+       getAllItems(overall: widget.isOverall, 
                 starDate: _selectedStartDate, endDate: _selectedEndDate,categoryList: widget.card /* selectedYear: widget.isSelectedYear */):getAllItems(favoriteVisible: widget.favoriteVisible, starDate: _selectedStartDate, endDate: _selectedEndDate,),
         builder: (context, listItem) {
           int pointer = -1;
           int counter = -1;
           dateSets = [];
-          // dateSets=[];
           if (listItem == null) return CircularProgressIndicator();
 
           if (listItem.data == null || listItem.data!.isEmpty) {
-            return Text("Nothing found");
+            return Column(
+             mainAxisAlignment: MainAxisAlignment.center,
+              
+              children: [
+                
+                 Image.asset(
+                    "assets/export/clipboard.png",
+                    height: widget.size.height*.13 ,  
+                  ),
+                SizedBox(height: 10,), 
+                Text("No Record", style: Styles.normal20, ),
+                Text("Tap the + button to add a record", style: Styles.normal17.copyWith(fontSize: 15, ), ),
+                SizedBox(height: 70, )
+              ],
+            ); 
           }
           List<Map<String, Object?>> AllRows = listItem.data!;
           previousDate = AllRows[0]['date'].toString();
@@ -94,12 +98,9 @@ _selectedEndDate=widget.endDate;
           dateSets.add(null); //dummy data in the end of dateset list
           return Expanded(
             child: ListView(
-              // scrollDirection: Axis.vertical,
-
               children: [
                 Column(
                   children: [
-                    // SizedBox(height: 30,),
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -117,6 +118,7 @@ _selectedEndDate=widget.endDate;
                       margin:
                           EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       width: widget.size.width,
+                      
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
                         child: Column(
@@ -173,7 +175,7 @@ _selectedEndDate=widget.endDate;
                           ? Text(
                               "Income",
                               style: Styles.normal20.copyWith(
-                                color: Styles.custom_income_green,
+                                color: Colors.green[300],
                               ),
                             )
                           : widget.card == 2
@@ -208,7 +210,7 @@ _selectedEndDate=widget.endDate;
                                           : Text(""),
                             widget.percentIndicator==true && widget.dataMap!={}?
                               Container(
-                              height: 260,  
+                              // height: 260,   
                               margin: EdgeInsets.only(top: 10),
                               width: widget.size.width,
                               child: Container(
@@ -221,7 +223,7 @@ _selectedEndDate=widget.endDate;
                                   widget.dataMap!=null?
                                    PieChart(
                                                   dataMap: widget.dataMap,
-                                                  animationDuration: Duration(milliseconds: 800),
+                                                  animationDuration: const Duration(milliseconds: 800),
                                                   chartLegendSpacing: 35,
                                                   chartRadius: MediaQuery.of(context).size.width / 3,
                                                   chartType: ChartType.disc,
@@ -232,7 +234,7 @@ _selectedEndDate=widget.endDate;
                                                     legendShape: BoxShape.circle,
                                                     legendTextStyle:Styles.normal17, 
                                                   ),
-                                                  chartValuesOptions: ChartValuesOptions(
+                                                  chartValuesOptions: const ChartValuesOptions(
                                                       showChartValueBackground: false,
                                                       // chartValueBackgroundColor: Colors.gree,
                                                       showChartValues: true, 
@@ -242,7 +244,7 @@ _selectedEndDate=widget.endDate;
                                                       chartValueStyle: TextStyle(color: Colors.black)),
                                                   // gradientList: ---To add gradient colors---
                                                   // emptyColorGradient: ---Empty Color gradient---
-                                                ):Text("No datas")
+                                                ):const Text("No datas")
                                 ),
                               ))
                          
@@ -292,7 +294,6 @@ _selectedEndDate=widget.endDate;
                                                       i['amount'].toString(),
                                                       style: Styles.normal17,
                                                     )
-                                                  
                                             ],
                                           ),
                                         ),
@@ -328,15 +329,11 @@ _selectedEndDate=widget.endDate;
         : val.toLowerCase() == 'true';
 
     final x = _selectedcontent['id'].toString();
-    print(x);
     return showModalBottomSheet<void>(
       backgroundColor: Styles.primary_color.withOpacity(0),
-      // context and builder are
-      // required properties in this widget
       context: context,
       builder: (BuildContext context) {
-        // we set up a container inside which
-        // we create center column and display text
+
         return Container(
           // color: Styles.primary_black,
           decoration: BoxDecoration(
@@ -347,12 +344,9 @@ _selectedEndDate=widget.endDate;
                 color: Styles.primary_black.withOpacity(0.3), //color of shadow
                 spreadRadius: 0.5, //spread radius
                 blurRadius: 5,
-                // blur radius
                 offset: Offset(0, -3), // changes position of shadow
-                //first paramerter of offset is left-right
-                //second parameter is top to down
+              
               ),
-              //you can set more BoxShadow() here
             ],
           ),
           height: 250,
@@ -377,7 +371,6 @@ _selectedEndDate=widget.endDate;
                           ),
                         ],
                       ),
-                      // SizedBox(height: 10,),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -398,7 +391,7 @@ _selectedEndDate=widget.endDate;
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         "Add to Favourite",
                         style: Styles.boldwhite,
                       ),
@@ -407,7 +400,6 @@ _selectedEndDate=widget.endDate;
                         iconSize: 28,
                         valueChanged: (_isFavorite) {
                           AddtoFavorite(int.parse('${_selectedcontent['id']}'));
-                          print('Is Favorite $_isFavorite');
                         },
                       ),
                     ],
@@ -428,10 +420,10 @@ _selectedEndDate=widget.endDate;
                               widget.toggleisUpdateClicked(_selectedcontent);
                               Navigator.of(context).pop();
                             },
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.edit_outlined,
                               size: 24,
-                              color: Styles.custom_income_green,
+                              color: Styles.custom_income_green ,
                             )),
                       ),
                     ],
@@ -439,21 +431,33 @@ _selectedEndDate=widget.endDate;
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         "Delete Entry",
                         style: Styles.boldwhite,
                       ),
                       InkWell(
                         onTap: () {
-                          deleteMoney(int.parse('${_selectedcontent['id']}'));
-
-                          Navigator.of(context).pop();
-                          Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(
-                                  builder: (context) => HomeScreen()),
-                              (Route<dynamic> route) => false);
+                           deleteMoney(int.parse('${_selectedcontent['id']}')); 
+                          _selectedcontent={};
+                          widget.toggleisUpdateClicked(_selectedcontent);
+                           Navigator.of(context).pop();
+                          // deleteMoney(int.parse('${_selectedcontent['id']}'));
+                          // Navigator.of(context).pop();
+                          // setState(() {
+                          // });
+                  //              deleteMoney(int.parse('${_selectedcontent['id']}'));
+                  //         Navigator.of(context).pop();
+                  //  Navigator.of(context).pushAndRemoveUntil(
+                  //                         MaterialPageRoute(
+                  //                             builder: (context) =>
+                  //                                 HomeScreen()),
+                  //                         (Route<dynamic> route) => false);
+                  //       //  widget.toggleisUpdateClicked();
+                  //         setState(() {
+                  //                   // HomeScreen();
+                  //         });
                         },
-                        child: Icon(
+                        child:const Icon(
                           Icons.delete_outline,
                           size: 24,
                           color: Styles.custom_expense_red,
@@ -470,38 +474,5 @@ _selectedEndDate=widget.endDate;
     );
   }
 
-  Future pickDateRange(BuildContext context) async {
-    // final dateFormat = DateFormat("yyyy-MM-dd");
-    final initialDateRange = DateTimeRange(
-      start: DateTime.now().subtract(Duration(hours: 24 * 3)),
-      end: DateTime.now(),
-    );
-    final newDateRange = await showDateRangePicker(
-      initialEntryMode: DatePickerEntryMode.calendar,
-      context: context,
-      currentDate: DateTime.now(),
-      firstDate: DateTime(DateTime.now().year - 5),
-      lastDate: DateTime.now(),
-      initialDateRange: dateRange ?? initialDateRange,
-    );
 
-    if (newDateRange == null) return;
-    dateRange = newDateRange;
-
-    _selectedStartDate = DateFormat('yyyy-MM-dd').format(dateRange!.start);
-    _selectedEndDate = DateFormat('yyyy-MM-dd').format(dateRange!.end);
-    var _selectedFirst = DateFormat('MMM dd').format(dateRange!.start);
-    var _selectedEnd = DateFormat('MMM dd').format(dateRange!.end);
-    //print(newDateRange.start);
-    //print(dateRange);
-    print(_selectedStartDate);
-    print(_selectedEndDate);
-    print(dateRange);
-
-    if (dateRange != null) {
-      setState(() {
-        DisplayDate = "$_selectedFirst - $_selectedEnd";
-      });
-    }
-  }
 }

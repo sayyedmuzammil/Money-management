@@ -15,16 +15,15 @@ class MoneyModel {
 
   String? favourite;
 
-
-
-  MoneyModel(
-      {required this.category,
-      required this.item,
-      required this.date, 
-      required this.amount,
-      this.remark,
-      this.id,
-      this.favourite,});
+  MoneyModel({
+    required this.category,
+    required this.item,
+    required this.date,
+    required this.amount,
+    this.remark,
+    this.id,
+    this.favourite,
+  });
 
   static MoneyModel fromMap(Map<String, Object?> map) {
     final id = map['id'] as int;
@@ -36,13 +35,13 @@ class MoneyModel {
     final Favourite = map['favourite'] as String;
 
     return MoneyModel(
-        id: id,
-        category: Category,
-        item: Item,
-        date: Date,
-        amount: Amount,
-        remark:Remark, 
-        favourite: Favourite,
-        );
+      id: id,
+      category: Category,
+      item: Item,
+      date: Date,
+      amount: Amount,
+      remark: Remark,
+      favourite: Favourite,
+    );
   }
 }

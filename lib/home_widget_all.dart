@@ -1,26 +1,26 @@
 import 'package:favorite_button/favorite_button.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'db_functions/db_functions.dart';
 import 'package:intl/intl.dart';
 import 'main.dart';
-import 'screens/homeScreen.dart';
+import 'package:money_management/screens/homeScreen.dart';
+// import 'screens/homeScreen.dart';
 
 class home_content_all_widget extends StatefulWidget {
   home_content_all_widget(
     this.size,
     this.toggleisUpdateClicked,
-    this.isSelectedYear,
+    this.isOverall,
     this.favoriteVisible,
     this.startDate,
     this.endDate,
   );
   final Size size;
   void Function(Map<String, Object?> _selectedcontent) toggleisUpdateClicked;
-    final isSelectedYear;
-    final favoriteVisible;
-    final startDate;
-    final endDate;
+  final isOverall;
+  final favoriteVisible;
+  final startDate;
+  final endDate;
 
   @override
   State<home_content_all_widget> createState() =>
@@ -36,35 +36,35 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
 
   @override
   void initState() {
-
     setState(() {
-
       dateSets = [];
     });
     // TODO: implement initState
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
-              _selectedStartDate=widget.startDate;
-_selectedEndDate=widget.endDate;
+    // print("working");
+    _selectedStartDate = widget.startDate;
+    _selectedEndDate = widget.endDate;
     Map<String, Object?> _selectedcontent;
-print("6666 $_selectedStartDate $_selectedEndDate");
 
     var j;
     String previousDate = '';
-    print("date range $dateRange");
-    print("444444 ${widget.isSelectedYear}");
     return FutureBuilder<List<Map<String, Object?>>>(
-        future: 
-        
-        widget.favoriteVisible==false?
-        /* dateRange != null
-            ? */ getAllItems(
-                starDate: _selectedStartDate, endDate: _selectedEndDate, /* selectedYear: widget.isSelectedYear */)
-            /* : getAllItems(/* selectedYear: widget.isSelectedYear  */) */:getAllItems(favoriteVisible: widget.favoriteVisible, starDate: _selectedStartDate, endDate: _selectedEndDate,),
+        future: widget.favoriteVisible == false
+            ?
+            getAllItems(
+                starDate: _selectedStartDate,
+                endDate: _selectedEndDate,
+                overall:
+                    widget.isOverall)
+         : getAllItems(
+                favoriteVisible: widget.favoriteVisible,
+                starDate: _selectedStartDate,
+                endDate: _selectedEndDate,
+              ),
         builder: (context, listItem) {
           int pointer = -1;
           int counter = -1;
@@ -73,11 +73,22 @@ print("6666 $_selectedStartDate $_selectedEndDate");
           if (listItem == null) return CircularProgressIndicator();
 
           if (listItem.data == null || listItem.data!.isEmpty) {
-            return Text("Nothing found");
+            return Column(
+             
+              children: [
+                // SizedBox(height: 150,),   
+                 Image.asset(
+                    "assets/export/clipboard.png",
+                     height: widget.size.height*.13 ,
+                  ),
+                SizedBox(height: 10,), 
+                Text("No Record", style: Styles.normal20, ),
+                Text("Tap the + button to add a record", style: Styles.normal17.copyWith(fontSize: 15, ), ),
+              ],
+            );
           }
           List<Map<String, Object?>> AllRows = listItem.data!;
           previousDate = AllRows[0]['date'].toString();
-          // print("777 $AllRows");
           dateSets.add(previousDate);
           for (var i = 1; i < AllRows.length; i++) {
             if (previousDate == AllRows[i]['date']) {
@@ -90,12 +101,9 @@ print("6666 $_selectedStartDate $_selectedEndDate");
           dateSets.add(null); //dummy data in the end of dateset list
           return Expanded(
             child: ListView(
-              // scrollDirection: Axis.vertical,
-
               children: [
                 Column(
                   children: [
-                    // SizedBox(height: 30,),
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -116,9 +124,8 @@ print("6666 $_selectedStartDate $_selectedEndDate");
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
                         child: Column(
-                            // crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                            /*   Row(
+                              /*   Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   widget.favoriteVisible==false?
@@ -143,16 +150,18 @@ print("6666 $_selectedStartDate $_selectedEndDate");
                                 ],
                               ),
                              */
-                        
-                              
-                              Container(child: Text(
-                                widget.favoriteVisible==true?
-                                      "Favourites":"All Transactions",
-                                        style: Styles.normal17.copyWith(
-                                            fontSize: 16,
-                                            color: Colors.deepOrange,
-                                            fontWeight: FontWeight.bold),
-                                      ),),
+
+                              Container(
+                                child: Text(
+                                  widget.favoriteVisible == true
+                                      ? "Favourites"
+                                      : "All Transactions",
+                                  style: Styles.normal17.copyWith(
+                                      fontSize: 16,
+                                      color: Colors.deepOrange,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
                               for (var i in AllRows)
                                 Container(
                                     child: Column(
@@ -196,8 +205,7 @@ print("6666 $_selectedStartDate $_selectedEndDate");
                                               ? Text(
                                                   i['amount'].toString(),
                                                   style: Styles.normal17.copyWith(
-                                                      color: Styles
-                                                          .custom_income_green),
+                                                      color:/*  Styles.custom_income_green  */ Colors.green[200]),
                                                 )
                                               : i['category'] == '2'
                                                   ? Text(
@@ -230,157 +238,7 @@ print("6666 $_selectedStartDate $_selectedEndDate");
                                   ],
                                 )),
                             ]
-                            /*    //                       ValueListenableBuilder(
-                      //                          valueListenable: MoneyListNotifier,
-                      //         builder:
-                      //               (BuildContext ctx, List<MoneyModel> MoneyList, Widget? child) {
-                      //                         return ListView.builder(
-                      //                           itemCount: MoneyList.length,
-                      //                           itemBuilder: (ctx, index) {
-
-                      //                     //  final previous;
-                      //                     //  final previousCategory;
-                      //                               final data = MoneyList[index];
-                      //                              final previousCategory = index>0? MoneyList[index-1]:MoneyList[index];
-
-                      //                              print('${previousCategory.category}   and is ${data.category}');
-                      //                               // index>0?()
-
-                      //                               // final previous=previousCategory.category;
-                      //                               // var set;
-                      //                               // index!=0?
-                      //                               // ( previousCategory = MoneyList[index-1]
-
-                      //                               //  previous=previousCategory;)
-
-                      //                               //  :Text("");
-
-                      // //                                  for(var item in data as List){
-                      // //   // If a map with the same name exists don't add the item.
-                      // //   if (set.any((e) => e['name'] == item['name'])) {
-                      // //     continue;
-                      // //   }
-                      // //   set.add(item);
-                      // // }
-                      //                               //  final UniqueCate= MoneyList.toSet().toList();
-
-                      //                                         // print("UniqueCate $UniqueCate");
-
-                      //                               // print("from home listview ${data.content}");
-
-                      //                           return Column(
-                      //                               crossAxisAlignment: CrossAxisAlignment.start,
-                      //                             children: [
-                      //                               index>0?
-                      //                              previousCategory.category!=data.category?
-                      //                              data.category=='4'?  Column(
-                      //                                children: [
-                      //                                   SizedBox(height: 20,),
-                      //                                  Text('Borrow',style: Styles.normal20,),
-                      //                                 //  SizedBox(height: 20,)
-                      //                                ],
-                      //                              )
-                      //                              :data.category=='2'?  Column(
-                      //                                children: [
-                      //                                   SizedBox(height: 20,),
-                      //                                  Text('Expense',style: Styles.normal20,),
-                      //                                ],
-                      //                              )
-                      //                              : data.category=='3'?  Column(
-                      //                                children: [
-                      //                                   SizedBox(height: 20,),
-                      //                                  Text('Lend',style: Styles.normal20,),
-                      //                                ],
-                      //                              )
-                      //                              : Text('Income',style: Styles.normal20,)
-                      //                             :Text(""):  data.category=='4'?  Text('Borrow',style: Styles.normal20,)
-                      //                              :data.category=='2'?  Text('Expense',style: Styles.normal20,)
-                      //                              : data.category=='3'?  Text('Lend',style: Styles.normal20,)
-                      //                 : Text('Income',style: Styles.normal20,),
-                      //                             //  print(data.category),
-
-                      //                               singleRow(data: data),
-                      //                                   // SizedBox(height: 30,),
-                      //                             ],
-                      //                           );
-
-                      //                           }
-                      //                         );
-                      //               },
-                      //                       ),
-                      //                     ),
-                      //                   //       SizedBox(
-                      //                   //   height: 10,
-                      //                   // ),
-                      //                 ],
-                      //               ),
-                      // //             ),
-                      // //           ),
-
-                      //         // SingleChildScrollView(
-                      //         //   scrollDirection: Axis.vertical,
-                      //         //   child: Column(
-                      //         //     // scrollDirection: Axis.vertical,
-
-                      //         //     children: [
-                      //         //       Container(
-                      //         //         decoration: BoxDecoration(
-                      //         //           color: Colors.white,
-                      //         //           borderRadius:
-                      //         //               BorderRadius.all(Radius.circular(20)),
-                      //         //           boxShadow: [
-                      //         //             BoxShadow(
-                      //         //               color: Styles.primary_black
-                      //         //                   .withOpacity(0.3), //color of shadow
-                      //         //               spreadRadius: 0.5, //spread radius
-                      //         //               blurRadius: 5,
-                      //         //               // blur radius
-                      //         //               offset: Offset(
-                      //         //                   0, 3), // changes position of shadow
-                      //         //               //first paramerter of offset is left-right
-                      //         //               //second parameter is top to down
-                      //         //             ),
-                      //         //             //you can set more BoxShadow() here
-                      //         //           ],
-                      //         //         ),
-                      //         //         margin: EdgeInsets.all(10),
-                      //         //         width: size.width,
-                      //         //         child: Container(
-                      //         //           margin: EdgeInsets.all(10),
-                      //         //           child: Column(
-                      //         //             // mainAxisAlignment: MainAxisAlignment.start,
-                      //         //             crossAxisAlignment:
-                      //         //                 CrossAxisAlignment.start,
-                      //         //             children: [
-                      //         //               SizedBox(
-                      //         //                 height: 10,
-                      //         //               ),
-                      //         //               // SizedBox(width: 10,),
-                      //         //               // for (var i in _content)
-                      //         //               //   Text(
-                      //         //               //     i.toString(),
-                      //         //               //     style: Styles.normal17,
-                      //         //               //   ),
-                      //         //               SizedBox(
-                      //         //                 height: 10,
-                      //         //               ),
-                      //         //             ],
-                      //         //           ),
-                      //         //         ),
-                      //         //       )
-                      //         //     ],
-                      //         //   ),
-                      //         // ),
-                      //         // SizedBox(
-                      //         //   height: 60,
-                      //         // ),
-
-                      //                  SizedBox(
-                      //                   height: 70,
-                      //                 ),
-                      //       ], */
-
-                            ),
+                       ),
 
                         // }
                       ),
@@ -398,6 +256,7 @@ print("6666 $_selectedStartDate $_selectedEndDate");
 
   Future<void> bottomSheet_edit(
       BuildContext context, Map<String, Object?> _selectedcontent) {
+       
     String val = '${_selectedcontent['favourite']}'.toString();
 
     bool fav = val == false
@@ -405,17 +264,12 @@ print("6666 $_selectedStartDate $_selectedEndDate");
         : val.toLowerCase() == 'true';
 
     final x = _selectedcontent['id'].toString();
-    print(x);
+    // print(x);
     return showModalBottomSheet<void>(
       backgroundColor: Styles.primary_color.withOpacity(0),
-      // context and builder are
-      // required properties in this widget
       context: context,
       builder: (BuildContext context) {
-        // we set up a container inside which
-        // we create center column and display text
         return Container(
-          // color: Styles.primary_black,
           decoration: BoxDecoration(
             color: Styles.primary_black,
             borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
@@ -424,12 +278,8 @@ print("6666 $_selectedStartDate $_selectedEndDate");
                 color: Styles.primary_black.withOpacity(0.3), //color of shadow
                 spreadRadius: 0.5, //spread radius
                 blurRadius: 5,
-                // blur radius
                 offset: Offset(0, -3), // changes position of shadow
-                //first paramerter of offset is left-right
-                //second parameter is top to down
               ),
-              //you can set more BoxShadow() here
             ],
           ),
           height: 250,
@@ -475,7 +325,7 @@ print("6666 $_selectedStartDate $_selectedEndDate");
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                     const Text(
                         "Add to Favourite",
                         style: Styles.boldwhite,
                       ),
@@ -484,7 +334,6 @@ print("6666 $_selectedStartDate $_selectedEndDate");
                         iconSize: 28,
                         valueChanged: (_isFavorite) {
                           AddtoFavorite(int.parse('${_selectedcontent['id']}'));
-                          print('Is Favorite $_isFavorite');
                         },
                       ),
                     ],
@@ -505,7 +354,7 @@ print("6666 $_selectedStartDate $_selectedEndDate");
                               widget.toggleisUpdateClicked(_selectedcontent);
                               Navigator.of(context).pop();
                             },
-                            icon: Icon(
+                            icon:const Icon(
                               Icons.edit_outlined,
                               size: 24,
                               color: Styles.custom_income_green,
@@ -516,21 +365,35 @@ print("6666 $_selectedStartDate $_selectedEndDate");
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         "Delete Entry",
                         style: Styles.boldwhite,
                       ),
                       InkWell(
                         onTap: () {
-                          deleteMoney(int.parse('${_selectedcontent['id']}'));
+                          // print("9999 ${_selectedcontent['id']}");
+                          deleteMoney(int.parse('${_selectedcontent['id']}')); 
+                          _selectedcontent={};
+                          widget.toggleisUpdateClicked(_selectedcontent);
+                           Navigator.of(context).pop();
+                             
+                          // Navigator.of(context).pop();
+                          // setState(() {
+                          // });
 
-                          Navigator.of(context).pop();
-                          Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(
-                                  builder: (context) => HomeScreen()),
-                              (Route<dynamic> route) => false);
+                  //         deleteMoney(int.parse('${_selectedcontent['id']}'));
+                  //         Navigator.of(context).pop();
+                  //  Navigator.of(context).pushAndRemoveUntil(
+                  //                         MaterialPageRoute(
+                  //                             builder: (context) =>
+                  //                                 HomeScreen()),
+                  //                         (Route<dynamic> route) => false);
+                        //  widget.toggleisUpdateClicked();
+                          // setState(() {
+                          //           // HomeScreen();
+                          // });
                         },
-                        child: Icon(
+                        child:const Icon(
                           Icons.delete_outline,
                           size: 24,
                           color: Styles.custom_expense_red,
@@ -547,7 +410,7 @@ print("6666 $_selectedStartDate $_selectedEndDate");
     );
   }
 
- /*  Future pickDateRange(BuildContext context) async {
+  /*  Future pickDateRange(BuildContext context) async {
     // final dateFormat = DateFormat("yyyy-MM-dd");
     final initialDateRange = DateTimeRange(
       start: DateTime.now().subtract(Duration(hours: 24 * 3)),
@@ -582,4 +445,5 @@ print("6666 $_selectedStartDate $_selectedEndDate");
     }
   }
  */
+
 }

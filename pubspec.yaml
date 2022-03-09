@@ -44,9 +44,15 @@ dependencies:
   syncfusion_flutter_datepicker: ^19.4.52
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.9.2
   flutter_lints: ^1.0.0
   flutter_test:
     sdk: flutter
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/export/simple_logo.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -68,6 +74,8 @@ flutter:
     - assets/export/logo heading.png
     - assets/export/simple_logo.png
     - assets/export/Union 1.png
+    - assets/export/clipboard.png
+    - assets/export/contract.png
   #   - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

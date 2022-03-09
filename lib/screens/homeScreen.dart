@@ -1,171 +1,110 @@
-// import 'dart:async';
 import 'dart:math';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:money_management/Custom_icons.dart';
 import 'package:money_management/db_functions/db_functions.dart';
-// import 'package:money_management/screens/Sign%20Up_Screen.dart';
-import 'package:money_management/db_functions/group_model.dart';
+import 'package:money_management/screens/Settings.dart';
 import 'package:sqflite/sqflite.dart';
-// import '../ListView_option_Category copy.dart';
 import '../ListView_option_Category.dart';
 import '../home_widget_all.dart';
 import '../main.dart';
 import '../Add_or_Update_widget.dart';
 import 'Sign Up_Screen.dart';
-// import 'package:money_management/db_functions/db_functions.dart';
-
-
-
 
 class HomeScreen extends StatefulWidget {
-  
-
-  
-
-
   @override
   _HomeScreen createState() => _HomeScreen();
 }
 
 class _HomeScreen extends State<HomeScreen> {
-List<String> _About = [ 'Developer : Muzammil', 'version : 1.0'];
+  // List<String> _About = [/* 'Developer : Muzammil', */ 'version : 1.0'];
   //  var year=getYearDB();
- var dateRange;
+  var dateRange;
   var _selectedStartDate;
   var _selectedEndDate;
   Map<String, double> dataMap = {};
   var DataMap;
-  // bool _isclosed=false;
-  
   getPieChartValue(_category) async {
-    
     dataMap = {};
-    print("888 $DataMap");
-    print("in Pie chart $dropdownvalue  and $_category $_selectedStartDate");
-print("55555 $_overall");
-    final entireData = /* dropdownvalue != null
-        ? */ await PieChartValue(category: _category, startDate: _selectedStartDate,endDate: _selectedEndDate, overall: _overall /* selectedYear: _isSelectedyear */);
-        // : await PieChartValue(category: _category, overall: _overall,/*  selectedYear: _isSelectedyear */);
-    print("55 $entireData");
-  entireData.isNotEmpty?
-  setPie(entireData):print("55 Nullll");
-  
+    final entireData = await PieChartValue(
+        category: _category,
+        startDate: _selectedStartDate,
+        endDate: _selectedEndDate,
+        overall: _overall);
+    entireData.isNotEmpty ? setPie(entireData) : null;
   }
-void setPie(entireData){
+
+  void setPie(entireData) {
     for (var item in entireData) {
       String SingleItem = item['category'] as String;
       int SingleAmount = item['tot_amount'] as int;
       double Total = SingleAmount.toDouble();
-      print("iteemmmmsss $SingleItem");
-      print("iteemmmmsss $Total");
       dataMap[SingleItem] = Total;
     }
     setState(() {
       DataMap = dataMap;
     });
-}
- bool _favoriteVisible=false;
-  String? _isSelectedyear;
-  var values;
-  var allItem;
+  }
 
+  bool _favoriteVisible = false;
+  String? _isSelectedyear;
   String? dropdownvalue;
   Map<int, String> monthsofYearsMap = {};
-
-  // List<String> monthsofYears = [];
-
-  /* getMonths() async {
-    print("99 $_selectedStartDate - $_selectedEndDate" );
-    // final entireData = await ListForMonth(startDate: _selectedStartDate, endDate: _selectedEndDate);
-    // for (var item in entireData) {
-    //   String TextMonth = item['data'];
-    //   print(TextMonth);
-    //   // int numberMonth = int.parse(item['data']);
-    //   // monthsofYears.add(TextMonth);
-    //   // monthsofYearsMap[numberMonth] = '$TextMonth';
-      
-    // }
-    final year=await getYearDB();
-      //  print("4444 ${year[0]['Year']}");
-for (var item in year) {
-_year.add(item['Year'].toString()); 
-  
-}
-// print()
-    setState(() {
-      // year[0]['Year'].toString()!=null?
-      _isSelectedyear=(/* year[0]['Year']).toString() */'2022');
-      // monthsofYearsMap;
-      // monthsofYearsMap.isNotEmpty
-      //     ? dropdownvalue = monthsofYears[0].toString()
-      //     : Text("");
-
-         
-      getAllitemWidget();
-    });
-  } */
 
   int _incomeTot = 0;
   int _expenseTot = 0;
   int _lendTot = 0;
   int _borrowTot = 0;
   int _savingsTot = 0;
-  int _incomeOverall = 0;
-  int _expenseOverall = 0;
-  int _lendOverall = 0;
-  int _borrowOverall = 0;
   int _savingsOverall = 0;
+  bool _isAbout=false;
 
-// DateTime findLastDateOfTheWeek(DateTime dateTime) {
-//   return dateTime.add(Duration(days: DateTime.daysPerWeek-4));
-// }
-// var currentMonth;
-// var currentMonthText;
- var currentMonth =  DateTime.now().month;
-var currentMonthText;
-String DisplayDate='';
+  var currentMonth = DateTime.now().month;
+  var currentMonthText;
+  String DisplayDate = '';
 
   late Database _db2;
- late var monthLastDate;
-  late  var monthFirstDate;
+  late var monthLastDate;
+  late var monthFirstDate;
   var StartText;
-   var endText;
-  getTotalSavings() async{
-    
-   _db2 = await openDatabase('money.db', version: 1,
-      onCreate: (Database db, int version) async {
-    await db.execute(
-        'CREATE TABLE MoneyManage (id INTEGER PRIMARY KEY, category TEXT, item TEXT, date DATE, amount INTEGER, remark TEXT, favourite TEXT)');
-  });
+  var endText;
+  getTotalSavings() async {
+    _db2 = await openDatabase('money.db', version: 1,
+        onCreate: (Database db, int version) async {
+      await db.execute(
+          'CREATE TABLE MoneyManage (id INTEGER PRIMARY KEY, category TEXT, item TEXT, date DATE, amount INTEGER, remark TEXT, favourite TEXT)');
+    });
 
+    monthFirstDate = _overall == false
+        ? await _db2.rawQuery(
+            "SELECT date FROM MoneyManage WHERE (strftime('%m', date)='0$currentMonth') OR (strftime('%m', date)='$currentMonth') ORDER BY date ASC LIMIT 1 ")
+        : await _db2.rawQuery(
+            "SELECT date FROM MoneyManage ORDER BY date ASC LIMIT 1 ");
+    monthLastDate = await _db2
+        .rawQuery("SELECT date FROM MoneyManage ORDER BY date DESC LIMIT 1");
+    final List ls = monthFirstDate;
+
+    if (ls.isNotEmpty) {
+      _selectedStartDate = await monthFirstDate[0]['date'].toString();
+      _selectedEndDate = await monthLastDate[0]['date'].toString();
   
-      monthFirstDate=
-      _overall==false?
-       await _db2.rawQuery("SELECT date FROM MoneyManage WHERE (strftime('%m', date)='0$currentMonth') ORDER BY date ASC LIMIT 1 "):
-       await _db2.rawQuery("SELECT date FROM MoneyManage ORDER BY date ASC LIMIT 1 ");
-      monthLastDate= await _db2.rawQuery("SELECT date FROM MoneyManage ORDER BY date DESC LIMIT 1");
-final List ls=monthFirstDate;
-final List la=monthLastDate;
-// print("777 $ls");
-if(ls.isNotEmpty){
-_selectedStartDate=await monthFirstDate[0]['date'].toString();
-_selectedEndDate=await monthLastDate[0]['date'].toString();
-  StartText=  DateFormat('MMM dd').format(DateTime.parse(_selectedStartDate));
- endText=  DateFormat('MMM dd').format(DateTime.parse(_selectedEndDate));
-  DisplayDate="$StartText - $endText"; 
-}
-else{
-  DisplayDate="Add Some Data";
-}
- 
-print("799 $_selectedStartDate $_selectedEndDate $StartText");
-   currentMonthText=  (DateFormat('MMM').format(DateTime(0,int.parse('$currentMonth'.toString()))));
+    }
 
-    //  var firstDay= findLastDateOfTheWeek(DateTime.now());
-    final entireData=await GroupByCategory(Tsavings: true);
-    print("699 $currentMonth");
+    currentMonthText = (DateFormat('MMM')
+        .format(DateTime(0, int.parse('$currentMonth'.toString()))));
+    final entireData = await GroupByCategory(Tsavings: true);
+    final List la=entireData;
+    print("666 $entireData");
+    if( la.isEmpty)
+    {
+      setState(() {
+        print("66662 empty");
+        _savingsOverall=0;
+      });
+    }
+    else{
     for (var i = 0; i < entireData.length; i++) {
+      print("66661 $entireData" );
       String item = entireData[i]['category'];
       if (item == '1') {
         _incomeTot = entireData[i]['tot_amount']!;
@@ -174,83 +113,44 @@ print("799 $_selectedStartDate $_selectedEndDate $StartText");
         _expenseTot = entireData[i]['tot_amount']!;
       }
       if (item == '3') {
-        _lendTot= entireData[i]['tot_amount']!;
+        _lendTot = entireData[i]['tot_amount']!;
       }
       if (item == '4') {
         _borrowTot = entireData[i]['tot_amount']!;
       }
     }
 
- 
-    // print("6999 $firstDay");
- 
-   setState(() {
-     
-    //  DisplayDate='''$currentMonthText 01 - $currentMonthText ${DateTime.now().day}''';
-     _savingsOverall=(_incomeTot+_borrowTot)-(_expenseTot+_lendTot);
-   });
-  //  _isclosed==true?
-   getPieChartValue(_cardList);
+
+    print("5555 $_incomeTot");
+
+      _savingsOverall = (_incomeTot + _borrowTot) - (_expenseTot + _lendTot);
+    
+    }
+    setState(() {
+      print("555 $_savingsOverall");
+      _savingsOverall;
+    });
+    getPieChartValue(_cardList);
     getAllitemWidget();
-    //  _incomeTot=0; _expenseTot=0; _lendTot=0; _borrowTot=0;
-    print("7999 $_savingsOverall");
-
-    
+   
   }
-    int _incomeTotal = 0;
-    int _expenseTotal = 0;
-    int _lendTotal = 0;
-    int _borrowTotal = 0;
+
+  int _incomeTotal = 0;
+  int _expenseTotal = 0;
+  int _lendTotal = 0;
+  int _borrowTotal = 0;
   getAllitemWidget() async {
+    _incomeTotal = 0;
+    _expenseTotal = 0;
+    _lendTotal = 0;
+    _borrowTotal = 0;
+    final entireData = _selectedStartDate != null
+        ? await GroupByCategory(
+            startDate: _selectedStartDate,
+            endDate: _selectedEndDate,
+          )
+        : await GroupByCategory(overall: _overall);
 
-    _incomeTotal=0;
-    _expenseTotal=0;
-    _lendTotal=0;
-    _borrowTotal=0;
-    print("199 $_selectedStartDate - $_selectedEndDate" );
-    int keyMonth;
-    String valueMonth;
-    dropdownvalue == monthsofYearsMap;
-  
-    // int _savingsTotal = 0;
-
-    // int _incomeTotalOv = 0;
-    // int _expenseTotalOv = 0;
-    // int _lendTotalOv = 0;
-    // int _borrowTotalOv = 0;
-    // int _savingsTotalOv = 0;
-    // final lastDayOfMonth = DateTime.now().month+1,0};
-print("999 $currentMonth");
-  print("999 $_selectedStartDate- $_selectedEndDate  or $_overall  and $currentMonth" );
-    final entireData = 
-  /*   currentMonth!=0?
-    await GroupByCategory(currentMonth: currentMonth)
-    :  */
-    _selectedStartDate!=null?
-    await GroupByCategory(startDate: _selectedStartDate, endDate: _selectedEndDate, /*SelectedMonth:dropdownvalue   selectedYear: _isSelectedyear */)
-: await GroupByCategory(overall: _overall/* selectedYear: _isSelectedyear */);
-
-// final TotalSavings=GroupByCategory();
-    
-   /*  final entireDataForSavings =  */
-
-
-    /* for (var i = 0; i < entireDataForSavings.length; i++) {
-      String item = entireDataForSavings[i]['category'];
-      if (item == '1') {
-        _incomeTotalOv = entireDataForSavings[i]['tot_amount']!;
-      }
-      if (item == '2') {
-        _expenseTotalOv = entireDataForSavings[i]['tot_amount']!;
-      }
-      if (item == '3') {
-        _lendTotalOv = entireDataForSavings[i]['tot_amount']!;
-      }
-      if (item == '4') {
-        _borrowTotalOv = entireDataForSavings[i]['tot_amount']!;
-      }
-    } */
-print("99 entire $entireData"); 
     for (var i = 0; i < entireData.length; i++) {
       String item = entireData[i]['category'];
       if (item == '1') {
@@ -268,83 +168,57 @@ print("99 entire $entireData");
     }
 
     setState(() {
-      // getAllItems();
       _incomeTot = _incomeTotal;
       _expenseTot = _expenseTotal;
       _lendTot = _lendTotal;
       _borrowTot = _borrowTotal;
-
       _savingsTot = (_incomeTot + _borrowTot) - (_expenseTot + _lendTot);
-
-      // _incomeOverall = _incomeTotalOv;
-      // _expenseOverall = _expenseTotalOv;
-      // _lendOverall = _lendTotalOv;
-      // _borrowOverall = _borrowTotalOv;
-
-      // _savingsOverall =
-      //     (_incomeOverall + _borrowOverall) - (_expenseOverall + _lendOverall);
-  // var year=getYearDB();
-
-
-      print("in get month $_incomeTot and $_savingsTot");
-      // print("in get month $_incomeTotalOv and $_savingsOverall");
     });
-    
-    print("Income tota $_savingsTot");
   }
- Map<String, Object?> __selectedcontent={};
+
+  Map<String, Object?> __selectedcontent = {};
 
   bool _isUpdateClicked = false;
   bool _isAddorUpdate = false;
   int _card = 0;
-
   bool _overall = false;
   bool _addButton = false; //clicking add button
   bool _percentInd = false;
   int? currentIndex;
-  // Initial Selected Value
-
   int _cardList = 0;
-  
   setBottomBarIndex(index) {
     setState(() {
       currentIndex = index;
       super.setState(() {});
     });
   }
+
   String? _dateCount;
   String? _range;
   var MonthData;
-  
 
   @override
   void initState() {
-      dropdownvalue=_About[0].toString();
-    // print("4444 $year");
- getTotalSavings();
-    setState(() {
-    
-    });
-      
+    // dropdownvalue = _About[0].toString();
+    getTotalSavings();
+    setState(() {});
     _card = 0;
-      
-    // getAllitemWidget();
-      
     _dateCount = '';
     _range = '';
-   
-    // print("in init $dropdownvalue");
     super.initState();
   }
 
-   
-
-  
-
   @override
   Widget build(BuildContext context) {
-
- print("666 $_favoriteVisible $_selectedStartDate");
+          StartText =  _selectedStartDate!=null?
+          DateFormat('MMM dd').format(DateTime.parse(_selectedStartDate)):null;
+       endText = _selectedStartDate!=null?DateFormat('MMM dd').format(DateTime.parse(_selectedEndDate)):null;
+     print("777 $_selectedStartDate , $StartText , $_savingsOverall"); 
+   _selectedStartDate == null
+            ? _savingsOverall == 0 
+        ? DisplayDate = "There is No Data"
+        : DisplayDate = "No Data in Current Month"
+            :  DisplayDate ='''$StartText - $endText''';
 
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
@@ -352,10 +226,8 @@ print("99 entire $entireData");
       backgroundColor: Styles.primary_color,
       body: SafeArea(
         child: Stack(
-          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Column(
-              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
                   children: [
@@ -368,13 +240,13 @@ print("99 entire $entireData");
                             onTap: () {
                               setState(() {
                                 // print("this is main gesture");
-                                  currentMonth=0;
+                                currentMonth = 0;
                                 _overall = true;
                                 _card = 0;
                                 _cardList = 0;
-                                bool _isUpdateClicked = false;
-                                bool _isAddorUpdate = false;
-                                _selectedStartDate=null;
+                                _isUpdateClicked = false;
+                                _isAddorUpdate = false;
+                                _selectedStartDate = null;
                                 getTotalSavings();
                               });
                             },
@@ -383,7 +255,7 @@ print("99 entire $entireData");
                               height: 100,
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.vertical(
+                                borderRadius: const BorderRadius.vertical(
                                     bottom: Radius.circular(50)),
                                 boxShadow: [
                                   BoxShadow(
@@ -392,7 +264,7 @@ print("99 entire $entireData");
                                     spreadRadius: 1, //spread radius
                                     blurRadius: 6,
                                     // blur radius
-                                    offset: Offset(
+                                    offset: const Offset(
                                         0, 3), // changes position of shadow
                                     //first paramerter of offset is left-right
                                     //second parameter is top to down
@@ -402,12 +274,12 @@ print("99 entire $entireData");
                               ),
                               child: Column(
                                 children: [
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 20,
                                   ),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
+                                    children: const [
                                       Icon(
                                         Custom_icons.savings,
                                         color: Styles.primary_black,
@@ -427,8 +299,8 @@ print("99 entire $entireData");
                                     ],
                                   ),
                                   Text(
-                                    "₹$_savingsOverall",  
-                                    style: TextStyle(
+                                    "₹$_savingsOverall",
+                                    style: const TextStyle(
                                         fontFamily: 'nunito',
                                         fontSize: 30,
                                         fontWeight: FontWeight.w800,
@@ -441,7 +313,7 @@ print("99 entire $entireData");
                         ),
                         Container(
                           //top icons home and more
-                          margin: EdgeInsets.symmetric(
+                          margin: const EdgeInsets.symmetric(
                             vertical: 20,
                             horizontal: 50,
                           ),
@@ -449,49 +321,43 @@ print("99 entire $entireData");
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Container(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Styles.primary_black,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(25)),
-                                  ),
-                                  alignment: Alignment.topLeft,
-                                  width: 35,
-                                  height: 35,
-                                  child: IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        // _addButton=false;
-                                        //  _overall=false;
-                                        // _isAddorUpdate=false;
-                                        // _isUpdateClicked=false;
-                                        // _card=0;
-                                        // print(_card);
-                                        // currentIndex=null;
-                                        // _cardList=0;
-                                        // _overall=false;
-                                        // // _overall==false;
-                                        Navigator.of(context)
-                                            .pushAndRemoveUntil(
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        HomeScreen()),
-                                                (Route<dynamic> route) =>
-                                                    false);
-                                      });
-                                      print("this is home icon");
-                                    },
-                                    icon: Icon(
-                                      Icons.home_outlined,
-                                      size: 20,
-                                      color: Colors.white,
-                                    ),
+                                decoration: const BoxDecoration(
+                                  color: Styles.primary_black,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(25)),
+                                ),
+                                alignment: Alignment.topLeft,
+                                width: 35,
+                                height: 35,
+                                child: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      // _addButton=false;
+                                      //  _overall=false;
+                                      // _isAddorUpdate=false;
+                                      // _isUpdateClicked=false;
+                                      // _card=0;
+                                      // print(_card);
+                                      // currentIndex=null;
+                                      // _cardList=0;
+                                      // _overall=false;
+                                      // // _overall==false;
+                                      Navigator.of(context).pushAndRemoveUntil(
+                                          MaterialPageRoute(
+                                              builder: (ctx) =>
+                                                  HomeScreen()),
+                                          (Route<dynamic> route) => false);
+                                    });
+                                  },
+                                  icon: const Icon(
+                                    Icons.home_outlined,
+                                    size: 20,
+                                    color: Colors.white,
                                   ),
                                 ),
                               ),
                               Container(
-                                  child: Container(
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   color: Styles.primary_black,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(25)),
@@ -501,8 +367,9 @@ print("99 entire $entireData");
                                 height: 35,
                                 child: Center(
                                   child: PopupMenuButton(
+                                    
                                     color: Styles.primary_black,
-                                    icon: Icon(
+                                    icon: const Icon(
                                       Icons.more_vert_outlined,
                                       color: Colors.white,
                                       size: 20,
@@ -510,9 +377,14 @@ print("99 entire $entireData");
                                     itemBuilder: (context) => [
                                       PopupMenuItem<int>(
                                         value: 0,
-                                        onTap: (){
+                                        onTap: () {
                                           setState(() {
-                                            _favoriteVisible==true?_favoriteVisible=false:_favoriteVisible=true;
+                                            // _cardList=0;
+                                            currentIndex=null;
+                                            //  _percentInd = false;
+                                            _favoriteVisible == true
+                                                ? _favoriteVisible = false
+                                                : _favoriteVisible = true;
                                           });
                                         },
                                         child: Row(
@@ -521,10 +393,11 @@ print("99 entire $entireData");
                                           children: [
                                             Text(
                                               "Favourites",
-                                              style:_favoriteVisible==false?
-                                               Styles.boldwhite:Styles.normal17red,
+                                              style: _favoriteVisible == false
+                                                  ? Styles.boldwhite
+                                                  : Styles.normal17red,
                                             ),
-                                            Icon(
+                                            const Icon(
                                               Icons.favorite_outlined,
                                               size: 20,
                                               color: Colors.redAccent,
@@ -532,44 +405,7 @@ print("99 entire $entireData");
                                           ],
                                         ),
                                       ),
-                                     /*  PopupMenuItem<int>(
-                                        value: 0,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              "Selected Year",
-                                              style: Styles.normal17red,
-                                            ),
-                                            Icon(
-                                              Icons.event_available_outlined,
-                                              size: 20,
-                                              color: Colors.redAccent,
-                                            ),
-                                          ],
-                                        ),
-                                      ), */
-                                      for (var i in _About)
-                                        PopupMenuItem<int>(
-                                          onTap: () {
-                                            setState(() {
-                                              // _isSelectedyear = i.toString();
-                                              // print(_isSelectedyear);
-                                            });
-                                          },
-                                          value: 1,
-                                          child: i.toString() == _isSelectedyear
-                                              ? Text(
-                                                  i.toString(),
-                                                  style: Styles.boldwhite,
-                                                )
-                                              : Text(
-                                                  i.toString(),
-                                                  style: Styles.boldwhite,
-                                                ),
-                                        ),
-                                        
+                                  
                                       PopupMenuItem<int>(
                                         onTap: () {
                                           print("on share app");
@@ -578,7 +414,7 @@ print("99 entire $entireData");
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
-                                          children: [
+                                          children: const [
                                             Text(
                                               "Share App",
                                               style: Styles.boldwhite,
@@ -592,14 +428,12 @@ print("99 entire $entireData");
                                         ),
                                       ),
                                       PopupMenuItem<int>(
-                                        onTap: () {
-                                          print("Settings button");
-                                        },
+
                                         value: 4,
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
-                                          children: [
+                                          children: const [
                                             Text(
                                               "Settings",
                                               style: Styles.boldwhite,
@@ -612,23 +446,59 @@ print("99 entire $entireData");
                                           ],
                                         ),
                                       ),
-                                      PopupMenuItem<int>(
+                                       PopupMenuItem<int>(
+                                        value: 5,
+                                        onTap:(){
+                                     
+                                        },
+                                         
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: const [
+                                            Text(
+                                              "About",
+                                              style: Styles.boldwhite, 
+                                               ),
+                                            Icon(
+                                              Icons.info_outline,
+                                              size: 20,
+                                              color: Colors.white,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      /*  PopupMenuItem<int>(
+                                        value: 6,
+                                        // onTap:
+                                        //   _showAbout, 
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: const [
+                                            Text(
+                                              "Version v1.00",
+                                              style: Styles.boldwhite, 
+                                               ),
+                                            Icon(
+                                              Icons.schedule_outlined,
+                                              size: 20,
+                                              color: Colors.white,
+                                            ),
+                                          ],
+                                        ),
+                                      ), */
+                                 /*      PopupMenuItem<int>(
                                         onTap: () {
                                           print("logout button");
                                           Log_out();
-                                          //                                FocusScopeNode currentFocus = FocusScope.of(context);
-                                          Navigator.of(context).pushReplacement(
-                                              MaterialPageRoute(builder: (ctx) {
-                                            return SignUp_Screen();
-                                          }));
-                                          // Navigator.popUntil(context, ModalRoute.withName('/Splash_Screen'));
-                                          // Navigator.pop(context);
+                                        
                                         },
                                         value: 5,
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
-                                          children: [
+                                          children: const [
                                             Text(
                                               "Log Out",
                                               style: Styles.boldwhite,
@@ -641,14 +511,27 @@ print("99 entire $entireData");
                                           ],
                                         ),
                                       ),
+                                  */  
                                     ],
-                                    onSelected: (item) => {print(item)},
+                                    // onSelected: (item) => {print(item)},
+                                    onSelected: (result) {
+                                      if(result==5){
+                                        _showAbout();
+                                      }
+    if (result == 4) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => SettingsScreen()),
+        );
+    }
+},
                                   ),
                                 ),
-                              )),
+                              ),
                             ],
                           ),
                         ),
+                      
                       ],
                     ),
                     SizedBox(
@@ -672,9 +555,8 @@ print("99 entire $entireData");
                                           MainAxisAlignment.start,
                                       children: [
                                         Column(
-                                          
                                           children: [
-                                           /*  dropdownvalue == null
+                                            /*  dropdownvalue == null
                                                 ? SizedBox(
                                                     height: 30,
                                                   )
@@ -711,53 +593,71 @@ print("99 entire $entireData");
                                                     ),
                                                   ),
                                            */
-                                           SizedBox(height: 15,),  
-                                  Row(
-                                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,  
-                                    children: [
-                                      InkWell(
-                                          onTap: () {
-                                            currentMonth=0;
-                                            
-                                            pickDateRange(context);
-                                          },
-                                          child: Row(
-                                            children: [
-                                              Icon(Icons.calendar_today_sharp , size: 20, color: Styles.primary_black,), 
-                                              SizedBox(width: 10,),
-                                              Text(
-                                                DisplayDate,
-                                                style: Styles.normal17.copyWith(
-                                                    // fontSize: 17,
-                                                    color: Colors.deepOrange,
-                                                    fontWeight: FontWeight.bold),
-                                              ),
-                                            ],
-                                          )),
-                                          SizedBox(width: 10,),
-                                           dateRange!=null?
-                                      InkWell(
-                                        onTap: (){
-                                    
-                                          setState(()
-                                        
-                                         {
-                                          currentMonth = DateTime.now().month;
-                                          // DisplayDate = 'Choose Date Range';
-                                          DisplayDate='''$StartText - $endText''';
-                                          dateRange=null;
-                                        
-                                        });
-                                                 getTotalSavings();
-                                           print("555 $_cardList");
-                                          //  _isclosed=true;
-                                          //  getPieChartValue(_cardList);
-                                        },
-                                        child: Icon(Icons.close,color: Colors.red, size: 22,)) : Container(),  
-                                    ],
-                                  ),
-                               
-                                      SizedBox(height: 15,),
+                                            SizedBox(
+                                              height: 15,
+                                            ),
+                                            Row(
+                                              children: [
+                                                InkWell(
+                                                    onTap: () {
+                                                      currentMonth = 0;
+                                                      pickDateRange(context);
+                                                    },
+                                                    child: Row(
+                                                      children: [
+                                                        Icon(
+                                                          Icons
+                                                              .calendar_today_sharp,
+                                                          size: 20,
+                                                          color: Styles
+                                                              .primary_black,
+                                                        ),
+                                                        SizedBox(
+                                                          width: 10,
+                                                        ),
+                                                        Text(
+                                                          DisplayDate,
+                                                          style: Styles.normal17
+                                                              .copyWith(
+                                                                  // fontSize: 17,
+                                                                  color: Colors
+                                                                      .deepOrange,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                        ),
+                                                      ],
+                                                    )),
+                                                SizedBox(
+                                                  width: 10,
+                                                ),
+                                                dateRange != null
+                                                    ? InkWell(
+                                                        onTap: () {
+                                                          setState(() {
+                                                            currentMonth =
+                                                                DateTime.now()
+                                                                    .month;
+                                                            // DisplayDate = 'Choose Date Range';
+                                                            DisplayDate =
+                                                                '''$StartText - $endText''';
+                                                            dateRange = null;
+                                                            _selectedStartDate =
+                                                                null;
+                                                          });
+                                                          getTotalSavings();
+                                                        },
+                                                        child: Icon(
+                                                          Icons.close,
+                                                          color: Colors.red,
+                                                          size: 22,
+                                                        ))
+                                                    : Container(),
+                                              ],
+                                            ),
+                                            SizedBox(
+                                              height: 15,
+                                            ),
                                           ],
                                         ),
                                       ],
@@ -791,86 +691,86 @@ print("99 entire $entireData");
                               child: ListView(
                                 scrollDirection: Axis.horizontal,
                                 children: [
-                                  _overall==false?
-                                  SizedBox(
-                                    width: 30,
-                                  ):Container(),
-                                  _overall==false?
-                                  InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        // PieChartValue(_cardList);
-                                      });
-                                    },
-                                    child: Stack(children: [
-                                      Container(
-                                        height: 140,
-                                        width: 140,
-                                        decoration: BoxDecoration(
-                                          color: Styles.custom_savings_blue,
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(30)),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Styles.primary_black
-                                                  .withOpacity(
-                                                      0.3), //color of shadow
-                                              spreadRadius: 0.5, //spread radius
-                                              blurRadius: 5,
-                                              offset: Offset(0,
-                                                  3), // changes position of shadow
+                                  _overall == false
+                                      ? SizedBox(
+                                          width: 30,
+                                        )
+                                      : Container(),
+                                  _overall == false
+                                      ? InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              // PieChartValue(_cardList);
+                                            });
+                                          },
+                                          child: Stack(children: [
+                                            Container(
+                                              height: 140,
+                                              width: 140,
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    Styles.custom_savings_blue,
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(30)),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Styles.primary_black
+                                                        .withOpacity(
+                                                            0.3), //color of shadow
+                                                    spreadRadius:
+                                                        0.5, //spread radius
+                                                    blurRadius: 5,
+                                                    offset: Offset(0,
+                                                        3), // changes position of shadow
+                                                  ),
+                                                  //you can set more BoxShadow() here
+                                                ],
+                                              ),
                                             ),
-                                            //you can set more BoxShadow() here
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        margin: EdgeInsets.symmetric(
-                                          vertical: 10,
-                                        ),
-                                        width: 140,
-                                        height: 140,
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            Icon(
-                                              Custom_icons.savings,
-                                              size: 36,
-                                              color: Styles.primary_black,
-                                            ),
-                                            Text(
-                                              "Savings",
-                                              style: Styles.normal17,
-                                            ),
-                                            // _overall == false
-                                                Text(
+                                            Container(
+                                              margin: EdgeInsets.symmetric(
+                                                vertical: 10,
+                                              ),
+                                              width: 140,
+                                              height: 140,
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                children: [
+                                                  Icon(
+                                                    Custom_icons.savings,
+                                                    size: 36,
+                                                    color: Styles.primary_black,
+                                                  ),
+                                                  Text(
+                                                    "Savings",
+                                                    style: Styles.normal17,
+                                                  ),
+                                                  Text(
                                                     "₹$_savingsTot",
                                                     style: Styles.bold25,
                                                   )
-                                                /* : Text(
-                                                    "₹$_savingsOverall",
-                                                    style: Styles.bold25,
-                                                  ), */
-                                          ],
-                                        ),
-                                      ),
-                                    ]),
-                                  ):Container(),
-                                  SizedBox(
+                                                ],
+                                              ),
+                                            ),
+                                          ]),
+                                        )
+                                      : Container(),
+                                  const SizedBox(
                                     width: 30,
                                   ),
                                   InkWell(
                                     onTap: () {
-                                       getAllitemWidget();
-                                        getPieChartValue(1);
+                                      getAllitemWidget();
+                                      getPieChartValue(1);
                                       setState(() {
+                                         _favoriteVisible=false;
+                                        _addButton=false;
                                         _percentInd = false;
-                                       
                                         _cardList = 1;
                                         _percentInd = true;
                                         currentIndex = null;
-                                        //  PieChartValue(_cardList);
                                       });
                                     },
                                     child: Stack(
@@ -910,36 +810,35 @@ print("99 entire $entireData");
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceEvenly,
                                             children: [
-                                              Icon(
+                                              const Icon(
                                                 Custom_icons.income,
                                                 size: 36,
                                                 color: Styles.primary_black,
                                               ),
-                                              Text(
+                                              const Text(
                                                 "Income",
                                                 style: Styles.normal17,
                                               ),
-                                             /*  _overall == false
-                                                  ? */ Text(
-                                                      "₹$_incomeTotal",
-                                                      style: Styles.bold25,
-                                                    )
-                                                /*   : Text(
-                                                      "₹$_incomeOverall",
-                                                      style: Styles.bold25,
-                                                    ), */
+                                              /*  _overall == false
+                                                  ? */
+                                              Text(
+                                                "₹$_incomeTotal",
+                                                style: Styles.bold25,
+                                              )
                                             ],
                                           ),
                                         )
                                       ],
                                     ),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 30,
                                   ),
                                   InkWell(
                                     onTap: () {
                                       setState(() {
+                                        _favoriteVisible=false;
+                                        _addButton=false;
                                         _percentInd = false;
                                         getPieChartValue(2);
                                         _cardList = 2;
@@ -954,8 +853,9 @@ print("99 entire $entireData");
                                           width: 140,
                                           decoration: BoxDecoration(
                                             color: Styles.custom_expense_red,
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(30)),
+                                            borderRadius:
+                                                const BorderRadius.all(
+                                                    Radius.circular(30)),
                                             boxShadow: [
                                               BoxShadow(
                                                 color: Styles.primary_black
@@ -965,17 +865,14 @@ print("99 entire $entireData");
                                                     0.5, //spread radius
                                                 blurRadius: 5,
                                                 // blur radius
-                                                offset: Offset(0,
+                                                offset: const Offset(0,
                                                     3), // changes position of shadow
-                                                //first paramerter of offset is left-right
-                                                //second parameter is top to down
                                               ),
-                                              //you can set more BoxShadow() here
                                             ],
                                           ),
                                         ),
                                         Container(
-                                          margin: EdgeInsets.symmetric(
+                                          margin: const EdgeInsets.symmetric(
                                             vertical: 10,
                                           ),
                                           width: 140, height: 140,
@@ -984,36 +881,33 @@ print("99 entire $entireData");
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceEvenly,
                                             children: [
-                                              Icon(
+                                              const Icon(
                                                 Custom_icons.expense,
                                                 size: 36,
                                                 color: Styles.primary_black,
                                               ),
-                                              Text(
+                                              const Text(
                                                 "Expense",
                                                 style: Styles.normal17,
                                               ),
-                                             /*  _overall == false
-                                                  ? */ Text(
-                                                      "₹$_expenseTotal",
-                                                      style: Styles.bold25,
-                                                    )
-                                               /*    : Text(
-                                                      "₹$_expenseOverall",
-                                                      style: Styles.bold25,
-                                                    ), */
+                                              Text(
+                                                "₹$_expenseTotal",
+                                                style: Styles.bold25,
+                                              )
                                             ],
                                           ),
                                         )
                                       ],
                                     ),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 30,
                                   ),
                                   InkWell(
                                     onTap: () {
                                       setState(() {
+                                         _favoriteVisible=false;
+                                        _addButton=false;
                                         _percentInd = false;
                                         getPieChartValue(3);
                                         _cardList = 3;
@@ -1049,7 +943,7 @@ print("99 entire $entireData");
                                           ),
                                         ),
                                         Container(
-                                          margin: EdgeInsets.symmetric(
+                                          margin: const EdgeInsets.symmetric(
                                             vertical: 10,
                                           ),
                                           width: 140,
@@ -1058,43 +952,36 @@ print("99 entire $entireData");
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceEvenly,
                                             children: [
-                                              Icon(
+                                              const Icon(
                                                 Custom_icons.lend,
                                                 size: 30,
                                                 color: Styles.primary_black,
                                               ),
-                                              Text(
+                                              const Text(
                                                 "Lend",
                                                 style: Styles.normal17,
                                               ),
-                                           /*    _overall == false
-                                                  ? */ Text(
-                                                      "₹$_lendTotal",
-                                                      style: Styles.bold25,
-                                                    )
-                                                 /*  : Text(
-                                                      "₹$_lendOverall",
-                                                      style: Styles.bold25,
-                                                    ), */
+                                              /*    _overall == false
+                                                  ? */
+                                              Text(
+                                                "₹$_lendTotal",
+                                                style: Styles.bold25,
+                                              )
                                             ],
                                           ),
                                         )
                                       ],
                                     ),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 30,
                                   ),
                                   InkWell(
                                     onTap: () {
                                       setState(() {
-                                        // getPieChartValue(4);
-                                        // _cardList = 4;
-                                        // _percentInd = true;
-                                        // currentIndex = null;
-                                        
-
-                                          _percentInd = false;
+                                         _favoriteVisible=false;
+                                        _addButton=false;
+                                        _percentInd = false;
                                         getPieChartValue(4);
                                         _cardList = 4;
                                         _percentInd = true;
@@ -1129,7 +1016,7 @@ print("99 entire $entireData");
                                           ),
                                         ),
                                         Container(
-                                          margin: EdgeInsets.symmetric(
+                                          margin: const EdgeInsets.symmetric(
                                             vertical: 10,
                                           ),
                                           width: 140,
@@ -1138,37 +1025,34 @@ print("99 entire $entireData");
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceEvenly,
                                             children: [
-                                              Icon(
+                                              const Icon(
                                                 Custom_icons.borrow,
                                                 size: 32,
                                                 color: Styles.primary_black,
                                               ),
-                                              Text(
+                                              const Text(
                                                 "Borrow",
                                                 style: Styles.normal17,
                                               ),
                                               /* _overall == false
-                                                  ? */ Text(
-                                                      "₹$_borrowTotal",
-                                                      style: Styles.bold25,
-                                                    )
-                                               /*    : Text(
-                                                      "₹$_borrowOverall",
-                                                      style: Styles.bold25,
-                                                    ), */
+                                                  ? */
+                                              Text(
+                                                "₹$_borrowTotal",
+                                                style: Styles.bold25,
+                                              )
                                             ],
                                           ),
                                         )
                                       ],
                                     ),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 30,
                                   ),
                                 ],
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 20,
                             )
                           ],
@@ -1177,42 +1061,49 @@ print("99 entire $entireData");
                     ),
                   ],
                 ),
-                
                 _cardList >= 1
                     ? list_widget(
-                      dataMap: DataMap,
+                        dataMap: DataMap,
                         size: size,
                         toggleisUpdateClicked: toggleisUpdateClicked,
                         card: _cardList,
                         percentIndicator: _percentInd,
-                        isSelectedYear: _isSelectedyear,
+                        isOverall: _overall,
                         startDate: _selectedStartDate,
                         endDate: _selectedEndDate,
                         favoriteVisible: _favoriteVisible,
                       )
-                  
-                    : _isUpdateClicked
+                    /* : _isUpdateClicked && _favoriteVisible == false
                         ? category_cards(
-                          selectedcontent: __selectedcontent,
-                          hello: 0,
-                            size: size, card: _card, add: _isAddorUpdate)
-                        :
-                        _card >= 1
+                            selectedcontent: __selectedcontent,
+                            size: size,
+                            card: _card,
+                            add: _isAddorUpdate) */
+                        : (_card >= 1 || _isUpdateClicked )&& _favoriteVisible == false
                             ? category_cards(
-                              selectedcontent: __selectedcontent,
-                              hello: 1,
-                                size: size, card: _card, add: _isAddorUpdate)
-                            : home_content_all_widget(size,toggleisUpdateClicked,_isSelectedyear, _favoriteVisible,_selectedStartDate, _selectedEndDate
-                              ),
+                                selectedcontent: __selectedcontent,
+                                size: size,
+                                card: _card,
+                                add: _isAddorUpdate)
+                            : home_content_all_widget(
+                                size,
+                                toggleisUpdateClicked,
+                                _overall,
+                                _favoriteVisible,
+                                _selectedStartDate,
+                                _selectedEndDate),
               ],
             ),
             _addButton == true //popup container
-                ? //IF CLICKED
-                Positioned(
+                ? 
+                //IF CLICKED 
+          
+                Container(
+                  alignment: Alignment.bottomCenter,
                     // ADD BUTTON POPUP A CONTAINER
-
-                    bottom: 90,
-                    left: 47,
+                    margin: EdgeInsets.only(bottom: 90),
+                    // bottom: 90,
+                    // left: 47,
                     child: Stack(
                       alignment: Alignment.topCenter,
                       children: [
@@ -1221,7 +1112,7 @@ print("99 entire $entireData");
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
+                            children: const [
                               ImageIcon(
                                 AssetImage("assets/export/Union 1.png"),
                                 size: 300,
@@ -1259,12 +1150,12 @@ print("99 entire $entireData");
                                     },
                                     child: Container(
                                       child: Container(
-                                        margin: EdgeInsets.symmetric(
+                                        margin: const EdgeInsets.symmetric(
                                             horizontal: 10),
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceAround,
-                                          children: [
+                                          children: const [
                                             Icon(
                                               Custom_icons.income,
                                               size: 24,
@@ -1279,7 +1170,7 @@ print("99 entire $entireData");
                                       ),
                                       height: 40,
                                       width: 130,
-                                      decoration: BoxDecoration(
+                                      decoration: const BoxDecoration(
                                         color: Styles.custom_income_green,
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(30)),
@@ -1299,12 +1190,12 @@ print("99 entire $entireData");
                                     },
                                     child: Container(
                                       child: Container(
-                                        margin: EdgeInsets.symmetric(
+                                        margin: const EdgeInsets.symmetric(
                                             horizontal: 10),
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceAround,
-                                          children: [
+                                          children: const [
                                             Icon(
                                               Custom_icons.expense,
                                               size: 24,
@@ -1319,7 +1210,7 @@ print("99 entire $entireData");
                                       ),
                                       height: 40,
                                       width: 130,
-                                      decoration: BoxDecoration(
+                                      decoration: const BoxDecoration(
                                         color: Styles.custom_expense_red,
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(30)),
@@ -1344,12 +1235,12 @@ print("99 entire $entireData");
                                     },
                                     child: Container(
                                       child: Container(
-                                        margin: EdgeInsets.symmetric(
+                                        margin: const EdgeInsets.symmetric(
                                             horizontal: 10),
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceAround,
-                                          children: [
+                                          children: const [
                                             Icon(
                                               Custom_icons.lend,
                                               size: 24,
@@ -1364,7 +1255,7 @@ print("99 entire $entireData");
                                       ),
                                       height: 40,
                                       width: 130,
-                                      decoration: BoxDecoration(
+                                      decoration: const BoxDecoration(
                                         color: Styles.custom_lend_yellow,
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(30)),
@@ -1383,12 +1274,12 @@ print("99 entire $entireData");
                                         });
                                       },
                                       child: Container(
-                                        margin: EdgeInsets.symmetric(
+                                        margin: const EdgeInsets.symmetric(
                                             horizontal: 10),
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceAround,
-                                          children: [
+                                          children: const [
                                             Icon(
                                               Custom_icons.borrow,
                                               size: 24,
@@ -1404,7 +1295,7 @@ print("99 entire $entireData");
                                     ),
                                     height: 40,
                                     width: 130,
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       color: Styles.custom_borrow_pink,
                                       borderRadius:
                                           BorderRadius.all(Radius.circular(30)),
@@ -1418,7 +1309,7 @@ print("99 entire $entireData");
                       ],
                     ),
                   )
-                : Text(""),
+                : const Text(""),
             Positioned(
               //bottom navigation bar
               bottom: 0,
@@ -1446,10 +1337,10 @@ print("99 entire $entireData");
                             elevation: 0.1,
                             onPressed: () {
                               setState(() {
+                                 _favoriteVisible=false;
                                 _addButton == false
                                     ? _addButton = true
                                     : _addButton = false;
-
                                 // _cardList=0;
                                 _card = 0;
                               });
@@ -1471,17 +1362,16 @@ print("99 entire $entireData");
                             ),
                             onPressed: () {
                               setState(() {
+
+                              //  _favoriteVisible=false;
                                 _isUpdateClicked = false;
-                               
                                 _cardList = 1;
                                 // _addButton
                                 // _card=0;
-                                _percentInd=false;
+                                _percentInd = false;
                                 _addButton = false;
                                 _isAddorUpdate = false;
                                 setBottomBarIndex(0);
-
-                                // print("_isadd $_isAddorUpdate");
                               });
                             },
                             splashColor: Colors.white,
@@ -1495,11 +1385,11 @@ print("99 entire $entireData");
                               ),
                               onPressed: () {
                                 setState(() {
+                                  //  _favoriteVisible=false;
                                   _isUpdateClicked = false;
                                   _percentInd = false;
                                   _addButton = false;
                                   _isAddorUpdate = false;
-                                  // _card=0;
                                   _cardList = 2;
                                   setBottomBarIndex(1);
                                 });
@@ -1516,6 +1406,7 @@ print("99 entire $entireData");
                               ),
                               onPressed: () {
                                 setState(() {
+                                  //  _favoriteVisible=false;
                                   _isUpdateClicked = false;
                                   _percentInd = false;
                                   _addButton = false;
@@ -1534,17 +1425,13 @@ print("99 entire $entireData");
                               ),
                               onPressed: () {
                                 setState(() {
+                                  //  _favoriteVisible=false;
                                   _isUpdateClicked = false;
                                   _percentInd = false;
                                   _addButton = false;
                                   _cardList = 4;
                                   _isAddorUpdate = false;
-
                                   setBottomBarIndex(3);
-
-                                 
-                               
-                             
                                 });
                               }),
                         ],
@@ -1568,17 +1455,33 @@ print("99 entire $entireData");
       return SignUp_Screen();
     }));
   }
+
 // void Function(Map<String, Object?> _selectedcontent)   toggleisUpdateClicked;
   void toggleisUpdateClicked(Map<String, Object?> _selectedcontent) {
-    setState(() {
-      __selectedcontent=_selectedcontent;
+    
+        // print("999 $_selectedcontent");
+    if(_selectedcontent.isEmpty)
+    {
+      _incomeTot=0;
+      _expenseTot=0;
+      _lendTot=0;
+      _borrowTot=0;
+      getTotalSavings();
+    }
+  
+      else{
+      
+        setState(() {
+          // print("999 in update");
+        __selectedcontent = _selectedcontent;
       _cardList = 0;
       _addButton = false;
       _isUpdateClicked ? _isUpdateClicked = false : _isUpdateClicked = true;
     });
+      }
   }
 
-   Future pickDateRange(BuildContext context) async {
+  Future pickDateRange(BuildContext context) async {
     // final dateFormat = DateFormat("yyyy-MM-dd");
     final initialDateRange = DateTimeRange(
       start: DateTime.now().subtract(Duration(hours: 24 * 3)),
@@ -1600,22 +1503,45 @@ print("99 entire $entireData");
     _selectedEndDate = DateFormat('yyyy-MM-dd').format(dateRange!.end);
     var _selectedFirst = DateFormat('MMM dd').format(dateRange!.start);
     var _selectedEnd = DateFormat('MMM dd').format(dateRange!.end);
-    //print(newDateRange.start);
-    //print(dateRange);
-    print(_selectedStartDate);
-    print(_selectedEndDate);
     print(dateRange);
-
     if (dateRange != null) {
-     getAllitemWidget();
-     _cardList==1?
-    getPieChartValue(1):_cardList==2? getPieChartValue(2):_cardList==3? getPieChartValue(3):getPieChartValue(4);
+      getAllitemWidget();
+      _cardList == 1
+          ? getPieChartValue(1)
+          : _cardList == 2
+              ? getPieChartValue(2)
+              : _cardList == 3
+                  ? getPieChartValue(3)
+                  : getPieChartValue(4);
       setState(() {
         DisplayDate = "$_selectedFirst - $_selectedEnd";
       });
     }
   }
+
+    Future<dynamic> _showAbout() {
+      print("show about");
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AboutDialog(
+          applicationName: "MoneyX",
+          applicationVersion: "Version 1.0.0",
+          applicationIcon: Image.asset(
+            'assets/export/simple_logo.png', 
+            width: 50.0,
+            height: 50.0,
+          ),
+        );
+      },
+    );
+  }
+
+  void updated() {
+     
+  }
 }
+
 /* 
 Future<dynamic> fetchingData() async {
   final values = await GroupByCategory();
@@ -1659,6 +1585,4 @@ class BNBCustomPainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) {
     return false;
   }
-   
-
 }
