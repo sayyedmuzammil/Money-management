@@ -14,6 +14,7 @@ class category_cards extends StatefulWidget {
     required int card,
     required bool add,
     required Map<String, Object?> this.selectedcontent,
+    this.toggleAddorUpdateClicked,
   })  : _card = card,
         _isAddorUpdate = add,
         super(key: key);
@@ -23,12 +24,14 @@ class category_cards extends StatefulWidget {
 
   final bool _isAddorUpdate;
   final Map<String, Object?> selectedcontent;
+  void Function(String category)? toggleAddorUpdateClicked;
 
   @override
   State<category_cards> createState() => _category_cardsState();
 }
 
 class _category_cardsState extends State<category_cards> {
+  final snackBar = SnackBar(content: Text(' Item Added Successfully.', style: Styles.normal17.copyWith(color: Colors.white,)));   
   final _categoryController = TextEditingController();
 
   final _dateController = TextEditingController();
@@ -36,11 +39,10 @@ class _category_cardsState extends State<category_cards> {
 
   final _remarkController = TextEditingController();
   final _globalKey = GlobalKey<FormState>();
-
-  String? _selectedItem;
+  late DateTime _selectedDate;
 
   bool _isClicked = false;
-  String now = DateFormat("yyyy-MM-dd").format(DateTime.now());
+  // String now = DateFormat("yyyy-MM-dd").format(DateTime.now());
   @override
   void initState() {
     // TODO: implement initState
@@ -48,9 +50,10 @@ class _category_cardsState extends State<category_cards> {
       ListForTextForm(widget._card);
       widget.selectedcontent.isNotEmpty
           ? {
+              
               _categoryController.text =
                   widget.selectedcontent['item'].toString(),
-              _dateController.text = widget.selectedcontent['date'].toString(),
+              _selectedDate= DateTime.parse(widget.selectedcontent['date'].toString(),) , 
               _amountController.text =
                   widget.selectedcontent['amount'].toString(),
               _remarkController.text =
@@ -60,7 +63,7 @@ class _category_cardsState extends State<category_cards> {
 
 // print("its list data $LISTS");
 
-      _dateController.text = now;
+      _selectedDate = DateTime.now();
     });
 
     super.initState();
@@ -68,12 +71,13 @@ class _category_cardsState extends State<category_cards> {
 
   @override //this widget is add student
   Widget build(BuildContext context) {
+    _dateController.text=DateFormat("MMM dd").format(_selectedDate);
     // print("7777 ${widget.selectedcontent}   and ${widget.hello}");
-
+print("555 ${widget.selectedcontent}");
     _categoryController.text.length > 1
         ? _isClicked = false
         : _isClicked = true;
-    late DateTime _selectedDate;
+  
     String _dateChange = 0.toString();
 
     return Stack(
@@ -118,39 +122,53 @@ class _category_cardsState extends State<category_cards> {
                         SizedBox(
                           height: 10,
                         ),
-                        widget._card == 1 ||
-                                widget.selectedcontent['category'] == '1'
-                            ? Text(
-                                "Income",
-                                style: Styles.normal17.copyWith(
-                                    color: Styles.custom_income_green),
-                              )
-                            : widget._card == 2 ||
-                                    widget.selectedcontent['category'] == '2'
-                                ? Text(
-                                    "Expense",
-                                    style: Styles.normal17.copyWith(
-                                        color: Styles.custom_expense_red),
-                                  )
-                                : widget._card == 3 ||
-                                        widget.selectedcontent['category'] ==
-                                            '3'
-                                    ? Text(
-                                        "Lend",
-                                        style: Styles.normal17.copyWith(
-                                            color: Styles.custom_lend_yellow),
-                                      )
-                                    : widget._card == 4 ||
-                                            widget.selectedcontent[
-                                                    'category'] ==
-                                                '4'
-                                        ? Text(
-                                            "Borrow",
-                                            style: Styles.normal17.copyWith(
-                                                color:
-                                                    Styles.custom_borrow_pink),
-                                          )
-                                        : Text(""),
+                        
+                        Tooltip(
+                message: " " ,
+                child: InkWell(
+                  onTap: (){},
+                  child: Container(child:
+                  widget._card == 1
+                              ? 
+                  Text(
+                                  "Income",
+                                  style: Styles.normal20.copyWith(
+                                    color: Colors.green[300],
+                                  ),
+                                )
+                              : widget._card == 2
+                                  ? Text(
+                                      "Expense",
+                                      style: Styles.normal20.copyWith(
+                                        color: Styles.custom_expense_red,
+                                      ),
+                                    )
+                                  : widget._card == 3
+                                      ? Text(
+                                          "Lend",
+                                          style: Styles.normal20.copyWith(
+                                            color: Styles.custom_lend_yellow,
+                                          ),
+                                        )
+                                      : widget._card == 4
+                                          ? Text(
+                                              "Borrow",
+                                              style: Styles.normal20.copyWith(
+                                                color: Styles.custom_borrow_pink,
+                                              ),
+                                            )
+                                          : widget._card == 5
+                                              ? Text(
+                                                  "Savings",
+                                                  style: Styles.normal20.copyWith(
+                                                    color:
+                                                        Styles.custom_savings_blue,
+                                                  ),
+                                                )
+                                              : Text(""),),
+                ),
+              ),
+            
                         Stack(
                           children: [
                             Column(
@@ -230,16 +248,17 @@ class _category_cardsState extends State<category_cards> {
                                                       null) {
                                                     return;
                                                   } else {
-                                                    var _selected_date =
-                                                        DateFormat('yyyy-MM-dd')
-                                                            .format(
-                                                                _selectedDateTemp);
+                                                     _selectedDate = _selectedDateTemp;
+                                                     setState(() {
+                                                       
+                                                     });
                                                     // print(_selected_date.toString());
-                                                    setState(() {
-                                                      _dateController.text =
-                                                          _selected_date
-                                                              .toString();
-                                                    });
+                                                    // setState(() {
+                                                    //   _dateController.text =
+                                                    //        DateFormat('MMM dd')
+                                                    //         .format(
+                                                    //             _selectedDate);
+                                                    // });
                                                   }
                                                 },
                                                 readOnly: true,
@@ -431,15 +450,17 @@ class _category_cardsState extends State<category_cards> {
                                            if (_globalKey.currentState!.validate()) {
                                           onAddItemButton(
                                               category: widget._card);
-
-                                          Navigator.of(context)
+                                                widget.toggleAddorUpdateClicked!(widget._card.toString());
+                          Scaffold.of(context).showSnackBar(snackBar);  
+                          
+                                         /*  Navigator.of(context)
                                               .pushAndRemoveUntil(
                                                   MaterialPageRoute(
                                                       builder:
                                                           (context) =>
                                                               HomeScreen()),
                                                   (Route<dynamic> route) =>
-                                                      false);
+                                                      false); */
                                            }
                                         },
                                         child: const Text(
@@ -464,13 +485,16 @@ class _category_cardsState extends State<category_cards> {
                                onAddItemButton(
                                                   id: widget
                                                       .selectedcontent['id']);
-                                              Navigator.of(context)
-                                                  .pushAndRemoveUntil(
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              HomeScreen()),
-                                                      (Route<dynamic> route) =>
-                                                          false);
+                                                      widget.toggleAddorUpdateClicked!(widget.selectedcontent['category'] as String);
+                                              // Navigator.of(context)
+                                              //     .pushAndRemoveUntil(
+                                              //         MaterialPageRoute(
+                                              //             builder: (context) =>
+                                              //                 HomeScreen()),
+                                              //         (Route<dynamic> route) =>
+                                              //             false);
+
+                                                        // Scaffold.of(context).showSnackBar(snackBar); 
                           }
                                               // print(
                                               //     "card value ${widget.selectedcontent['id']}");
@@ -546,15 +570,15 @@ class _category_cardsState extends State<category_cards> {
   }
 
   Future<void> onAddItemButton({category, id}) async {
-    print("id is $id");
-    print("888 ${_amountController.text}");
+  //  print("")
     final _item = _categoryController.text.trim().toLowerCase();
-    final _date = _dateController.text.trim().toString();
+    final _date = DateFormat('yyyy-MM-dd').format(_selectedDate);
+                                                  
     
     final _amount = int.parse(_amountController.text.trim());
     final _remark = _remarkController.text.trim();
     _categoryController.text = "";
-    _dateController.text = "";
+    // _dateController.text = ""; 
     _amountController.text = "";
     _remarkController.text = "";
     MoneyListNotifier.notifyListeners();

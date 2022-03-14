@@ -24,7 +24,7 @@ final dataMap;
   final Size size;
   final int card;
   final bool percentIndicator;
-  void Function(Map<String, Object?> _selectedcontent) toggleisUpdateClicked;
+  void Function(Map<String, Object?> _selectedcontent,{bool fav}) toggleisUpdateClicked;
   final isOverall;
   final startDate;
     final endDate;
@@ -68,20 +68,23 @@ _selectedEndDate=widget.endDate;
           if (listItem == null) return CircularProgressIndicator();
 
           if (listItem.data == null || listItem.data!.isEmpty) {
-            return Column(
-             mainAxisAlignment: MainAxisAlignment.center,
-              
-              children: [
+            return Tooltip( 
+               message: "Alert",   
+              child: Column(
+               mainAxisAlignment: MainAxisAlignment.center,
                 
-                 Image.asset(
-                    "assets/export/clipboard.png",
-                    height: widget.size.height*.13 ,  
-                  ),
-                SizedBox(height: 10,), 
-                Text("No Record", style: Styles.normal20, ),
-                Text("Tap the + button to add a record", style: Styles.normal17.copyWith(fontSize: 15, ), ),
-                SizedBox(height: 70, )
-              ],
+                children: [
+                  SizedBox(height: 50,), 
+                   Image.asset(
+                      "assets/export/clipboard.png",
+                      height: widget.size.height*.13 ,  
+                    ),
+                  SizedBox(height: 10,), 
+                  Text("No Record", style: Styles.normal20, ),
+                  Text("Tap the + button to add a record", style: Styles.normal17.copyWith(fontSize: 15, ), ),
+                  SizedBox(height: 50, ), 
+                ],
+              ),
             ); 
           }
           List<Map<String, Object?>> AllRows = listItem.data!;
@@ -125,89 +128,55 @@ _selectedEndDate=widget.endDate;
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               widget.percentIndicator!=true?
-                              Column(
-                                children: [
-                                /*  Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  InkWell(
-                                      onTap: () {
-                                        pickDateRange(context);
-                                      },
-                                      child: Text(
-                                        DisplayDate,
-                                        style: Styles.normal17.copyWith(
-                                            fontSize: 16,
-                                            color: Colors.deepOrange,
-                                            fontWeight: FontWeight.bold),
-                                      )),
-                                      dateRange!=null?
-                                      InkWell(
-                                        onTap: (){setState(() {
-                                           DisplayDate = 'Select Date Range';
-                                          dateRange=null;
-                                        });},
-                                        child: Icon(Icons.close,color: Colors.red, size: 22,)) : Container(),
-                                ],
-                              ),
-                                       SizedBox(
+                              const SizedBox(
                                 height: 5,
-                              ),
-                              Divider(
-                                height: 2,
-                              ), */
-                                     SizedBox(
-                                height: 5,
-                              ),
-                                ],
                               ):Container(),
-                      widget.favoriteVisible==true?
-                              Container(
-                                alignment: Alignment.center, 
-                                child: Text(
-                                      "Favourites",
-                                        style: Styles.normal17.copyWith(
-                                            fontSize: 16,
-                                            color: Colors.deepOrange,
-                                            fontWeight: FontWeight.bold),
-                                      ),):    
-                    widget.card == 1
-                          ? Text(
-                              "Income",
-                              style: Styles.normal20.copyWith(
-                                color: Colors.green[300],
-                              ),
-                            )
-                          : widget.card == 2
-                              ? Text(
-                                  "Expense",
+              Tooltip(
+                message: " " ,
+                child: InkWell(
+                  onTap: (){},
+                  child: Container(child:
+                  widget.card == 1
+                              ? 
+                  Text(
+                                  "Income",
                                   style: Styles.normal20.copyWith(
-                                    color: Styles.custom_expense_red,
+                                    color: Colors.green[300],
                                   ),
                                 )
-                              : widget.card == 3
+                              : widget.card == 2
                                   ? Text(
-                                      "Lend",
+                                      "Expense",
                                       style: Styles.normal20.copyWith(
-                                        color: Styles.custom_lend_yellow,
+                                        color: Styles.custom_expense_red,
                                       ),
                                     )
-                                  : widget.card == 4
+                                  : widget.card == 3
                                       ? Text(
-                                          "Borrow",
+                                          "Lend",
                                           style: Styles.normal20.copyWith(
-                                            color: Styles.custom_borrow_pink,
+                                            color: Styles.custom_lend_yellow,
                                           ),
                                         )
-                                      : widget.card == 5
+                                      : widget.card == 4
                                           ? Text(
-                                              "Savings",
+                                              "Borrow",
                                               style: Styles.normal20.copyWith(
-                                                color:
-                                                    Styles.custom_savings_blue,
+                                                color: Styles.custom_borrow_pink,
                                               ),
                                             )
-                                          : Text(""),
+                                          : widget.card == 5
+                                              ? Text(
+                                                  "Savings",
+                                                  style: Styles.normal20.copyWith(
+                                                    color:
+                                                        Styles.custom_savings_blue,
+                                                  ),
+                                                )
+                                              : Text(""),),
+                ),
+              ),
+                    
                             widget.percentIndicator==true && widget.dataMap!={}?
                               Container(
                               // height: 260,   
@@ -265,22 +234,25 @@ _selectedEndDate=widget.endDate;
                                               )
                                             : Container(),
                                         dateSets[++pointer] != null
-                                            ? Text(
-                                                DateFormat('MMM dd').format(
-                                                    DateTime.parse(
-                                                        i['date'].toString())),
-                                                style: Styles.normal17.copyWith(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.red),
-                                              )
+                                            ? Tooltip(
+                                              message: " ",
+                                              child: InkWell(
+                                                onTap: (){},
+                                                child: Text(
+                                                    DateFormat('MMM dd').format(
+                                                        DateTime.parse(
+                                                            i['date'].toString())),
+                                                    style: Styles.normal17.copyWith(
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Colors.red),
+                                                  ),
+                                              ),
+                                            )
                                             : Container(),
                                         InkWell(
                                           onTap: () {
-                                            print(i.toString());
-                                            _selectedcontent = i;
-                                            print(_selectedcontent);
-                                            bottomSheet_edit(
-                                                context, _selectedcontent);
+                                          bottomSheet_edit(
+                                                context, i);
                                           },
                                           child: Row(
                                             mainAxisAlignment:
@@ -320,22 +292,23 @@ _selectedEndDate=widget.endDate;
         });
   }
 
-  Future<void> bottomSheet_edit(
+ Future<void> bottomSheet_edit(
       BuildContext context, Map<String, Object?> _selectedcontent) {
+       
     String val = '${_selectedcontent['favourite']}'.toString();
 
     bool fav = val == false
         ? val.toLowerCase() == 'false'
         : val.toLowerCase() == 'true';
 
+print("555 $fav");
     final x = _selectedcontent['id'].toString();
+    // print(x);
     return showModalBottomSheet<void>(
       backgroundColor: Styles.primary_color.withOpacity(0),
       context: context,
       builder: (BuildContext context) {
-
         return Container(
-          // color: Styles.primary_black,
           decoration: BoxDecoration(
             color: Styles.primary_black,
             borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
@@ -345,7 +318,6 @@ _selectedEndDate=widget.endDate;
                 spreadRadius: 0.5, //spread radius
                 blurRadius: 5,
                 offset: Offset(0, -3), // changes position of shadow
-              
               ),
             ],
           ),
@@ -356,51 +328,67 @@ _selectedEndDate=widget.endDate;
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Tooltip(
+                    message: " ",
+                    child: InkWell(
+                      onTap: (){},
+                      child: Column(
                         children: [
-                          Text(
-                            _selectedcontent['item'].toString(),
-                            style: Styles.boldwhite,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                _selectedcontent['item'].toString(),
+                                style: Styles.boldwhite,
+                              ),
+                              Text(
+                                _selectedcontent['amount'].toString(),
+                                style: Styles.boldwhite,
+                              ),
+                            ],
                           ),
-                          Text(
-                            _selectedcontent['amount'].toString(),
-                            style: Styles.boldwhite,
+                          // SizedBox(height: 10,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Remark :  ${_selectedcontent['remark'].toString()}",
+                                style: Styles.boldwhite,
+                              ),
+                              Text(
+                                DateFormat('MMM dd').format(DateTime.parse(
+                                    _selectedcontent['date'].toString())),
+                                style: Styles.boldwhite,
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Remark :  ${_selectedcontent['remark'].toString()}",
-                            style: Styles.boldwhite,
-                          ),
-                          Text(
-                            DateFormat('MMM dd').format(DateTime.parse(
-                                _selectedcontent['date'].toString())),
-                            style: Styles.boldwhite,
-                          ),
-                        ],
-                      ),
-                    ],
+                    ),
                   ),
                   Container(height: 2, color: Colors.white),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                     const Text(
                         "Add to Favourite",
                         style: Styles.boldwhite,
                       ),
-                      FavoriteButton(
-                        isFavorite: fav,
-                        iconSize: 28,
-                        valueChanged: (_isFavorite) {
-                          AddtoFavorite(int.parse('${_selectedcontent['id']}'));
-                        },
+                      Tooltip(
+                        message: "favourite is $fav on ${_selectedcontent['item']}! tap to switch",
+                        child: FavoriteButton(
+                          isFavorite: fav,
+                          iconSize: 28,
+                          valueChanged: (_isFavorite) {
+                           
+                            // Scaffold.of(context).activate; 
+                            AddtoFavorite(int.parse('${_selectedcontent['id']}'));
+                            widget.toggleisUpdateClicked(_selectedcontent,fav: true);
+                           Navigator.of(context).pop();
+                            
+                             
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -415,16 +403,19 @@ _selectedEndDate=widget.endDate;
                         height: 40, width: 33,
                         alignment: Alignment.center,
                         //  color: Colors.red,
-                        child: IconButton(
-                            onPressed: () {
-                              widget.toggleisUpdateClicked(_selectedcontent);
-                              Navigator.of(context).pop();
-                            },
-                            icon: const Icon(
-                              Icons.edit_outlined,
-                              size: 24,
-                              color: Styles.custom_income_green ,
-                            )),
+                        child: Tooltip(
+                          message: "Edit ${_selectedcontent['item']} item",
+                          child: IconButton(
+                              onPressed: () {
+                                widget.toggleisUpdateClicked(_selectedcontent);
+                                Navigator.of(context).pop();
+                              },
+                              icon:const Icon(
+                                Icons.edit_outlined,
+                                size: 24,
+                                color: Styles.custom_income_green,
+                              )),
+                        ),
                       ),
                     ],
                   ),
@@ -435,32 +426,23 @@ _selectedEndDate=widget.endDate;
                         "Delete Entry",
                         style: Styles.boldwhite,
                       ),
-                      InkWell(
-                        onTap: () {
-                           deleteMoney(int.parse('${_selectedcontent['id']}')); 
-                          _selectedcontent={};
-                          widget.toggleisUpdateClicked(_selectedcontent);
-                           Navigator.of(context).pop();
-                          // deleteMoney(int.parse('${_selectedcontent['id']}'));
-                          // Navigator.of(context).pop();
-                          // setState(() {
-                          // });
-                  //              deleteMoney(int.parse('${_selectedcontent['id']}'));
-                  //         Navigator.of(context).pop();
-                  //  Navigator.of(context).pushAndRemoveUntil(
-                  //                         MaterialPageRoute(
-                  //                             builder: (context) =>
-                  //                                 HomeScreen()),
-                  //                         (Route<dynamic> route) => false);
-                  //       //  widget.toggleisUpdateClicked();
-                  //         setState(() {
-                  //                   // HomeScreen();
-                  //         });
-                        },
-                        child:const Icon(
-                          Icons.delete_outline,
-                          size: 24,
-                          color: Styles.custom_expense_red,
+                      Container(
+                        height: 40, width: 33,
+                        alignment: Alignment.center, 
+                        child: Tooltip(
+                          message: "delete ${_selectedcontent['item']} item",
+                          child:  IconButton(
+                            onPressed: (){
+                                deleteMoney(int.parse('${_selectedcontent['id']}')); 
+                              _selectedcontent={};
+                              widget.toggleisUpdateClicked(_selectedcontent);
+                               Navigator.of(context).pop();
+                            },
+              icon: Icon( Icons.delete_outline,
+                            size: 24,
+                            color: Styles.custom_expense_red,), 
+                           
+                          ),
                         ),
                       )
                     ],
@@ -473,6 +455,5 @@ _selectedEndDate=widget.endDate;
       },
     );
   }
-
 
 }

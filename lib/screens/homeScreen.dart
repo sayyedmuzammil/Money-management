@@ -45,9 +45,7 @@ class _HomeScreen extends State<HomeScreen> {
       DataMap = dataMap;
     });
   }
-
   bool _favoriteVisible = false;
-  String? _isSelectedyear;
   String? dropdownvalue;
   Map<int, String> monthsofYearsMap = {};
 
@@ -60,16 +58,22 @@ class _HomeScreen extends State<HomeScreen> {
   bool _isAbout=false;
 
   var currentMonth = DateTime.now().month;
+  // ignore: prefer_typing_uninitialized_variables
   var currentMonthText;
+  // ignore: non_constant_identifier_names
   String DisplayDate = '';
 
   late Database _db2;
+  // ignore: prefer_typing_uninitialized_variables
   late var monthLastDate;
+  // ignore: prefer_typing_uninitialized_variables
   late var monthFirstDate;
-  var StartText;
+  // ignore: prefer_typing_uninitialized_variables
+  var startText;
+  // ignore: prefer_typing_uninitialized_variables
   var endText;
-  getTotalSavings() async {
-    _db2 = await openDatabase('money.db', version: 1,
+  Future<void> getTotalSavings() async {
+    _db2 = await openDatabase('money.db', version: 1, 
         onCreate: (Database db, int version) async {
       await db.execute(
           'CREATE TABLE MoneyManage (id INTEGER PRIMARY KEY, category TEXT, item TEXT, date DATE, amount INTEGER, remark TEXT, favourite TEXT)');
@@ -83,7 +87,7 @@ class _HomeScreen extends State<HomeScreen> {
     monthLastDate = await _db2
         .rawQuery("SELECT date FROM MoneyManage ORDER BY date DESC LIMIT 1");
     final List ls = monthFirstDate;
-
+print("88 before $monthFirstDate, $monthLastDate, $currentMonth"); 
     if (ls.isNotEmpty) {
       _selectedStartDate = await monthFirstDate[0]['date'].toString();
       _selectedEndDate = await monthLastDate[0]['date'].toString();
@@ -94,17 +98,15 @@ class _HomeScreen extends State<HomeScreen> {
         .format(DateTime(0, int.parse('$currentMonth'.toString()))));
     final entireData = await GroupByCategory(Tsavings: true);
     final List la=entireData;
-    print("666 $entireData");
     if( la.isEmpty)
     {
       setState(() {
-        print("66662 empty");
+     
         _savingsOverall=0;
       });
     }
     else{
     for (var i = 0; i < entireData.length; i++) {
-      print("66661 $entireData" );
       String item = entireData[i]['category'];
       if (item == '1') {
         _incomeTot = entireData[i]['tot_amount']!;
@@ -121,13 +123,12 @@ class _HomeScreen extends State<HomeScreen> {
     }
 
 
-    print("5555 $_incomeTot");
 
-      _savingsOverall = (_incomeTot + _borrowTot) - (_expenseTot + _lendTot);
-    
+
+      _savingsOverall = (_incomeTot + _borrowTot) - (_expenseTot + _lendTot); 
+    print("88 $_savingsOverall , $_incomeTot, $_expenseTot, $_lendTot, $_borrowTot, $_selectedStartDate, $_selectedEndDate");
     }
     setState(() {
-      print("555 $_savingsOverall");
       _savingsOverall;
     });
     getPieChartValue(_cardList);
@@ -173,10 +174,13 @@ class _HomeScreen extends State<HomeScreen> {
       _lendTot = _lendTotal;
       _borrowTot = _borrowTotal;
       _savingsTot = (_incomeTot + _borrowTot) - (_expenseTot + _lendTot);
+      
+    print("888 $_savingsTot , $_incomeTot, $_expenseTot, $_lendTot, $_borrowTot, $_selectedStartDate, $_selectedEndDate");
     });
   }
 
   Map<String, Object?> __selectedcontent = {};
+  String _selectedCategory='';
 
   bool _isUpdateClicked = false;
   bool _isAddorUpdate = false;
@@ -193,32 +197,25 @@ class _HomeScreen extends State<HomeScreen> {
     });
   }
 
-  String? _dateCount;
-  String? _range;
-  var MonthData;
-
   @override
   void initState() {
-    // dropdownvalue = _About[0].toString();
     getTotalSavings();
     setState(() {});
     _card = 0;
-    _dateCount = '';
-    _range = '';
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-          StartText =  _selectedStartDate!=null?
+          startText =  _selectedStartDate!=null?
           DateFormat('MMM dd').format(DateTime.parse(_selectedStartDate)):null;
        endText = _selectedStartDate!=null?DateFormat('MMM dd').format(DateTime.parse(_selectedEndDate)):null;
-     print("777 $_selectedStartDate , $StartText , $_savingsOverall"); 
+
    _selectedStartDate == null
             ? _savingsOverall == 0 
         ? DisplayDate = "There is No Data"
         : DisplayDate = "No Data in Current Month"
-            :  DisplayDate ='''$StartText - $endText''';
+            :  DisplayDate ='''$startText - $endText''';
 
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
@@ -231,15 +228,71 @@ class _HomeScreen extends State<HomeScreen> {
               children: [
                 Column(
                   children: [
-                    Stack(
-                      children: [
-                        Container(
-                          //main total savings container
-                          alignment: Alignment.center,
-                          child: GestureDetector(
+                    Overall_inkwell_main(size, context),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    scrollView_container(size, context),
+                  ],
+                ),
+                _cardList >= 1
+                    ? list_widget(
+                        dataMap: DataMap,
+                        size: size,
+                        toggleisUpdateClicked: toggleisUpdateClicked,
+                        card: _cardList,
+                        percentIndicator: _percentInd,
+                        isOverall: _overall,
+                        startDate: _selectedStartDate,
+                        endDate: _selectedEndDate,
+                        favoriteVisible: _favoriteVisible,
+                      )
+                    /* : _isUpdateClicked && _favoriteVisible == false
+                        ? category_cards(
+                            selectedcontent: __selectedcontent,
+                            size: size,
+                            card: _card,
+                            add: _isAddorUpdate) */
+                        : (_card >= 1 || _isUpdateClicked )&& _favoriteVisible == false
+                            ? category_cards(
+                                selectedcontent: __selectedcontent,
+                                size: size,
+                                card: _card,
+                                add: _isAddorUpdate,
+                                toggleAddorUpdateClicked: toggleAddorUpdateClicked,
+                               )
+                            : home_content_all_widget(
+                                size,
+                                toggleisUpdateClicked,
+                                _overall,
+                                _favoriteVisible,
+                                _selectedStartDate,
+                                _selectedEndDate),
+              ],
+            ),
+            _addButton == true //popup container
+                ? addButton_container()
+                : Container(),
+            bottomNavigation_buttons(size),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Stack Overall_inkwell_main(Size size, BuildContext context) {
+    return Stack(
+                    children: [
+                      Container(
+                        //main total savings container
+                        alignment: Alignment.center,
+                        child: Tooltip(
+                          message: "Tap here Switch to Overall", 
+                          child: InkWell(
                             onTap: () {
                               setState(() {
                                 // print("this is main gesture");
+                                currentIndex=null;
                                 currentMonth = 0;
                                 _overall = true;
                                 _card = 0;
@@ -264,7 +317,7 @@ class _HomeScreen extends State<HomeScreen> {
                                     spreadRadius: 1, //spread radius
                                     blurRadius: 6,
                                     // blur radius
-                                    offset: const Offset(
+                                    offset:  const Offset(
                                         0, 3), // changes position of shadow
                                     //first paramerter of offset is left-right
                                     //second parameter is top to down
@@ -311,308 +364,263 @@ class _HomeScreen extends State<HomeScreen> {
                             ),
                           ),
                         ),
-                        Container(
-                          //top icons home and more
-                          margin: const EdgeInsets.symmetric(
-                            vertical: 20,
-                            horizontal: 50,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                decoration: const BoxDecoration(
-                                  color: Styles.primary_black,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(25)),
-                                ),
-                                alignment: Alignment.topLeft,
-                                width: 35,
-                                height: 35,
-                                child: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      // _addButton=false;
-                                      //  _overall=false;
-                                      // _isAddorUpdate=false;
-                                      // _isUpdateClicked=false;
-                                      // _card=0;
-                                      // print(_card);
-                                      // currentIndex=null;
-                                      // _cardList=0;
-                                      // _overall=false;
-                                      // // _overall==false;
-                                      Navigator.of(context).pushAndRemoveUntil(
-                                          MaterialPageRoute(
-                                              builder: (ctx) =>
-                                                  HomeScreen()),
-                                          (Route<dynamic> route) => false);
-                                    });
-                                  },
-                                  icon: const Icon(
-                                    Icons.home_outlined,
-                                    size: 20,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                decoration: const BoxDecoration(
-                                  color: Styles.primary_black,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(25)),
-                                ),
-                                alignment: Alignment.topLeft,
-                                width: 35,
-                                height: 35,
-                                child: Center(
-                                  child: PopupMenuButton(
-                                    
-                                    color: Styles.primary_black,
-                                    icon: const Icon(
-                                      Icons.more_vert_outlined,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                    itemBuilder: (context) => [
-                                      PopupMenuItem<int>(
-                                        value: 0,
-                                        onTap: () {
-                                          setState(() {
-                                            // _cardList=0;
-                                            currentIndex=null;
-                                            //  _percentInd = false;
-                                            _favoriteVisible == true
-                                                ? _favoriteVisible = false
-                                                : _favoriteVisible = true;
-                                          });
-                                        },
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              "Favourites",
-                                              style: _favoriteVisible == false
-                                                  ? Styles.boldwhite
-                                                  : Styles.normal17red,
-                                            ),
-                                            const Icon(
-                                              Icons.favorite_outlined,
-                                              size: 20,
-                                              color: Colors.redAccent,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                  
-                                      PopupMenuItem<int>(
-                                        onTap: () {
-                                          print("on share app");
-                                        },
-                                        value: 3,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: const [
-                                            Text(
-                                              "Share App",
-                                              style: Styles.boldwhite,
-                                            ),
-                                            Icon(
-                                              Icons.share_outlined,
-                                              size: 20,
-                                              color: Colors.white,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      PopupMenuItem<int>(
-
-                                        value: 4,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: const [
-                                            Text(
-                                              "Settings",
-                                              style: Styles.boldwhite,
-                                            ),
-                                            Icon(
-                                              Icons.settings_outlined,
-                                              size: 20,
-                                              color: Colors.white,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                       PopupMenuItem<int>(
-                                        value: 5,
-                                        onTap:(){
-                                     
-                                        },
-                                         
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: const [
-                                            Text(
-                                              "About",
-                                              style: Styles.boldwhite, 
-                                               ),
-                                            Icon(
-                                              Icons.info_outline,
-                                              size: 20,
-                                              color: Colors.white,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      /*  PopupMenuItem<int>(
-                                        value: 6,
-                                        // onTap:
-                                        //   _showAbout, 
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: const [
-                                            Text(
-                                              "Version v1.00",
-                                              style: Styles.boldwhite, 
-                                               ),
-                                            Icon(
-                                              Icons.schedule_outlined,
-                                              size: 20,
-                                              color: Colors.white,
-                                            ),
-                                          ],
-                                        ),
-                                      ), */
-                                 /*      PopupMenuItem<int>(
-                                        onTap: () {
-                                          print("logout button");
-                                          Log_out();
-                                        
-                                        },
-                                        value: 5,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: const [
-                                            Text(
-                                              "Log Out",
-                                              style: Styles.boldwhite,
-                                            ),
-                                            Icon(
-                                              Icons.logout_outlined,
-                                              size: 20,
-                                              color: Colors.white,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                  */  
-                                    ],
-                                    // onSelected: (item) => {print(item)},
-                                    onSelected: (result) {
-                                      if(result==5){
-                                        _showAbout();
-                                      }
-    if (result == 4) {
-        Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => SettingsScreen()),
-        );
-    }
-},
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                      ),
+                      Container(
+                        //top icons home and more
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 20,
+                          horizontal: 50,
                         ),
-                      
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Stack(
-                      children: [
-                        Container(
-                          width: size.width,
-                          height: 200,
-                          color: Colors.white,
-                        ),
-                        Column(
-                          // main horizontal scroll view
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Container(
-                              margin: EdgeInsets.only(left: 30),
-                              child: _overall == false
-                                  ? Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Column(
-                                          children: [
-                                            /*  dropdownvalue == null
-                                                ? SizedBox(
-                                                    height: 30,
-                                                  )
-                                                : DropdownButtonHideUnderline(
-                                                    child: DropdownButton(
-                                                      value: dropdownvalue,
-                                                      icon: const Icon(Icons
-                                                          .arrow_drop_down),
-                                                      items: monthsofYears
-                                                          .map((String items) {
-                                                        return DropdownMenuItem(
-                                                          value:
-                                                              items, //march  selected
-                                                          child: Text(
-                                                            items = (DateFormat(
-                                                                    'MMMM')
-                                                                .format(DateTime(
-                                                                    0,
-                                                                    int.parse(
-                                                                        items)))),
-                                                            style:
-                                                                Styles.normal20,
-                                                          ),
-                                                        );
-                                                      }).toList(),
-                                                      onChanged:
-                                                          (String? newValue) {
-                                                        setState(() {
-                                                          dropdownvalue =
-                                                              newValue!;
-                                                          getAllitem();
-                                                        });
-                                                      },
-                                                    ),
-                                                  ),
-                                           */
-                                            SizedBox(
-                                              height: 15,
-                                            ),
-                                            Row(
-                                              children: [
-                                                InkWell(
+                              decoration: const BoxDecoration(
+                                color: Styles.primary_black,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(25)),
+                              ),
+                              alignment: Alignment.topLeft,
+                              width: 35,
+                              height: 35,
+                              child: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    // _addButton=false;
+                                    //  _overall=false;
+                                    // _isAddorUpdate=false;
+                                    // _isUpdateClicked=false;
+                                    // _card=0;
+                                    // print(_card);
+                                    // currentIndex=null;
+                                    // _cardList=0;
+                                    // _overall=false;
+                                    // // _overall==false;
+                                    Navigator.of(context).pushAndRemoveUntil(
+                                        MaterialPageRoute(
+                                            builder: (ctx) =>
+                                                HomeScreen()),
+                                        (Route<dynamic> route) => false);
+                                  });
+                                },
+                                icon: const Icon(
+                                  Icons.home_outlined,
+                                  semanticLabel: "Home",
+                                  size: 20,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              decoration: const BoxDecoration(
+                                color: Styles.primary_black,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(25)),
+                              ),
+                              alignment: Alignment.topLeft,
+                              width: 35,
+                              height: 35,
+                              child: Center(
+                                child: popup_menu_button_main(context),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    
+                    ],
+                  );
+  }
+
+ PopupMenuButton<int> popup_menu_button_main(BuildContext context) {
+    return PopupMenuButton(
+                                  
+                                  color: Styles.primary_black,
+                                  icon: const Icon(
+                                    Icons.more_vert_outlined,
+                                    // semanticLabel: "Menu Button", 
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                  itemBuilder: (context) => [
+                                    PopupMenuItem<int>(
+                                      value: 0,
+                                      onTap: () {
+                                        setState(() {
+                                          // _cardList=0;
+                                          currentIndex=null;
+                                          _card=0;
+                                          _cardList=0;
+                                          //  _percentInd = false;
+                                          _favoriteVisible == true
+                                              ? _favoriteVisible = false
+                                              : _favoriteVisible = true;
+                                        });
+                                      },
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            "Favourites",
+                                            style: _favoriteVisible == false
+                                                ? Styles.boldwhite
+                                                : Styles.normal17red,
+                                          ),
+                                          const Icon(
+                                            Icons.favorite_outlined,
+                                            size: 20,
+                                            color: Colors.redAccent,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                
+                                    PopupMenuItem<int>(
+                                      onTap: () {
+                                        print("on share app");
+                                      },
+                                      value: 3,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: const [
+                                          Text(
+                                            "Share App",
+                                            style: Styles.boldwhite,
+                                          ),
+                                          Icon(
+                                            Icons.share_outlined,
+                                            size: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    PopupMenuItem<int>(
+
+                                      value: 4,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: const [
+                                          Text(
+                                            "Settings",
+                                            style: Styles.boldwhite,
+                                          ),
+                                          Icon(
+                                            Icons.settings_outlined,
+                                            size: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                     PopupMenuItem<int>(
+                                      value: 5,
+                                      onTap:(){
+                                   
+                                      },
+                                       
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: const [
+                                          Text(
+                                            "About",
+                                            style: Styles.boldwhite, 
+                                             ),
+                                          Icon(
+                                            Icons.info_outline,
+                                            size: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                   
+                               /*      PopupMenuItem<int>(
+                                      onTap: () {
+                                        print("logout button");
+                                        Log_out();
+                                      
+                                      },
+                                      value: 5,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: const [
+                                          Text(
+                                            "Log Out",
+                                            style: Styles.boldwhite,
+                                          ),
+                                          Icon(
+                                            Icons.logout_outlined,
+                                            size: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                */  
+                                  ],
+                                  // onSelected: (item) => {print(item)},
+                                  onSelected: (result) {
+                                    if(result==5){
+                                      _showAbout();
+                                    }
+  if (result == 4) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SettingsScreen()),
+      );
+  }
+},
+  );
+  }
+
+  Stack scrollView_container(Size size, BuildContext context) {
+    return Stack(
+                    children: [
+                      Container(
+                        width: size.width,
+                        height: 200,
+                        color: Colors.white,
+                      ),
+                      Column(
+                        // main horizontal scroll view
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(left: 30),
+                            child: _overall == false
+                                ? Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.start,
+                                    children: [
+                                      Column(
+                                        children: [
+                                         const SizedBox(
+                                            height: 15,
+                                          ),
+                                          Row(
+                                            children: [
+                                              Tooltip(
+                                                message: "tap to Select a new date range! current date range is ",  
+                                                child: InkWell(
                                                     onTap: () {
                                                       currentMonth = 0;
                                                       pickDateRange(context);
                                                     },
                                                     child: Row(
                                                       children: [
-                                                        Icon(
+                                                      const Icon(
                                                           Icons
                                                               .calendar_today_sharp,
                                                           size: 20,
                                                           color: Styles
                                                               .primary_black,
                                                         ),
-                                                        SizedBox(
+                                                        const SizedBox(
                                                           width: 10,
                                                         ),
                                                         Text(
@@ -628,11 +636,14 @@ class _HomeScreen extends State<HomeScreen> {
                                                         ),
                                                       ],
                                                     )),
-                                                SizedBox(
-                                                  width: 10,
-                                                ),
-                                                dateRange != null
-                                                    ? InkWell(
+                                              ),
+                                             const SizedBox(
+                                                width: 10,
+                                              ),
+                                              dateRange != null
+                                                  ? Tooltip(
+                                                    message: "tap to go default range! defaut date range is current month. ",
+                                                    child: InkWell(
                                                         onTap: () {
                                                           setState(() {
                                                             currentMonth =
@@ -640,69 +651,85 @@ class _HomeScreen extends State<HomeScreen> {
                                                                     .month;
                                                             // DisplayDate = 'Choose Date Range';
                                                             DisplayDate =
-                                                                '''$StartText - $endText''';
+                                                                '''$startText - $endText''';
                                                             dateRange = null;
                                                             _selectedStartDate =
                                                                 null;
                                                           });
                                                           getTotalSavings();
                                                         },
-                                                        child: Icon(
+                                                        child: const Icon(
                                                           Icons.close,
                                                           color: Colors.red,
                                                           size: 22,
-                                                        ))
-                                                    : Container(),
-                                              ],
-                                            ),
-                                            SizedBox(
-                                              height: 15,
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    )
-                                  : Column(
-                                      children: [
-                                        SizedBox(
-                                          height: 10,
-                                        ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "Overall",
-                                              style: Styles.normal20.copyWith(
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(
-                                          height: 10,
-                                        )
-                                      ],
-                                    ),
-                            ),
-                            Container(
-                              //scroll view main
+                                                        )),
+                                                  )
+                                                  : Container(),
+                                            ],
+                                          ),
+                                         const SizedBox(
+                                            height: 15,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  )
+                                : Tooltip(
+                                   message: "Viewing entire Data", 
+                                  child: InkWell(
+                                    onTap: (){},
+                                    child: Column(
+                                        children: [
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Overall",
+                                                style: Styles.normal20.copyWith(
+                                                    fontWeight: FontWeight.bold),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          )
+                                        ],
+                                      ),
+                                  ),
+                                ),
+                          ),
+                          main_Scrollview_container(),
+                          const SizedBox(
+                            height: 20,
+                          )
+                        ],
+                      ),
+                    ],
+                  );
+  }
+ 
+  Container main_Scrollview_container() {
+    return Container(
+                            //scroll view main
 
-                              height: 140,
-                              child: ListView(
-                                scrollDirection: Axis.horizontal,
-                                children: [
-                                  _overall == false
-                                      ? SizedBox(
-                                          width: 30,
-                                        )
-                                      : Container(),
-                                  _overall == false
-                                      ? InkWell(
-                                          onTap: () {
-                                            setState(() {
-                                              // PieChartValue(_cardList);
-                                            });
-                                          },
+                            height: 140,
+                            child: ListView(
+                              scrollDirection: Axis.horizontal,
+                              children: [
+                                _overall == false
+                                    ?const SizedBox(
+                                        width: 30,
+                                      )
+                                    : Container(),
+                                _overall == false
+                                    ? Tooltip(
+                                       message: " ",      
+                                      child: InkWell(
+                                          onTap: (){},
                                           child: Stack(children: [
                                             Container(
                                               height: 140,
@@ -710,7 +737,7 @@ class _HomeScreen extends State<HomeScreen> {
                                               decoration: BoxDecoration(
                                                 color:
                                                     Styles.custom_savings_blue,
-                                                borderRadius: BorderRadius.all(
+                                                borderRadius:const BorderRadius.all(
                                                     Radius.circular(30)),
                                                 boxShadow: [
                                                   BoxShadow(
@@ -720,7 +747,7 @@ class _HomeScreen extends State<HomeScreen> {
                                                     spreadRadius:
                                                         0.5, //spread radius
                                                     blurRadius: 5,
-                                                    offset: Offset(0,
+                                                    offset: const Offset(0,
                                                         3), // changes position of shadow
                                                   ),
                                                   //you can set more BoxShadow() here
@@ -728,7 +755,7 @@ class _HomeScreen extends State<HomeScreen> {
                                               ),
                                             ),
                                             Container(
-                                              margin: EdgeInsets.symmetric(
+                                              margin: const EdgeInsets.symmetric(
                                                 vertical: 10,
                                               ),
                                               width: 140,
@@ -738,12 +765,12 @@ class _HomeScreen extends State<HomeScreen> {
                                                     MainAxisAlignment
                                                         .spaceEvenly,
                                                 children: [
-                                                  Icon(
+                                                 const Icon(
                                                     Custom_icons.savings,
                                                     size: 36,
                                                     color: Styles.primary_black,
                                                   ),
-                                                  Text(
+                                                 const Text(
                                                     "Savings",
                                                     style: Styles.normal17,
                                                   ),
@@ -755,14 +782,18 @@ class _HomeScreen extends State<HomeScreen> {
                                               ),
                                             ),
                                           ]),
-                                        )
-                                      : Container(),
-                                  const SizedBox(
-                                    width: 30,
-                                  ),
-                                  InkWell(
+                                        ),
+                                    )
+                                    : Container(),
+                                const SizedBox(
+                                  width: 30,
+                                ),
+                                Tooltip(
+                                  message: "Income Chart Button",
+                                  child: InkWell(
+                                                         
                                     onTap: () {
-                                      getAllitemWidget();
+                                      // getAllitemWidget();
                                       getPieChartValue(1);
                                       setState(() {
                                          _favoriteVisible=false;
@@ -780,7 +811,7 @@ class _HomeScreen extends State<HomeScreen> {
                                           width: 140,
                                           decoration: BoxDecoration(
                                             color: Styles.custom_income_green,
-                                            borderRadius: BorderRadius.all(
+                                            borderRadius: const BorderRadius.all(
                                                 Radius.circular(30)),
                                             boxShadow: [
                                               BoxShadow(
@@ -791,7 +822,7 @@ class _HomeScreen extends State<HomeScreen> {
                                                     0.5, //spread radius
                                                 blurRadius: 5,
                                                 // blur radius
-                                                offset: Offset(0,
+                                                offset: const Offset(0,
                                                     3), // changes position of shadow
                                                 //first paramerter of offset is left-right
                                                 //second parameter is top to down
@@ -831,10 +862,13 @@ class _HomeScreen extends State<HomeScreen> {
                                       ],
                                     ),
                                   ),
-                                  const SizedBox(
-                                    width: 30,
-                                  ),
-                                  InkWell(
+                                ),
+                                const SizedBox(
+                                  width: 30,
+                                ),
+                                Tooltip(
+                                   message: "Expense Chart Button",
+                                  child: InkWell(
                                     onTap: () {
                                       setState(() {
                                         _favoriteVisible=false;
@@ -865,7 +899,7 @@ class _HomeScreen extends State<HomeScreen> {
                                                     0.5, //spread radius
                                                 blurRadius: 5,
                                                 // blur radius
-                                                offset: const Offset(0,
+                                                offset:  const Offset(0,
                                                     3), // changes position of shadow
                                               ),
                                             ],
@@ -900,10 +934,13 @@ class _HomeScreen extends State<HomeScreen> {
                                       ],
                                     ),
                                   ),
-                                  const SizedBox(
-                                    width: 30,
-                                  ),
-                                  InkWell(
+                                ),
+                                const SizedBox(
+                                  width: 30,
+                                ),
+                                Tooltip(
+                                   message: "Lend Chart Button",
+                                  child: InkWell(
                                     onTap: () {
                                       setState(() {
                                          _favoriteVisible=false;
@@ -933,7 +970,7 @@ class _HomeScreen extends State<HomeScreen> {
                                                     0.5, //spread radius
                                                 blurRadius: 5,
                                                 // blur radius
-                                                offset: Offset(0,
+                                                offset: const Offset(0,
                                                     3), // changes position of shadow
                                                 //first paramerter of offset is left-right
                                                 //second parameter is top to down
@@ -973,10 +1010,13 @@ class _HomeScreen extends State<HomeScreen> {
                                       ],
                                     ),
                                   ),
-                                  const SizedBox(
-                                    width: 30,
-                                  ),
-                                  InkWell(
+                                ),
+                                const SizedBox(
+                                  width: 30,
+                                ),
+                                Tooltip(
+                                   message: "Borrow Chart Button",
+                                  child: InkWell(
                                     onTap: () {
                                       setState(() {
                                          _favoriteVisible=false;
@@ -1006,7 +1046,7 @@ class _HomeScreen extends State<HomeScreen> {
                                                     0.5, //spread radius
                                                 blurRadius: 5,
                                                 // blur radius
-                                                offset: Offset(0,
+                                                offset: const Offset(0,
                                                     3), // changes position of shadow
                                                 //first paramerter of offset is left-right
                                                 //second parameter is top to down
@@ -1046,108 +1086,68 @@ class _HomeScreen extends State<HomeScreen> {
                                       ],
                                     ),
                                   ),
-                                  const SizedBox(
-                                    width: 30,
-                                  ),
-                                ],
-                              ),
+                                ),
+                                const SizedBox(
+                                  width: 30,
+                                ),
+                              ],
                             ),
-                            const SizedBox(
-                              height: 20,
-                            )
+                          );
+  }
+
+  Container addButton_container() {
+    return Container(
+                alignment: Alignment.bottomCenter,
+                  // ADD BUTTON POPUP A CONTAINER
+                  margin: EdgeInsets.only(bottom: 90),
+                  // bottom: 90,
+                  // left: 47,
+                  child: Stack(
+                    alignment: Alignment.topCenter,
+                    children: [
+                      Container(
+                        // alignment: Alignment.bottomCenter,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: const [
+                            ImageIcon(
+                              AssetImage("assets/export/Union 1.png"),
+                              size: 300,
+                            ),
                           ],
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-                _cardList >= 1
-                    ? list_widget(
-                        dataMap: DataMap,
-                        size: size,
-                        toggleisUpdateClicked: toggleisUpdateClicked,
-                        card: _cardList,
-                        percentIndicator: _percentInd,
-                        isOverall: _overall,
-                        startDate: _selectedStartDate,
-                        endDate: _selectedEndDate,
-                        favoriteVisible: _favoriteVisible,
-                      )
-                    /* : _isUpdateClicked && _favoriteVisible == false
-                        ? category_cards(
-                            selectedcontent: __selectedcontent,
-                            size: size,
-                            card: _card,
-                            add: _isAddorUpdate) */
-                        : (_card >= 1 || _isUpdateClicked )&& _favoriteVisible == false
-                            ? category_cards(
-                                selectedcontent: __selectedcontent,
-                                size: size,
-                                card: _card,
-                                add: _isAddorUpdate)
-                            : home_content_all_widget(
-                                size,
-                                toggleisUpdateClicked,
-                                _overall,
-                                _favoriteVisible,
-                                _selectedStartDate,
-                                _selectedEndDate),
-              ],
-            ),
-            _addButton == true //popup container
-                ? 
-                //IF CLICKED 
-          
-                Container(
-                  alignment: Alignment.bottomCenter,
-                    // ADD BUTTON POPUP A CONTAINER
-                    margin: EdgeInsets.only(bottom: 90),
-                    // bottom: 90,
-                    // left: 47,
-                    child: Stack(
-                      alignment: Alignment.topCenter,
-                      children: [
-                        Container(
-                          // alignment: Alignment.bottomCenter,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: const [
-                              ImageIcon(
-                                AssetImage("assets/export/Union 1.png"),
-                                size: 300,
-                              ),
-                            ],
-                          ),
-                          //add Button clicked
-                          height: 150,
-                          width: 300, /* color: Styles.primary_black */
-                        ),
-                        Container(
-                          width: 280, height: 120,
-                          /* color: Colors.red,  */
-                          alignment: Alignment.topLeft,
-                          // margin: EdgeInsets.all(10),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        _isAddorUpdate = true;
-                                        _card = 1;
-                                        _addButton = false;
-                                        _cardList = 0;
-                                        _isUpdateClicked = false;
-                                      });
-                                    },
+                        //add Button clicked
+                        height: 150,
+                        width: 300, /* color: Styles.primary_black */
+                      ),
+                      Container(
+                        width: 280, height: 120,
+                        /* color: Colors.red,  */
+                        alignment: Alignment.topLeft,
+                        // margin: EdgeInsets.all(10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _isAddorUpdate = true;
+                                      _card = 1;
+                                      _addButton = false;
+                                      _cardList = 0;
+                                      _isUpdateClicked = false;
+                                    });
+                                  },
+                                  child: Tooltip(
+                                     message: "Add your new ",   
                                     child: Container(
                                       child: Container(
                                         margin: const EdgeInsets.symmetric(
@@ -1178,16 +1178,19 @@ class _HomeScreen extends State<HomeScreen> {
                                       ),
                                     ),
                                   ),
-                                  InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        _cardList = 0;
-                                        _isAddorUpdate = true;
-                                        _card = 2;
-                                        _addButton = false;
-                                        _isUpdateClicked = false;
-                                      });
-                                    },
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _cardList = 0;
+                                      _isAddorUpdate = true;
+                                      _card = 2;
+                                      _addButton = false;
+                                      _isUpdateClicked = false;
+                                    });
+                                  },
+                                  child: Tooltip(
+                                    message: "Add your new ",   
                                     child: Container(
                                       child: Container(
                                         margin: const EdgeInsets.symmetric(
@@ -1217,22 +1220,25 @@ class _HomeScreen extends State<HomeScreen> {
                                       ),
                                     ),
                                   ),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        _cardList = 0;
-                                        _isAddorUpdate = true;
-                                        _card = 3;
-                                        _addButton = false;
-                                        _isUpdateClicked = false;
-                                      });
-                                    },
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _cardList = 0;
+                                      _isAddorUpdate = true;
+                                      _card = 3;
+                                      _addButton = false;
+                                      _isUpdateClicked = false;
+                                    });
+                                  },
+                                  child: Tooltip(
+                                    message: "Add your new ",   
                                     child: Container(
                                       child: Container(
                                         margin: const EdgeInsets.symmetric(
@@ -1262,7 +1268,10 @@ class _HomeScreen extends State<HomeScreen> {
                                       ),
                                     ),
                                   ),
-                                  Container(
+                                ),
+                                Tooltip(
+                                  message: "Add your new ",    
+                                  child: Container(
                                     child: InkWell(
                                       onTap: () {
                                         setState(() {
@@ -1301,59 +1310,64 @@ class _HomeScreen extends State<HomeScreen> {
                                           BorderRadius.all(Radius.circular(30)),
                                     ),
                                   ),
-                                ],
-                              ),
-                            ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+  }
+
+  Positioned bottomNavigation_buttons(Size size) {
+    return Positioned(
+            //bottom navigation bar
+            bottom: 0,
+            left: 0,
+            child: Container(
+              width: size.width,
+              height: size.height*.075,         
+              child: Stack(
+                
+                children: [
+                  CustomPaint(
+                    size: Size(size.width, size.height*.075),         
+                    painter: BNBCustomPainter(),
+                  ),
+                  Center(
+                    heightFactor: 0.2, 
+                    child: FloatingActionButton(
+                        backgroundColor: Styles.primary_black,
+                        child: Tooltip(
+                             message: "Add new item +",    
+                          child: Icon(
+                            Icons.add,
+                            size: size.width*.1,    
                           ),
                         ),
-                      ],
-                    ),
-                  )
-                : const Text(""),
-            Positioned(
-              //bottom navigation bar
-              bottom: 0,
-              left: 0,
-              child: Container(
-                width: size.width,
-                height: 60,
-                child: Stack(
-                  overflow: Overflow.visible,
-                  children: [
-                    CustomPaint(
-                      size: Size(size.width, 80),
-                      painter: BNBCustomPainter(),
-                    ),
-                    Center(
-                      heightFactor: 0.2,
-                      child: Transform.rotate(
-                        angle: 90 * pi / 180,
-                        child: FloatingActionButton(
-                            backgroundColor: Styles.primary_black,
-                            child: Icon(
-                              Icons.add,
-                              size: 40,
-                            ),
-                            elevation: 0.1,
-                            onPressed: () {
-                              setState(() {
-                                 _favoriteVisible=false;
-                                _addButton == false
-                                    ? _addButton = true
-                                    : _addButton = false;
-                                // _cardList=0;
-                                _card = 0;
-                              });
-                            }),
-                      ),
-                    ),
-                    Container(
-                      width: size.width,
-                      height: 60,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          IconButton(
+                        elevation: 0.2, 
+                        onPressed: () { 
+                          setState(() {
+                             _favoriteVisible=false;
+                            _addButton == false
+                                ? _addButton = true
+                                : _addButton = false;
+                            // _cardList=0;
+                            _card = 0;
+                          });
+                        }),
+                  ),
+                  Container(
+                    width: size.width,
+                    height: 60,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Tooltip(
+                             message: "List your Income",    
+                          child: IconButton(
                             icon: Icon(
                               Custom_icons.income,
                               color: currentIndex == 0
@@ -1363,7 +1377,7 @@ class _HomeScreen extends State<HomeScreen> {
                             onPressed: () {
                               setState(() {
 
-                              //  _favoriteVisible=false;
+                               _favoriteVisible=false; 
                                 _isUpdateClicked = false;
                                 _cardList = 1;
                                 // _addButton
@@ -1372,11 +1386,16 @@ class _HomeScreen extends State<HomeScreen> {
                                 _addButton = false;
                                 _isAddorUpdate = false;
                                 setBottomBarIndex(0);
+                               
+                                // HomeScreen();
                               });
                             },
                             splashColor: Colors.white,
                           ),
-                          IconButton(
+                        ),
+                        Tooltip(
+                           message: "List your Expense",  
+                          child: IconButton(
                               icon: Icon(
                                 Custom_icons.expense,
                                 color: currentIndex == 1
@@ -1385,7 +1404,7 @@ class _HomeScreen extends State<HomeScreen> {
                               ),
                               onPressed: () {
                                 setState(() {
-                                  //  _favoriteVisible=false;
+                                   _favoriteVisible=false;
                                   _isUpdateClicked = false;
                                   _percentInd = false;
                                   _addButton = false;
@@ -1394,10 +1413,13 @@ class _HomeScreen extends State<HomeScreen> {
                                   setBottomBarIndex(1);
                                 });
                               }),
-                          Container(
-                            width: size.width * 0.20,
-                          ),
-                          IconButton(
+                        ),
+                        Container(
+                          width: size.width * 0.20,
+                        ),
+                        Tooltip(
+                           message: "List your lend",  
+                          child: IconButton(
                               icon: Icon(
                                 Custom_icons.lend,
                                 color: currentIndex == 2
@@ -1406,7 +1428,7 @@ class _HomeScreen extends State<HomeScreen> {
                               ),
                               onPressed: () {
                                 setState(() {
-                                  //  _favoriteVisible=false;
+                                   _favoriteVisible=false;
                                   _isUpdateClicked = false;
                                   _percentInd = false;
                                   _addButton = false;
@@ -1416,7 +1438,10 @@ class _HomeScreen extends State<HomeScreen> {
                                   setBottomBarIndex(2);
                                 });
                               }),
-                          IconButton(
+                        ),
+                        Tooltip(
+                           message: "List your borrow",   
+                          child: IconButton(
                               icon: Icon(
                                 Custom_icons.borrow,
                                 color: currentIndex == 3
@@ -1425,7 +1450,7 @@ class _HomeScreen extends State<HomeScreen> {
                               ),
                               onPressed: () {
                                 setState(() {
-                                  //  _favoriteVisible=false;
+                                   _favoriteVisible=false;
                                   _isUpdateClicked = false;
                                   _percentInd = false;
                                   _addButton = false;
@@ -1434,53 +1459,18 @@ class _HomeScreen extends State<HomeScreen> {
                                   setBottomBarIndex(3);
                                 });
                               }),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<dynamic> Log_out() async {
-    await Future.delayed(const Duration(milliseconds: 1), () {});
-    print("in function of logout");
-    await Navigator.of(context)
-        .pushReplacement(MaterialPageRoute(builder: (ctx) {
-      return SignUp_Screen();
-    }));
+          );
   }
 
 // void Function(Map<String, Object?> _selectedcontent)   toggleisUpdateClicked;
-  void toggleisUpdateClicked(Map<String, Object?> _selectedcontent) {
-    
-        // print("999 $_selectedcontent");
-    if(_selectedcontent.isEmpty)
-    {
-      _incomeTot=0;
-      _expenseTot=0;
-      _lendTot=0;
-      _borrowTot=0;
-      getTotalSavings();
-    }
-  
-      else{
-      
-        setState(() {
-          // print("999 in update");
-        __selectedcontent = _selectedcontent;
-      _cardList = 0;
-      _addButton = false;
-      _isUpdateClicked ? _isUpdateClicked = false : _isUpdateClicked = true;
-    });
-      }
-  }
-
+ 
   Future pickDateRange(BuildContext context) async {
     // final dateFormat = DateFormat("yyyy-MM-dd");
     final initialDateRange = DateTimeRange(
@@ -1519,7 +1509,7 @@ class _HomeScreen extends State<HomeScreen> {
     }
   }
 
-    Future<dynamic> _showAbout() {
+  Future<dynamic> _showAbout() {
       print("show about");
     return showDialog(
       context: context,
@@ -1537,9 +1527,57 @@ class _HomeScreen extends State<HomeScreen> {
     );
   }
 
-  void updated() {
-     
+  Future<dynamic> Log_out() async {
+    await Future.delayed(const Duration(milliseconds: 1), () {});
+    await Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (ctx) {
+      return const SignUp_Screen();
+    }));
   }
+
+  void toggleisUpdateClicked(Map<String, Object?> _selectedcontent,{bool? fav}) {
+print("888 $_selectedcontent and $fav");
+    if(fav==true){
+      setState(() {
+        _selectedcontent={};
+        // _favoriteVisible=true;
+        // _favoriteVisible=false
+      });
+    }
+    
+        // print("999 $_selectedcontent");
+    if(_selectedcontent.isEmpty)
+    {
+      _incomeTot=0;
+      _expenseTot=0;
+      _lendTot=0;
+      _borrowTot=0;
+      getTotalSavings();
+    }
+  
+      else{
+      
+        setState(() {
+          // print("999 in update");
+          _card=int.parse(_selectedcontent['category'] as String);
+        __selectedcontent = _selectedcontent;
+      _cardList = 0;
+      _addButton = false;
+      _isAddorUpdate=false;
+      _isUpdateClicked ? _isUpdateClicked = false : _isUpdateClicked = true;
+    });
+      }
+  }
+
+void toggleAddorUpdateClicked(String category) {
+setState(() {
+  _cardList=int.parse(category);
+  currentIndex=int.parse(category)-1;
+_card=0;
+getTotalSavings();
+});
+
+}
 }
 
 /* 
@@ -1559,6 +1597,7 @@ Future<dynamic> fetchingData() async {
   // return grouped;
 }
  */
+
 class BNBCustomPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -1570,8 +1609,8 @@ class BNBCustomPainter extends CustomPainter {
     path.moveTo(0, 10); // Start
     path.quadraticBezierTo(size.width * 0.20, 0, size.width * 0.35, 0);
     path.quadraticBezierTo(size.width * 0.40, 0, size.width * 0.40, 10);
-    path.arcToPoint(Offset(size.width * 0.60, 10),
-        radius: Radius.circular(40.0), clockwise: false);
+    path.arcToPoint( Offset(size.width * 0.60, size.width*.02),
+        radius: const Radius.circular(40.0), clockwise: false);
     path.quadraticBezierTo(size.width * 0.60, 0, size.width * 0.65, 0);
     path.quadraticBezierTo(size.width * 0.80, 0, size.width, 10);
     path.lineTo(size.width, size.height);

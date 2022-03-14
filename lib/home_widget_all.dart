@@ -16,9 +16,9 @@ class home_content_all_widget extends StatefulWidget {
     this.endDate,
   );
   final Size size;
-  void Function(Map<String, Object?> _selectedcontent) toggleisUpdateClicked;
+  void Function(Map<String, Object?> _selectedcontent,{bool fav}) toggleisUpdateClicked;
   final isOverall;
-  final favoriteVisible;
+  var favoriteVisible;
   final startDate;
   final endDate;
 
@@ -28,6 +28,7 @@ class home_content_all_widget extends StatefulWidget {
 }
 
 class _home_content_all_widgetState extends State<home_content_all_widget> {
+  var val;
   var dateRange;
   var _selectedStartDate;
   var _selectedEndDate;
@@ -45,6 +46,8 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
 
   @override
   Widget build(BuildContext context) {
+    print("rebuilded");
+    var val;
     // print("working");
     _selectedStartDate = widget.startDate;
     _selectedEndDate = widget.endDate;
@@ -73,18 +76,22 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
           if (listItem == null) return CircularProgressIndicator();
 
           if (listItem.data == null || listItem.data!.isEmpty) {
-            return Column(
-             
-              children: [
-                // SizedBox(height: 150,),   
-                 Image.asset(
-                    "assets/export/clipboard.png",
-                     height: widget.size.height*.13 ,
-                  ),
-                SizedBox(height: 10,), 
-                Text("No Record", style: Styles.normal20, ),
-                Text("Tap the + button to add a record", style: Styles.normal17.copyWith(fontSize: 15, ), ),
-              ],
+            return Tooltip(
+              message: "Alert", 
+              child: Column(
+               
+                children: [
+                  SizedBox(height: 50,),   
+                   Image.asset(
+                      "assets/export/clipboard.png",
+                       height: widget.size.height*.13 ,
+                    ),
+                  SizedBox(height: 10,), 
+                  Text("No Record", style: Styles.normal20, ),
+                  Text("Tap the + button to add a record", style: Styles.normal17.copyWith(fontSize: 15, ), ),
+                  SizedBox(height: 50, )
+                ],
+              ),
             );
           }
           List<Map<String, Object?>> AllRows = listItem.data!;
@@ -150,16 +157,20 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
                                 ],
                               ),
                              */
-
-                              Container(
-                                child: Text(
-                                  widget.favoriteVisible == true
-                                      ? "Favourites"
-                                      : "All Transactions",
-                                  style: Styles.normal17.copyWith(
-                                      fontSize: 16,
-                                      color: Colors.deepOrange,
-                                      fontWeight: FontWeight.bold),
+               Tooltip( 
+   message: " ", enableFeedback: true,  
+                             child: InkWell( 
+                               onTap: (){},
+                                  child: Text(
+                            
+                                    widget.favoriteVisible == true
+                                        ? "Favourites"
+                                        : "All Transactions",
+                                    style: Styles.normal17.copyWith(
+                                        fontSize: 16,
+                                        color: Colors.deepOrange,
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
                               ),
                               for (var i in AllRows)
@@ -176,23 +187,27 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
                                           )
                                         : Container(),
                                     dateSets[++pointer] != null
-                                        ? Text(
-                                            DateFormat('MMM dd').format(
-                                                DateTime.parse(
-                                                    i['date'].toString())),
-                                            style: Styles.normal17.copyWith(
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.red),
-                                          )
+                                        ? Tooltip(
+                                          message: " " ,
+                                          child: InkWell(
+                                           onTap: (){} ,
+                                            child: Text(
+                                                DateFormat('MMM dd').format(
+                                                    DateTime.parse(
+                                                        i['date'].toString())),
+                                                style: Styles.normal17.copyWith(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.red),
+                                              ),
+                                          ),
+                                        )
                                         : Container(),
                                     InkWell(
                                       onTap: () {
                                         print(i.toString());
-                                        _selectedcontent = i;
-                                        print(_selectedcontent);
-                                        bottomSheet_edit(
-                                            context, _selectedcontent);
-                                      },
+                                      bottomSheet_edit(
+                                            context, i);
+                                             },
                                       child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
@@ -254,7 +269,7 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
         });
   }
 
-  Future<void> bottomSheet_edit(
+ Future<void>  bottomSheet_edit(
       BuildContext context, Map<String, Object?> _selectedcontent) {
        
     String val = '${_selectedcontent['favourite']}'.toString();
@@ -263,6 +278,7 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
         ? val.toLowerCase() == 'false'
         : val.toLowerCase() == 'true';
 
+print("555 $fav");
     final x = _selectedcontent['id'].toString();
     // print(x);
     return showModalBottomSheet<void>(
@@ -289,37 +305,43 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Tooltip(
+                    message: " ",
+                    child: InkWell(
+                      onTap: (){},
+                      child: Column(
                         children: [
-                          Text(
-                            _selectedcontent['item'].toString(),
-                            style: Styles.boldwhite,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                _selectedcontent['item'].toString(),
+                                style: Styles.boldwhite,
+                              ),
+                              Text(
+                                _selectedcontent['amount'].toString(),
+                                style: Styles.boldwhite,
+                              ),
+                            ],
                           ),
-                          Text(
-                            _selectedcontent['amount'].toString(),
-                            style: Styles.boldwhite,
+                          // SizedBox(height: 10,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Remark :  ${_selectedcontent['remark'].toString()}",
+                                style: Styles.boldwhite,
+                              ),
+                              Text(
+                                DateFormat('MMM dd').format(DateTime.parse(
+                                    _selectedcontent['date'].toString())),
+                                style: Styles.boldwhite,
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                      // SizedBox(height: 10,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Remark :  ${_selectedcontent['remark'].toString()}",
-                            style: Styles.boldwhite,
-                          ),
-                          Text(
-                            DateFormat('MMM dd').format(DateTime.parse(
-                                _selectedcontent['date'].toString())),
-                            style: Styles.boldwhite,
-                          ),
-                        ],
-                      ),
-                    ],
+                    ),
                   ),
                   Container(height: 2, color: Colors.white),
                   Row(
@@ -329,12 +351,21 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
                         "Add to Favourite",
                         style: Styles.boldwhite,
                       ),
-                      FavoriteButton(
-                        isFavorite: fav,
-                        iconSize: 28,
-                        valueChanged: (_isFavorite) {
-                          AddtoFavorite(int.parse('${_selectedcontent['id']}'));
-                        },
+                      Tooltip(
+                        message: "favourite is $fav on ${_selectedcontent['item']}! tap to switch",
+                        child: FavoriteButton(
+                          isFavorite: fav,
+                          iconSize: 28,
+                          valueChanged: (_isFavorite) {
+                           
+                            // Scaffold.of(context).activate; 
+                            AddtoFavorite(int.parse('${_selectedcontent['id']}'));
+                            widget.toggleisUpdateClicked(_selectedcontent,fav: true);
+                           Navigator.of(context).pop();
+                            
+                             
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -349,16 +380,19 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
                         height: 40, width: 33,
                         alignment: Alignment.center,
                         //  color: Colors.red,
-                        child: IconButton(
-                            onPressed: () {
-                              widget.toggleisUpdateClicked(_selectedcontent);
-                              Navigator.of(context).pop();
-                            },
-                            icon:const Icon(
-                              Icons.edit_outlined,
-                              size: 24,
-                              color: Styles.custom_income_green,
-                            )),
+                        child: Tooltip(
+                          message: "Edit ${_selectedcontent['item']} item",
+                          child: IconButton(
+                              onPressed: () {
+                                widget.toggleisUpdateClicked(_selectedcontent, fav: false);
+                                Navigator.of(context).pop();
+                              },
+                              icon:const Icon(
+                                Icons.edit_outlined,
+                                size: 24,
+                                color: Styles.custom_income_green,
+                              )),
+                        ),
                       ),
                     ],
                   ),
@@ -369,34 +403,23 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
                         "Delete Entry",
                         style: Styles.boldwhite,
                       ),
-                      InkWell(
-                        onTap: () {
-                          // print("9999 ${_selectedcontent['id']}");
-                          deleteMoney(int.parse('${_selectedcontent['id']}')); 
-                          _selectedcontent={};
-                          widget.toggleisUpdateClicked(_selectedcontent);
-                           Navigator.of(context).pop();
-                             
-                          // Navigator.of(context).pop();
-                          // setState(() {
-                          // });
-
-                  //         deleteMoney(int.parse('${_selectedcontent['id']}'));
-                  //         Navigator.of(context).pop();
-                  //  Navigator.of(context).pushAndRemoveUntil(
-                  //                         MaterialPageRoute(
-                  //                             builder: (context) =>
-                  //                                 HomeScreen()),
-                  //                         (Route<dynamic> route) => false);
-                        //  widget.toggleisUpdateClicked();
-                          // setState(() {
-                          //           // HomeScreen();
-                          // });
-                        },
-                        child:const Icon(
-                          Icons.delete_outline,
-                          size: 24,
-                          color: Styles.custom_expense_red,
+                      Container(
+                        height: 40, width: 33,
+                        alignment: Alignment.center, 
+                        child: Tooltip(
+                          message: "delete ${_selectedcontent['item']} item",
+                          child:  IconButton(
+                            onPressed: (){
+                                deleteMoney(int.parse('${_selectedcontent['id']}')); 
+                              _selectedcontent={};
+                              widget.toggleisUpdateClicked(_selectedcontent);
+                               Navigator.of(context).pop();
+                            },
+              icon: Icon( Icons.delete_outline,
+                            size: 24,
+                            color: Styles.custom_expense_red,), 
+                           
+                          ),
                         ),
                       )
                     ],
