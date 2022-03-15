@@ -56,7 +56,7 @@ static const paragraphStructStyle=StrutStyle(
     color: Colors.redAccent,
     fontFamily: 'nunito',
   );
-  static const normal17 = TextStyle(
+  static const TextStyle normal17 = TextStyle(
     fontSize: 17.0,
     color: Styles.primary_black,
     fontFamily: 'nunito',

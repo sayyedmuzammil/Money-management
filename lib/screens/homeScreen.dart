@@ -386,21 +386,36 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
                               child: IconButton(
                                 onPressed: () {
                                   setState(() {
-                                    // _addButton=false;
-                                    //  _overall=false;
-                                    // _isAddorUpdate=false;
-                                    // _isUpdateClicked=false;
-                                    // _card=0;
-                                    // print(_card);
-                                    // currentIndex=null;
-                                    // _cardList=0;
-                                    // _overall=false;
+                                    _addButton=false;
+                                     _overall=false;
+                                    _isAddorUpdate=true;
+                                    _isUpdateClicked=false;
+                                    _card=0;
+                                    print(_card);
+                                    currentIndex=null;
+                                    _cardList=0;
+                                    _overall=false;
+                                     _favoriteVisible=false;
+                                        // _addButton=false;
+                                        _percentInd = false;
+                                        _cardList = 0;
+                                        // _percentInd = true;
+                                        currentIndex = null;
+                                        __selectedcontent={};
+                                        currentMonth =DateTime.now().month;
+                                                            // DisplayDate = 'Choose Date Range';
+                                                            DisplayDate =
+                                                                '''$startText - $endText''';
+                                                            dateRange = null;
+                                                            _selectedStartDate =
+                                                                null;
+                                    getTotalSavings(); 
                                     // // _overall==false;
-                                    Navigator.of(context).pushAndRemoveUntil(
+                                    /* Navigator.of(context).pushAndRemoveUntil(
                                         MaterialPageRoute(
                                             builder: (ctx) =>
                                                 HomeScreen()),
-                                        (Route<dynamic> route) => false);
+                                        (Route<dynamic> route) => false); */
                                   });
                                 },
                                 icon: const Icon(
@@ -1144,6 +1159,7 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
                                       _addButton = false;
                                       _cardList = 0;
                                       _isUpdateClicked = false;
+                                         __selectedcontent={};
                                     });
                                   },
                                   child: Tooltip(
@@ -1187,6 +1203,7 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
                                       _card = 2;
                                       _addButton = false;
                                       _isUpdateClicked = false;
+                                      __selectedcontent={};
                                     });
                                   },
                                   child: Tooltip(
@@ -1235,6 +1252,7 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
                                       _card = 3;
                                       _addButton = false;
                                       _isUpdateClicked = false;
+                                         __selectedcontent={};
                                     });
                                   },
                                   child: Tooltip(
@@ -1280,6 +1298,7 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
                                           _card = 4;
                                           _addButton = false;
                                           _isUpdateClicked = false;
+                                             __selectedcontent={}; 
                                         });
                                       },
                                       child: Container(
@@ -1351,6 +1370,8 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
                         onPressed: () { 
                           setState(() {
                              _favoriteVisible=false;
+                             __selectedcontent={};
+                             _isAddorUpdate=true;
                             _addButton == false
                                 ? _addButton = true
                                 : _addButton = false;
@@ -1540,6 +1561,7 @@ print("888 $_selectedcontent and $fav");
     if(fav==true){
       setState(() {
         _selectedcontent={};
+        print("888 in fav");
         // _favoriteVisible=true;
         // _favoriteVisible=false
       });
@@ -1548,6 +1570,7 @@ print("888 $_selectedcontent and $fav");
         // print("999 $_selectedcontent");
     if(_selectedcontent.isEmpty)
     {
+       print("888 in delete");
       _incomeTot=0;
       _expenseTot=0;
       _lendTot=0;
@@ -1558,12 +1581,14 @@ print("888 $_selectedcontent and $fav");
       else{
       
         setState(() {
+           print("888 in update");
           // print("999 in update");
           _card=int.parse(_selectedcontent['category'] as String);
         __selectedcontent = _selectedcontent;
       _cardList = 0;
       _addButton = false;
       _isAddorUpdate=false;
+      _favoriteVisible=false; 
       _isUpdateClicked ? _isUpdateClicked = false : _isUpdateClicked = true;
     });
       }
@@ -1573,6 +1598,7 @@ void toggleAddorUpdateClicked(String category) {
 setState(() {
   _cardList=int.parse(category);
   currentIndex=int.parse(category)-1;
+  _percentInd=false; 
 _card=0;
 getTotalSavings();
 });
@@ -1606,17 +1632,17 @@ class BNBCustomPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     Path path = Path();
-    path.moveTo(0, 10); // Start
+    path.moveTo(0, 10);   // Start
     path.quadraticBezierTo(size.width * 0.20, 0, size.width * 0.35, 0);
     path.quadraticBezierTo(size.width * 0.40, 0, size.width * 0.40, 10);
     path.arcToPoint( Offset(size.width * 0.60, size.width*.02),
-        radius: const Radius.circular(40.0), clockwise: false);
-    path.quadraticBezierTo(size.width * 0.60, 0, size.width * 0.65, 0);
+        radius:  Radius.circular(size.width*.1005 ), clockwise: false,);
+    path.quadraticBezierTo(size.width * 0.60, 0, size.width * 0.65, 0 );
     path.quadraticBezierTo(size.width * 0.80, 0, size.width, 10);
     path.lineTo(size.width, size.height);
     path.lineTo(0, size.height);
     path.lineTo(0, 20);
-    canvas.drawShadow(path, Colors.black, 5, true);
+    canvas.drawShadow(path, Colors.black, 5 , true);
     canvas.drawPath(path, paint);
   }
 

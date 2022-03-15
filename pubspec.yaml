@@ -3,7 +3,7 @@ description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -27,19 +27,14 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  charts_flutter: ^0.12.0
   cupertino_icons: ^1.0.2
-  # date_range_form_field: ^1.0.2
-  # date_range_picker: ^1.0.7
-  # date_time_picker: ^2.1.0
   favorite_button: ^0.0.4
   flutter:
     sdk: flutter
-  # flutter_slidable: ^1.2.0
   flutter_svg: ^1.0.3
   flutter_toggle_tab: ^1.1.7
-  # font_awesome_flutter: ^9.2.0
   pie_chart: ^5.1.0
-  # simple_autocomplete_formfield: ^0.3.0
   sqflite: ^2.0.2
   syncfusion_flutter_datepicker: ^19.4.52
 
@@ -58,7 +53,6 @@ flutter_icons:
 # following page: https://dart.dev/tools/pub/pubspec
 # The following section is specific to Flutter.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

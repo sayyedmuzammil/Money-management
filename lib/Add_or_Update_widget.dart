@@ -31,7 +31,8 @@ class category_cards extends StatefulWidget {
 }
 
 class _category_cardsState extends State<category_cards> {
-  final snackBar = SnackBar(content: Text(' Item Added Successfully.', style: Styles.normal17.copyWith(color: Colors.white,)));   
+  final snackBarAdd = SnackBar(content: Text(' Item Added Successfully.', style: Styles.normal17.copyWith(color: Colors.white,))); 
+   final snackBarUpdate = SnackBar(content: Text(' Item Updated Successfully.', style: Styles.normal17.copyWith(color: Colors.white,)));     
   final _categoryController = TextEditingController();
 
   final _dateController = TextEditingController();
@@ -451,7 +452,7 @@ print("555 ${widget.selectedcontent}");
                                           onAddItemButton(
                                               category: widget._card);
                                                 widget.toggleAddorUpdateClicked!(widget._card.toString());
-                          Scaffold.of(context).showSnackBar(snackBar);  
+                          Scaffold.of(context).showSnackBar(snackBarAdd);  
                           
                                          /*  Navigator.of(context)
                                               .pushAndRemoveUntil(
@@ -486,6 +487,7 @@ print("555 ${widget.selectedcontent}");
                                                   id: widget
                                                       .selectedcontent['id']);
                                                       widget.toggleAddorUpdateClicked!(widget.selectedcontent['category'] as String);
+                                               Scaffold.of(context).showSnackBar(snackBarUpdate); 
                                               // Navigator.of(context)
                                               //     .pushAndRemoveUntil(
                                               //         MaterialPageRoute(

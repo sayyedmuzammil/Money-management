@@ -78,19 +78,22 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
           if (listItem.data == null || listItem.data!.isEmpty) {
             return Tooltip(
               message: "Alert", 
-              child: Column(
-               
-                children: [
-                  SizedBox(height: 50,),   
-                   Image.asset(
-                      "assets/export/clipboard.png",
-                       height: widget.size.height*.13 ,
-                    ),
-                  SizedBox(height: 10,), 
-                  Text("No Record", style: Styles.normal20, ),
-                  Text("Tap the + button to add a record", style: Styles.normal17.copyWith(fontSize: 15, ), ),
-                  SizedBox(height: 50, )
-                ],
+              child: InkWell(
+                onTap: (){},
+                child: Column(
+                 
+                  children: [
+                    SizedBox(height: 50,),   
+                     Image.asset(
+                        "assets/export/clipboard.png",
+                         height: widget.size.height*.13 ,
+                      ),
+                    SizedBox(height: 10,), 
+                    Text("No Record", style: Styles.normal20, ),
+                    Text("Tap the + button to add a record", style: Styles.normal17.copyWith(fontSize: 15, ), ),
+                    SizedBox(height: 50, )
+                  ],
+                ),
               ),
             );
           }

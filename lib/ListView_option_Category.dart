@@ -1,6 +1,5 @@
 import 'package:favorite_button/favorite_button.dart';
 import 'package:flutter/material.dart';
-import 'package:money_management/screens/homeScreen.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'db_functions/db_functions.dart';
 import 'package:intl/intl.dart';
@@ -69,21 +68,24 @@ _selectedEndDate=widget.endDate;
 
           if (listItem.data == null || listItem.data!.isEmpty) {
             return Tooltip( 
-               message: "Alert",   
-              child: Column(
-               mainAxisAlignment: MainAxisAlignment.center,
-                
-                children: [
-                  SizedBox(height: 50,), 
-                   Image.asset(
-                      "assets/export/clipboard.png",
-                      height: widget.size.height*.13 ,  
-                    ),
-                  SizedBox(height: 10,), 
-                  Text("No Record", style: Styles.normal20, ),
-                  Text("Tap the + button to add a record", style: Styles.normal17.copyWith(fontSize: 15, ), ),
-                  SizedBox(height: 50, ), 
-                ],
+               message: "Alert! ",   
+              child: InkWell(
+                onTap: (){},
+                child: Column(
+                 mainAxisAlignment: MainAxisAlignment.center,
+                  
+                  children: [
+                    SizedBox(height: 50,), 
+                     Image.asset(
+                        "assets/export/clipboard.png",
+                        height: widget.size.height*.13 ,  
+                      ),
+                    SizedBox(height: 10,), 
+                    Text("No Record", style: Styles.normal20, ),
+                    Text("Tap the + button to add a record", style: Styles.normal17.copyWith(fontSize: 15, ), ),
+                    SizedBox(height: 50, ), 
+                  ],
+                ),
               ),
             ); 
           }
@@ -190,30 +192,42 @@ _selectedEndDate=widget.endDate;
                                   alignment: Alignment.centerLeft,
                                   child:
                                   widget.dataMap!=null?
-                                   PieChart(
-                                                  dataMap: widget.dataMap,
-                                                  animationDuration: const Duration(milliseconds: 800),
-                                                  chartLegendSpacing: 35,
-                                                  chartRadius: MediaQuery.of(context).size.width / 3,
-                                                  chartType: ChartType.disc,
-                                                    legendOptions: const LegendOptions(
-                                                    showLegendsInRow: true,
-                                                    legendPosition: LegendPosition.bottom,
-                                                    showLegends: true, 
-                                                    legendShape: BoxShape.circle,
-                                                    legendTextStyle:Styles.normal17, 
-                                                  ),
-                                                  chartValuesOptions: const ChartValuesOptions(
-                                                      showChartValueBackground: false,
-                                                      // chartValueBackgroundColor: Colors.gree,
-                                                      showChartValues: true, 
-                                                      showChartValuesInPercentage: true,
-                                                      showChartValuesOutside: true,
-                                                      decimalPlaces: 1,
-                                                      chartValueStyle: TextStyle(color: Colors.black)),
-                                                  // gradientList: ---To add gradient colors---
-                                                  // emptyColorGradient: ---Empty Color gradient---
-                                                ):const Text("No datas")
+                                   Tooltip(
+                                    
+                                     child: InkWell(
+                                       onTap: (){},
+                                       child: PieChart(
+
+                                                      dataMap: widget.dataMap,
+                                                      animationDuration: const Duration(milliseconds: 800),
+                                                      ringStrokeWidth: 25,   
+                                                      chartLegendSpacing: 35, 
+                                                      chartRadius: MediaQuery.of(context).size.width / 3,
+                                                      chartType: ChartType.ring,
+                                                        legendOptions: const LegendOptions(
+                                                        showLegendsInRow: true,
+                                                        legendPosition: LegendPosition.bottom,
+                                                        showLegends: true, 
+                                                        legendShape: BoxShape.circle, 
+                                                        legendTextStyle:Styles.normal17, 
+
+                                                      ),
+                                                      
+                                                      chartValuesOptions: const ChartValuesOptions(
+                                                                  
+                                                          showChartValueBackground: false,  
+                                                          // chartValueBackgroundColor: Colors.gree,
+                                                          showChartValues: true,  
+                                                          showChartValuesInPercentage: true,
+                                                          showChartValuesOutside: true,
+                                                          decimalPlaces: 1,
+                                                          chartValueStyle: TextStyle(color: Colors.black)),
+                                                      // gradientList: ---To add gradient colors---
+                                                      // emptyColorGradient: ---Empty Color gradient---
+                                                    ),
+                                     ),
+                                      message: "${widget.dataMap}",   
+                                   ):const Text("No datas")
                                 ),
                               ))
                          
