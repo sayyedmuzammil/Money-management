@@ -32,6 +32,7 @@ dependencies:
   favorite_button: ^0.0.4
   flutter:
     sdk: flutter
+  get: ^4.6.1 
   flutter_svg: ^1.0.3
   flutter_toggle_tab: ^1.1.7
   pie_chart: ^5.1.0

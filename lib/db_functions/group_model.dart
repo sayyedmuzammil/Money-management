@@ -1,23 +1,22 @@
-// import 'package:flutter/foundation.dart';
 
-class groupModel {
+class GroupModel {
   int? totalAmount;
 
   String? category;
 
-  groupModel({
+  GroupModel({
     required this.category,
     required this.totalAmount,
   });
 
-  static groupModel fromMap(Map<String, Object?> map) {
+  static GroupModel fromMap(Map<String, Object?> map) {
     // final id = map['id'] as int;
-    final Category = map['category'] as String;
+    final category = map['category'] as String;
     final totalAmount = map['tot_amount'] as int;
 
-    return groupModel(
+    return GroupModel(
       // id: id,
-      category: Category,
+      category: category,
       totalAmount: totalAmount,
     );
   }

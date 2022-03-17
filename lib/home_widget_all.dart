@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_null_comparison, unrelated_type_equality_checks, non_constant_identifier_names
+
 import 'package:favorite_button/favorite_button.dart';
 import 'package:flutter/material.dart';
 import 'db_functions/db_functions.dart';
@@ -16,7 +18,8 @@ class home_content_all_widget extends StatefulWidget {
     this.endDate,
   );
   final Size size;
-  void Function(Map<String, Object?> _selectedcontent,{bool fav}) toggleisUpdateClicked;
+  void Function(Map<String, Object?> _selectedcontent, {bool fav})
+      toggleisUpdateClicked;
   final isOverall;
   var favoriteVisible;
   final startDate;
@@ -46,24 +49,17 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
 
   @override
   Widget build(BuildContext context) {
-    print("rebuilded");
-    var val;
-    // print("working");
     _selectedStartDate = widget.startDate;
     _selectedEndDate = widget.endDate;
-    Map<String, Object?> _selectedcontent;
 
-    var j;
     String previousDate = '';
     return FutureBuilder<List<Map<String, Object?>>>(
         future: widget.favoriteVisible == false
-            ?
-            getAllItems(
+            ? getAllItems(
                 starDate: _selectedStartDate,
                 endDate: _selectedEndDate,
-                overall:
-                    widget.isOverall)
-         : getAllItems(
+                overall: widget.isOverall)
+            : getAllItems(
                 favoriteVisible: widget.favoriteVisible,
                 starDate: _selectedStartDate,
                 endDate: _selectedEndDate,
@@ -73,25 +69,40 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
           int counter = -1;
           dateSets = [];
           // dateSets=[];
-          if (listItem == null) return CircularProgressIndicator();
+          if (listItem == null) {
+            return const CircularProgressIndicator();
+          }
 
           if (listItem.data == null || listItem.data!.isEmpty) {
             return Tooltip(
-              message: "Alert", 
+              message: "Alert",
               child: InkWell(
-                onTap: (){},
+                onTap: () {},
                 child: Column(
-                 
                   children: [
-                    SizedBox(height: 50,),   
-                     Image.asset(
-                        "assets/export/clipboard.png",
-                         height: widget.size.height*.13 ,
+                    const SizedBox(
+                      height: 50,
+                    ),
+                    Image.asset(
+                      "assets/export/clipboard.png",
+                      height: widget.size.height * .13,
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const Text(
+                      "No Record",
+                      style: Styles.normal20,
+                    ),
+                    Text(
+                      "Tap the + button to add a record",
+                      style: Styles.normal17.copyWith(
+                        fontSize: 15,
                       ),
-                    SizedBox(height: 10,), 
-                    Text("No Record", style: Styles.normal20, ),
-                    Text("Tap the + button to add a record", style: Styles.normal17.copyWith(fontSize: 15, ), ),
-                    SizedBox(height: 50, )
+                    ),
+                    const SizedBox(
+                      height: 50,
+                    )
                   ],
                 ),
               ),
@@ -117,151 +128,123 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(20)),
                         boxShadow: [
                           BoxShadow(
                             color: Styles.primary_black
                                 .withOpacity(0.3), //color of shadow
                             spreadRadius: 0.5, //spread radius
                             blurRadius: 5,
-                            offset: Offset(0, 3), // changes position of shadow
+                            offset: const Offset(
+                                0, 3), // changes position of shadow
                           ),
                         ],
                       ),
-                      margin:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
                       width: widget.size.width,
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-                        child: Column(
-                            children: [
-                              /*   Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  widget.favoriteVisible==false?
-                                  InkWell(
-                                      onTap: () {
-                                        // pickDateRange(context);
-                                      },
-                                      child: Text(
-                                        DisplayDate,
-                                        style: Styles.normal17.copyWith(
-                                            fontSize: 16,
-                                            color: Colors.deepOrange,
-                                            fontWeight: FontWeight.bold),
-                                      )):Container(),
-                                      dateRange!=null?
-                                      InkWell(
-                                        onTap: (){setState(() {
-                                          DisplayDate = 'Select Date Range';
-                                          dateRange=null;
-                                        });},
-                                        child: Icon(Icons.close,color: Colors.red, size: 22,)) : Container(),
-                                ],
+                        child: Column(children: [
+                          Tooltip(
+                            message: " ",
+                            enableFeedback: true,
+                            child: InkWell(
+                              onTap: () {},
+                              child: Text(
+                                widget.favoriteVisible == true
+                                    ? "Favourites"
+                                    : "All Transactions",
+                                style: Styles.normal17.copyWith(
+                                    fontSize: 16,
+                                    color: Colors.deepOrange,
+                                    fontWeight: FontWeight.bold),
                               ),
-                             */
-               Tooltip( 
-   message: " ", enableFeedback: true,  
-                             child: InkWell( 
-                               onTap: (){},
-                                  child: Text(
-                            
-                                    widget.favoriteVisible == true
-                                        ? "Favourites"
-                                        : "All Transactions",
-                                    style: Styles.normal17.copyWith(
-                                        fontSize: 16,
-                                        color: Colors.deepOrange,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                              for (var i in AllRows)
-                                Container(
-                                    child: Column(
-                                  // mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  // final this_is;
+                            ),
+                          ),
+                          for (var i in AllRows)
+                            Container(
+                                child: Column(
+                              // mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              // final this_is;
 
-                                  children: [
-                                    dateSets[++counter] != null
-                                        ? SizedBox(
-                                            height: 15,
-                                          )
-                                        : Container(),
-                                    dateSets[++pointer] != null
-                                        ? Tooltip(
-                                          message: " " ,
-                                          child: InkWell(
-                                           onTap: (){} ,
-                                            child: Text(
-                                                DateFormat('MMM dd').format(
-                                                    DateTime.parse(
-                                                        i['date'].toString())),
-                                                style: Styles.normal17.copyWith(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.red),
-                                              ),
+                              children: [
+                                dateSets[++counter] != null
+                                    ? const SizedBox(
+                                        height: 15,
+                                      )
+                                    : Container(),
+                                dateSets[++pointer] != null
+                                    ? Tooltip(
+                                        message: " ",
+                                        child: InkWell(
+                                          onTap: () {},
+                                          child: Text(
+                                            DateFormat('MMM dd').format(
+                                                DateTime.parse(
+                                                    i['date'].toString())),
+                                            style: Styles.normal17.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.red),
                                           ),
-                                        )
-                                        : Container(),
-                                    InkWell(
-                                      onTap: () {
-                                        print(i.toString());
-                                      bottomSheet_edit(
-                                            context, i);
-                                             },
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            i['item'].toString(),
-                                            style: Styles.normal20,
-                                          ),
-                                          i['category'] == '1'
+                                        ),
+                                      )
+                                    : Container(),
+                                InkWell(
+                                  onTap: () {
+                                    // print(i.toString());
+                                    bottomSheet_edit(context, i);
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        i['item'].toString(),
+                                        style: Styles.normal20,
+                                      ),
+                                      i['category'] == '1'
+                                          ? Text(
+                                              i['amount'].toString(),
+                                              style: Styles.normal17.copyWith(
+                                                  color: /*  Styles.custom_income_green  */ Colors
+                                                      .green[200]),
+                                            )
+                                          : i['category'] == '2'
                                               ? Text(
                                                   i['amount'].toString(),
                                                   style: Styles.normal17.copyWith(
-                                                      color:/*  Styles.custom_income_green  */ Colors.green[200]),
+                                                      color: Styles
+                                                          .custom_expense_red),
                                                 )
-                                              : i['category'] == '2'
+                                              : i['category'] == '3'
                                                   ? Text(
                                                       i['amount'].toString(),
                                                       style: Styles.normal17
                                                           .copyWith(
                                                               color: Styles
-                                                                  .custom_expense_red),
+                                                                  .custom_lend_yellow),
                                                     )
-                                                  : i['category'] == '3'
-                                                      ? Text(
-                                                          i['amount']
-                                                              .toString(),
-                                                          style: Styles.normal17
-                                                              .copyWith(
-                                                                  color: Styles
-                                                                      .custom_lend_yellow),
-                                                        )
-                                                      : Text(
-                                                          i['amount']
-                                                              .toString(),
-                                                          style: Styles.normal17
-                                                              .copyWith(
-                                                                  color: Styles
-                                                                      .custom_borrow_pink),
-                                                        ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                )),
-                            ]
-                       ),
+                                                  : Text(
+                                                      i['amount'].toString(),
+                                                      style: Styles.normal17
+                                                          .copyWith(
+                                                              color: Styles
+                                                                  .custom_borrow_pink),
+                                                    ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            )),
+                        ]),
 
                         // }
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 85,
                     ),
                   ],
@@ -272,18 +255,14 @@ class _home_content_all_widgetState extends State<home_content_all_widget> {
         });
   }
 
- Future<void>  bottomSheet_edit(
+  Future<void> bottomSheet_edit(
       BuildContext context, Map<String, Object?> _selectedcontent) {
-       
     String val = '${_selectedcontent['favourite']}'.toString();
 
     bool fav = val == false
         ? val.toLowerCase() == 'false'
         : val.toLowerCase() == 'true';
 
-print("555 $fav");
-    final x = _selectedcontent['id'].toString();
-    // print(x);
     return showModalBottomSheet<void>(
       backgroundColor: Styles.primary_color.withOpacity(0),
       context: context,
@@ -291,27 +270,27 @@ print("555 $fav");
         return Container(
           decoration: BoxDecoration(
             color: Styles.primary_black,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
             boxShadow: [
               BoxShadow(
                 color: Styles.primary_black.withOpacity(0.3), //color of shadow
                 spreadRadius: 0.5, //spread radius
                 blurRadius: 5,
-                offset: Offset(0, -3), // changes position of shadow
+                offset: const Offset(0, -3), // changes position of shadow
               ),
             ],
           ),
           height: 250,
           child: Center(
             child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 30),
+              margin: const EdgeInsets.symmetric(horizontal: 30),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   Tooltip(
                     message: " ",
                     child: InkWell(
-                      onTap: (){},
+                      onTap: () {},
                       child: Column(
                         children: [
                           Row(
@@ -350,23 +329,23 @@ print("555 $fav");
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                     const Text(
+                      const Text(
                         "Add to Favourite",
                         style: Styles.boldwhite,
                       ),
                       Tooltip(
-                        message: "favourite is $fav on ${_selectedcontent['item']}! tap to switch",
+                        message:
+                            "favourite is $fav on ${_selectedcontent['item']}! tap to switch",
                         child: FavoriteButton(
                           isFavorite: fav,
                           iconSize: 28,
                           valueChanged: (_isFavorite) {
-                           
-                            // Scaffold.of(context).activate; 
-                            AddtoFavorite(int.parse('${_selectedcontent['id']}'));
-                            widget.toggleisUpdateClicked(_selectedcontent,fav: true);
-                           Navigator.of(context).pop();
-                            
-                             
+                            // Scaffold.of(context).activate;
+                            AddtoFavorite(
+                                int.parse('${_selectedcontent['id']}'));
+                            widget.toggleisUpdateClicked(_selectedcontent,
+                                fav: true);
+                            Navigator.of(context).pop();
                           },
                         ),
                       ),
@@ -387,10 +366,11 @@ print("555 $fav");
                           message: "Edit ${_selectedcontent['item']} item",
                           child: IconButton(
                               onPressed: () {
-                                widget.toggleisUpdateClicked(_selectedcontent, fav: false);
+                                widget.toggleisUpdateClicked(_selectedcontent,
+                                    fav: false);
                                 Navigator.of(context).pop();
                               },
-                              icon:const Icon(
+                              icon: const Icon(
                                 Icons.edit_outlined,
                                 size: 24,
                                 color: Styles.custom_income_green,
@@ -407,21 +387,24 @@ print("555 $fav");
                         style: Styles.boldwhite,
                       ),
                       Container(
-                        height: 40, width: 33,
-                        alignment: Alignment.center, 
+                        height: 40,
+                        width: 33,
+                        alignment: Alignment.center,
                         child: Tooltip(
                           message: "delete ${_selectedcontent['item']} item",
-                          child:  IconButton(
-                            onPressed: (){
-                                deleteMoney(int.parse('${_selectedcontent['id']}')); 
-                              _selectedcontent={};
+                          child: IconButton(
+                            onPressed: () {
+                              deleteMoney(
+                                  int.parse('${_selectedcontent['id']}'));
+                              _selectedcontent = {};
                               widget.toggleisUpdateClicked(_selectedcontent);
-                               Navigator.of(context).pop();
+                              Navigator.of(context).pop();
                             },
-              icon: Icon( Icons.delete_outline,
-                            size: 24,
-                            color: Styles.custom_expense_red,), 
-                           
+                            icon: const Icon(
+                              Icons.delete_outline,
+                              size: 24,
+                              color: Styles.custom_expense_red,
+                            ),
                           ),
                         ),
                       )
@@ -435,41 +418,4 @@ print("555 $fav");
       },
     );
   }
-
-  /*  Future pickDateRange(BuildContext context) async {
-    // final dateFormat = DateFormat("yyyy-MM-dd");
-    final initialDateRange = DateTimeRange(
-      start: DateTime.now().subtract(Duration(hours: 24 * 3)),
-      end: DateTime.now(),
-    );
-    final newDateRange = await showDateRangePicker(
-      initialEntryMode: DatePickerEntryMode.calendar,
-      context: context,
-      currentDate: DateTime.now(),
-      firstDate: DateTime(DateTime.now().year - 5),
-      lastDate: DateTime.now(),
-      initialDateRange: dateRange ?? initialDateRange,
-    );
-
-    if (newDateRange == null) return;
-    dateRange = newDateRange;
-
-    _selectedStartDate = DateFormat('yyyy-MM-dd').format(dateRange!.start);
-    _selectedEndDate = DateFormat('yyyy-MM-dd').format(dateRange!.end);
-    var _selectedFirst = DateFormat('MMM dd').format(dateRange!.start);
-    var _selectedEnd = DateFormat('MMM dd').format(dateRange!.end);
-    //print(newDateRange.start);
-    //print(dateRange);
-    print(_selectedStartDate);
-    print(_selectedEndDate);
-    print(dateRange);
-
-    if (dateRange != null) {
-      setState(() {
-        DisplayDate = "$_selectedFirst - $_selectedEnd";
-      });
-    }
-  }
- */
-
 }

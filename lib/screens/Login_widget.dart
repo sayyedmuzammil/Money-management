@@ -1,3 +1,5 @@
+// ignore_for_file: file_names, camel_case_types, use_key_in_widget_constructors, sized_box_for_whitespace
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:money_management/main.dart';
@@ -13,8 +15,6 @@ class widget_screen extends StatelessWidget {
 
 class login_widget extends StatelessWidget {
   // var height;
-
-  // ignore: use_key_in_widget_constructors
 //  login_widget();
 
   @override
@@ -42,7 +42,7 @@ class login_widget extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 158.0),
                       child: Column(
                         children: [
-                          SizedBox(
+                          const SizedBox(
                             height: 70,
                           ),
                           Container(
@@ -58,7 +58,7 @@ class login_widget extends StatelessWidget {
 
                     Container(
                       alignment: Alignment.centerRight,
-                      margin: EdgeInsets.only(
+                      margin: const EdgeInsets.only(
                         right: 20,
                       ),
                       child: SvgPicture.asset(
@@ -76,7 +76,7 @@ class login_widget extends StatelessWidget {
                 width: double.infinity,
                 height: double.infinity,
                 child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 20),
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -88,7 +88,7 @@ class login_widget extends StatelessWidget {
                           spreadRadius: 5, //spread radius
                           blurRadius: 10,
                           // blur radius
-                          offset: Offset(0, 3), // changes position of shadow
+                          offset: const Offset(0, 3), // changes position of shadow
                           //first paramerter of offset is left-right
                           //second parameter is top to down
                         ),
@@ -96,7 +96,7 @@ class login_widget extends StatelessWidget {
                       ],
                     ),
                     // color: Colors.white,
-                    margin: EdgeInsets.symmetric(vertical: 100),
+                    margin: const EdgeInsets.symmetric(vertical: 100),
                   ),
                 ),
               ),

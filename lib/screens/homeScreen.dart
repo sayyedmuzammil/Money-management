@@ -1,4 +1,6 @@
-import 'dart:math';
+// ignore_for_file: prefer_typing_uninitialized_variables, non_constant_identifier_names, use_key_in_widget_constructors, sized_box_for_whitespace, unnecessary_new
+
+
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:money_management/Custom_icons.dart';
@@ -55,23 +57,16 @@ class _HomeScreen extends State<HomeScreen> {
   int _borrowTot = 0;
   int _savingsTot = 0;
   int _savingsOverall = 0;
-  bool _isAbout=false;
 
   var currentMonth = DateTime.now().month;
-  // ignore: prefer_typing_uninitialized_variables
   var currentMonthText;
-  // ignore: non_constant_identifier_names
   String DisplayDate = '';
-
   late Database _db2;
-  // ignore: prefer_typing_uninitialized_variables
   late var monthLastDate;
-  // ignore: prefer_typing_uninitialized_variables
   late var monthFirstDate;
-  // ignore: prefer_typing_uninitialized_variables
   var startText;
-  // ignore: prefer_typing_uninitialized_variables
   var endText;
+
   Future<void> getTotalSavings() async {
     _db2 = await openDatabase('money.db', version: 1, 
         onCreate: (Database db, int version) async {
@@ -87,10 +82,10 @@ class _HomeScreen extends State<HomeScreen> {
     monthLastDate = await _db2
         .rawQuery("SELECT date FROM MoneyManage ORDER BY date DESC LIMIT 1");
     final List ls = monthFirstDate;
-print("88 before $monthFirstDate, $monthLastDate, $currentMonth"); 
+// print("88 before $monthFirstDate, $monthLastDate, $currentMonth"); 
     if (ls.isNotEmpty) {
-      _selectedStartDate = await monthFirstDate[0]['date'].toString();
-      _selectedEndDate = await monthLastDate[0]['date'].toString();
+      _selectedStartDate =  monthFirstDate[0]['date'].toString();
+      _selectedEndDate =  monthLastDate[0]['date'].toString();
   
     }
 
@@ -121,12 +116,8 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
         _borrowTot = entireData[i]['tot_amount']!;
       }
     }
-
-
-
-
       _savingsOverall = (_incomeTot + _borrowTot) - (_expenseTot + _lendTot); 
-    print("88 $_savingsOverall , $_incomeTot, $_expenseTot, $_lendTot, $_borrowTot, $_selectedStartDate, $_selectedEndDate");
+    // print("88 $_savingsOverall , $_incomeTot, $_expenseTot, $_lendTot, $_borrowTot, $_selectedStartDate, $_selectedEndDate");
     }
     setState(() {
       _savingsOverall;
@@ -173,15 +164,12 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
       _expenseTot = _expenseTotal;
       _lendTot = _lendTotal;
       _borrowTot = _borrowTotal;
-      _savingsTot = (_incomeTot + _borrowTot) - (_expenseTot + _lendTot);
-      
-    print("888 $_savingsTot , $_incomeTot, $_expenseTot, $_lendTot, $_borrowTot, $_selectedStartDate, $_selectedEndDate");
+      _savingsTot = (_incomeTot + _borrowTot) - (_expenseTot + _lendTot); 
+    // print("888 $_savingsTot , $_incomeTot, $_expenseTot, $_lendTot, $_borrowTot, $_selectedStartDate, $_selectedEndDate");
     });
   }
 
   Map<String, Object?> __selectedcontent = {};
-  String _selectedCategory='';
-
   bool _isUpdateClicked = false;
   bool _isAddorUpdate = false;
   int _card = 0;
@@ -247,12 +235,6 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
                         endDate: _selectedEndDate,
                         favoriteVisible: _favoriteVisible,
                       )
-                    /* : _isUpdateClicked && _favoriteVisible == false
-                        ? category_cards(
-                            selectedcontent: __selectedcontent,
-                            size: size,
-                            card: _card,
-                            add: _isAddorUpdate) */
                         : (_card >= 1 || _isUpdateClicked )&& _favoriteVisible == false
                             ? category_cards(
                                 selectedcontent: __selectedcontent,
@@ -270,8 +252,8 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
                                 _selectedEndDate),
               ],
             ),
-            _addButton == true //popup container
-                ? addButton_container()
+            _addButton == true ? 
+            addButton_container(context)
                 : Container(),
             bottomNavigation_buttons(size),
           ],
@@ -391,32 +373,23 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
                                     _isAddorUpdate=true;
                                     _isUpdateClicked=false;
                                     _card=0;
-                                    print(_card);
+                                    // print(_card);
                                     currentIndex=null;
                                     _cardList=0;
                                     _overall=false;
                                      _favoriteVisible=false;
-                                        // _addButton=false;
                                         _percentInd = false;
                                         _cardList = 0;
-                                        // _percentInd = true;
-                                        currentIndex = null;
+                                     currentIndex = null;
                                         __selectedcontent={};
                                         currentMonth =DateTime.now().month;
-                                                            // DisplayDate = 'Choose Date Range';
-                                                            DisplayDate =
+                                          DisplayDate =
                                                                 '''$startText - $endText''';
                                                             dateRange = null;
                                                             _selectedStartDate =
                                                                 null;
                                     getTotalSavings(); 
-                                    // // _overall==false;
-                                    /* Navigator.of(context).pushAndRemoveUntil(
-                                        MaterialPageRoute(
-                                            builder: (ctx) =>
-                                                HomeScreen()),
-                                        (Route<dynamic> route) => false); */
-                                  });
+                                   });
                                 },
                                 icon: const Icon(
                                   Icons.home_outlined,
@@ -493,7 +466,7 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
                                 
                                     PopupMenuItem<int>(
                                       onTap: () {
-                                        print("on share app");
+                                        // print("on share app");
                                       },
                                       value: 3,
                                       child: Row(
@@ -847,7 +820,7 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
                                           ),
                                         ),
                                         Container(
-                                          margin: EdgeInsets.symmetric(
+                                          margin: const EdgeInsets.symmetric(
                                             vertical: 10,
                                           ),
                                           width: 140,
@@ -974,7 +947,7 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
                                           width: 140,
                                           decoration: BoxDecoration(
                                             color: Styles.custom_lend_yellow,
-                                            borderRadius: BorderRadius.all(
+                                            borderRadius:const  BorderRadius.all(
                                                 Radius.circular(30)),
                                             boxShadow: [
                                               BoxShadow(
@@ -1050,7 +1023,7 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
                                           width: 140,
                                           decoration: BoxDecoration(
                                             color: Styles.custom_borrow_pink,
-                                            borderRadius: BorderRadius.all(
+                                            borderRadius: const BorderRadius.all(
                                                 Radius.circular(30)),
                                             boxShadow: [
                                               BoxShadow(
@@ -1110,11 +1083,13 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
                           );
   }
 
-  Container addButton_container() {
+  Container addButton_container(BuildContext context) {
+    
     return Container(
+      
                 alignment: Alignment.bottomCenter,
                   // ADD BUTTON POPUP A CONTAINER
-                  margin: EdgeInsets.only(bottom: 90),
+                  margin:const  EdgeInsets.only(bottom: 90),
                   // bottom: 90,
                   // left: 47,
                   child: Stack(
@@ -1144,7 +1119,7 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            SizedBox(
+                            const SizedBox(
                               height: 5,
                             ),
                             Row(
@@ -1369,7 +1344,6 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
                         elevation: 0.2, 
                         onPressed: () { 
                           setState(() {
-                             _favoriteVisible=false;
                              __selectedcontent={};
                              _isAddorUpdate=true;
                             _addButton == false
@@ -1495,7 +1469,7 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
   Future pickDateRange(BuildContext context) async {
     // final dateFormat = DateFormat("yyyy-MM-dd");
     final initialDateRange = DateTimeRange(
-      start: DateTime.now().subtract(Duration(hours: 24 * 3)),
+      start: DateTime.now().subtract(const Duration(hours: 24 * 3)),
       end: DateTime.now(),
     );
     final newDateRange = await showDateRangePicker(
@@ -1514,7 +1488,7 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
     _selectedEndDate = DateFormat('yyyy-MM-dd').format(dateRange!.end);
     var _selectedFirst = DateFormat('MMM dd').format(dateRange!.start);
     var _selectedEnd = DateFormat('MMM dd').format(dateRange!.end);
-    print(dateRange);
+    // print(dateRange);
     if (dateRange != null) {
       getAllitemWidget();
       _cardList == 1
@@ -1531,7 +1505,7 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
   }
 
   Future<dynamic> _showAbout() {
-      print("show about");
+      // print("show about");
     return showDialog(
       context: context,
       builder: (context) {
@@ -1557,20 +1531,14 @@ print("88 before $monthFirstDate, $monthLastDate, $currentMonth");
   }
 
   void toggleisUpdateClicked(Map<String, Object?> _selectedcontent,{bool? fav}) {
-print("888 $_selectedcontent and $fav");
     if(fav==true){
       setState(() {
         _selectedcontent={};
-        print("888 in fav");
-        // _favoriteVisible=true;
-        // _favoriteVisible=false
       });
     }
-    
-        // print("999 $_selectedcontent");
+
     if(_selectedcontent.isEmpty)
     {
-       print("888 in delete");
       _incomeTot=0;
       _expenseTot=0;
       _lendTot=0;
@@ -1581,8 +1549,6 @@ print("888 $_selectedcontent and $fav");
       else{
       
         setState(() {
-           print("888 in update");
-          // print("999 in update");
           _card=int.parse(_selectedcontent['category'] as String);
         __selectedcontent = _selectedcontent;
       _cardList = 0;
@@ -1606,23 +1572,6 @@ getTotalSavings();
 }
 }
 
-/* 
-Future<dynamic> fetchingData() async {
-  final values = await GroupByCategory();
-  print("this is test value $values");
-  await Future.delayed(const Duration(seconds: 2), () {});
-  return await values;
-  var grouped;
-  // print("${grouped.amount}");
-  print("after fetching ${values}");
-  await values.forEach((map) {
-    grouped = groupModel.fromMap(map);
-    print("this is category ${grouped.category}");
-    print("this is amount ${grouped.totalAmount}");
-  });
-  // return grouped;
-}
- */
 
 class BNBCustomPainter extends CustomPainter {
   @override

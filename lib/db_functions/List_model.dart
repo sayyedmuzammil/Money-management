@@ -1,18 +1,20 @@
-class listModel {
+// ignore_for_file: file_names
+
+class ListModel {
   String? item;
 
-  listModel({
+  ListModel({
      this.item,
   
   });
 
-  static listModel fromMap(Map<String, Object?> map) {
+  static ListModel fromMap(Map<String, Object?> map) {
     // final id = map['id'] as int;
-    final Items = map['data'] as String;
+    final items = map['data'] as String;
 
-    return listModel(
+    return ListModel(
       // id: id,
-      item: Items,
+      item: items,
    
     );
   }

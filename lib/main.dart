@@ -1,3 +1,5 @@
+// ignore_for_file: use_key_in_widget_constructors
+
 import 'package:flutter/material.dart';
 import 'package:money_management/screens/Settings.dart';
 import 'package:money_management/screens/homeScreen.dart';
@@ -81,12 +83,6 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
   //      initialRoute: '/',
-  // routes: {
-  //   // When navigating to the "/" route, build the FirstScreen widget.
-  //   '/': (context) =>  HomeScreen(),
-  //   // When navigating to the "/second" route, build the SecondScreen widget.
-  //   '/second': (context) => SettingsScreen(),
-  // },
       home: HomeScreen(),
     );
   }

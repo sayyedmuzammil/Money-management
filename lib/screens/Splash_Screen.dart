@@ -25,27 +25,23 @@ class _SplashScreen extends State<Splash_Screen> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        widget_screen(),
-        Container(
-          child: Center(
-            child: Container(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    "assets/export/logo final.png",
-                    height: 50,
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Image.asset(
-                    "assets/export/logo heading.png",
-                    height: 30,
-                  ),
-                ],
+       const widget_screen(),
+        Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                "assets/export/logo final.png",
+                height: 50,
               ),
-            ),
+              const SizedBox(
+                height: 20,
+              ),
+              Image.asset(
+                "assets/export/logo heading.png",
+                height: 30,
+              ),
+            ],
           ),
         ),
       ],
@@ -56,7 +52,7 @@ class _SplashScreen extends State<Splash_Screen> {
     await Future.delayed(const Duration(seconds: 3), () {});
     await Navigator.of(context)
         .pushReplacement(MaterialPageRoute(builder: (ctx) {
-      return SignUp_Screen();
+      return const  SignUp_Screen();
     }));
   }
 }
