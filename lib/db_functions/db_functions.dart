@@ -18,6 +18,23 @@ Future<void> openDB() async {
   });
 }
 
+Future<dynamic> getFirstDate(overall, currentMonth) async{
+  var FirstDate= overall==false?
+  await _db1.rawQuery(
+            "SELECT date FROM MoneyManage WHERE (strftime('%m', date)='0$currentMonth') OR (strftime('%m', date)='$currentMonth') ORDER BY date ASC LIMIT 1 ")
+        : await _db1.rawQuery(
+            "SELECT date FROM MoneyManage ORDER BY date ASC LIMIT 1 ");
+  return FirstDate;
+
+}
+
+Future<dynamic> getLastDate() async{
+   var monthLastDate = await _db1
+        .rawQuery("SELECT date FROM MoneyManage ORDER BY date DESC LIMIT 1");
+  return monthLastDate;
+
+}
+
 Future<void> addMoney(MoneyModel value) async {
 value.id==null?
   await _db1.rawInsert(

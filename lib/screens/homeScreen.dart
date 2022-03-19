@@ -68,25 +68,13 @@ class _HomeScreen extends State<HomeScreen> {
   var endText;
 
   Future<void> getTotalSavings() async {
-    _db2 = await openDatabase('money.db', version: 1, 
-        onCreate: (Database db, int version) async {
-      await db.execute(
-          'CREATE TABLE MoneyManage (id INTEGER PRIMARY KEY, category TEXT, item TEXT, date DATE, amount INTEGER, remark TEXT, favourite TEXT)');
-    });
-
-    monthFirstDate = _overall == false
-        ? await _db2.rawQuery(
-            "SELECT date FROM MoneyManage WHERE (strftime('%m', date)='0$currentMonth') OR (strftime('%m', date)='$currentMonth') ORDER BY date ASC LIMIT 1 ")
-        : await _db2.rawQuery(
-            "SELECT date FROM MoneyManage ORDER BY date ASC LIMIT 1 ");
-    monthLastDate = await _db2
-        .rawQuery("SELECT date FROM MoneyManage ORDER BY date DESC LIMIT 1");
+    monthFirstDate=await getFirstDate(_overall, currentMonth);
+    monthLastDate= await getLastDate();
     final List ls = monthFirstDate;
-// print("88 before $monthFirstDate, $monthLastDate, $currentMonth"); 
+
     if (ls.isNotEmpty) {
       _selectedStartDate =  monthFirstDate[0]['date'].toString();
       _selectedEndDate =  monthLastDate[0]['date'].toString();
-  
     }
 
     currentMonthText = (DateFormat('MMM')
@@ -96,7 +84,6 @@ class _HomeScreen extends State<HomeScreen> {
     if( la.isEmpty)
     {
       setState(() {
-     
         _savingsOverall=0;
       });
     }
