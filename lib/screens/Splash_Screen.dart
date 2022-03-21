@@ -1,3 +1,5 @@
+// ignore_for_file: use_key_in_widget_constructors, camel_case_types, non_constant_identifier_names
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -16,7 +18,6 @@ class Splash_Screen extends StatefulWidget {
 class _SplashScreen extends State<Splash_Screen> {
   @override
   void initState() {
-    // TODO: implement initState
     splash_check_future();
     super.initState();
   }

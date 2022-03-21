@@ -267,8 +267,6 @@ class _SignUp_Screen extends State<SignUp_Screen> {
                             ),
                       ],
                     ),
-
-                    // Container(height: 1, color: Styles.primary_black.withOpacity(.3)),
                     Row(
                       children: [
                         // Text("in the login screen",style: Styles.LoginHeader, ),

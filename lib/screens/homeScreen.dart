@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:money_management/Custom_icons.dart';
 import 'package:money_management/db_functions/db_functions.dart';
 import 'package:money_management/screens/Settings.dart';
-import 'package:sqflite/sqflite.dart';
 import '../ListView_option_Category.dart';
 import '../home_widget_all.dart';
 import '../main.dart';
@@ -61,7 +60,6 @@ class _HomeScreen extends State<HomeScreen> {
   var currentMonth = DateTime.now().month;
   var currentMonthText;
   String DisplayDate = '';
-  late Database _db2;
   late var monthLastDate;
   late var monthFirstDate;
   var startText;
@@ -1451,7 +1449,6 @@ class _HomeScreen extends State<HomeScreen> {
           );
   }
 
-// void Function(Map<String, Object?> _selectedcontent)   toggleisUpdateClicked;
  
   Future pickDateRange(BuildContext context) async {
     // final dateFormat = DateFormat("yyyy-MM-dd");

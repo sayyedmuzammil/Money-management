@@ -235,10 +235,6 @@ var pastMonth = (DateFormat('yyyy MMM dd')
                                 ),
                                                     ],
                           ),
-                      
-                          
-                        
-                                           
                         ),
                       ),
                     ],
@@ -250,7 +246,6 @@ var pastMonth = (DateFormat('yyyy MMM dd')
                      style:Styles.dropHeadStyle.copyWith(color: Colors.grey[700]),
                       textAlign: TextAlign.start,
                     ),
-      
                     children: [
                       InkWell(
                         onTap: (){},
@@ -260,12 +255,9 @@ var pastMonth = (DateFormat('yyyy MMM dd')
                           ),
                           child: Text(
                             "If you have any questions or suggestions about my Terms and Conditions & privacy policies, do not hesitate to contact me at ", 
-                      
                                       strutStyle: Styles.paragraphStructStyle, 
                             style: Styles.BodyStylePara.copyWith(color: Colors.grey[600]),
-                         
                           ),
-                          
                         ),
                       ),
                       InkWell(
@@ -279,20 +271,14 @@ var pastMonth = (DateFormat('yyyy MMM dd')
                                        
                             ),
                         ),
-                      ),
-               
+                      ),       
                     ],
                   ),
                   ],
                 ),
               ),
-     
-       ],
-        
-     
+            ],
       ),
- 
-      
     );
   }
 }
