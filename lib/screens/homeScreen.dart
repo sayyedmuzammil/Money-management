@@ -1515,6 +1515,7 @@ class _HomeScreen extends State<HomeScreen> {
   }
 
   void toggleisUpdateClicked(Map<String, Object?> _selectedcontent,{bool? fav}) {
+    print("toggled $fav");
     if(fav==true){
       setState(() {
         _selectedcontent={};

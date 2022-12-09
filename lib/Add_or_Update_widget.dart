@@ -1,5 +1,5 @@
 // import 'package:flutter/cupertino.dart';
-// ignore_for_file: sized_box_for_whitespace, non_constant_identifier_names, deprecated_member_use
+// ignore_for_file: sized_box_for_whitespace, non_constant_identifier_names, deprecated_member_use, must_be_immutable, camel_case_types
 
 import 'package:flutter/material.dart';
 import 'package:money_management/db_functions/List_model.dart';
